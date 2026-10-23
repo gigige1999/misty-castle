@@ -1,0 +1,690 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 709" width="828" height="709">
+<!--
+  S01 灰烬大厅 The Great Hall（枢纽场景 · 初始状态：刚从 L1 进入前）
+  尺寸与 Demo 场景层一致：828 × 709；单点透视，消失点 (414,330)
+  布局依据：策划案 2.5.2 / 2.5.3
+-->
+<defs>
+  <filter id="rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
+    <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
+    <feTurbulence type="fractalNoise" baseFrequency="0.011 0.02" numOctaves="4" seed="9"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0.12  0 0 0 0 0.11  0 0 0 0 0.09  1.9 0 0 0 -0.8"/>
+  </filter>
+  <filter id="ash" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="3"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0.62  0 0 0 0 0.6  0 0 0 0 0.55  11 0 0 0 -8.4"/>
+  </filter>
+  <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+  <filter id="blur6" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+
+  <pattern id="stone" patternUnits="userSpaceOnUse" width="64" height="36">
+    <path d="M0,0.5H64M0,18.5H64M0.5,0V18M32.5,18V36" fill="none" stroke="#45413a" stroke-width="1.3"/>
+    <path d="M6,8 l5,1 M40,27 l6,-1 M20,30 l3,2" stroke="#4d4940" stroke-width="1" fill="none"/>
+  </pattern>
+  <pattern id="stoneSmall" patternUnits="userSpaceOnUse" width="36" height="20">
+    <path d="M0,0.5H36M0,10.5H36M0.5,0V10M18.5,10V20" fill="none" stroke="#3f3b33" stroke-width="1.1"/>
+  </pattern>
+
+  <linearGradient id="ceilG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#17120e"/><stop offset="1" stop-color="#2c241d"/>
+  </linearGradient>
+  <linearGradient id="bwG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4f4b40"/><stop offset=".35" stop-color="#5e5a4c"/><stop offset="1" stop-color="#565246"/>
+  </linearGradient>
+  <linearGradient id="lwG" x1="0" x2="1">
+    <stop offset="0" stop-color="#3b3830"/><stop offset="1" stop-color="#524e43"/>
+  </linearGradient>
+  <linearGradient id="rwG" x1="0" x2="1">
+    <stop offset="0" stop-color="#504c41"/><stop offset="1" stop-color="#37342d"/>
+  </linearGradient>
+  <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#29221c"/><stop offset="1" stop-color="#3a3027"/>
+  </linearGradient>
+  <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#1b222b"/><stop offset=".6" stop-color="#3b4750"/><stop offset="1" stop-color="#6b767a"/>
+  </linearGradient>
+  <linearGradient id="hearthG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0b0807"/><stop offset="1" stop-color="#1c1612"/>
+  </linearGradient>
+  <linearGradient id="fogSeam" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#9aa3a4" stop-opacity=".2"/><stop offset="1" stop-color="#c4c9c6" stop-opacity=".85"/>
+  </linearGradient>
+  <linearGradient id="shaftG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#c8d2d4" stop-opacity=".16"/><stop offset="1" stop-color="#c8d2d4" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="cornerL" x1="0" x2="1">
+    <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="cornerR" x1="1" x2="0">
+    <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+  </linearGradient>
+
+  <radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="warmBig"><stop offset="0" stop-color="#ffc56e" stop-opacity=".32"/><stop offset=".6" stop-color="#ffb35a" stop-opacity=".1"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="moonGlow"><stop offset="0" stop-color="#e9ecdf" stop-opacity=".7"/><stop offset="1" stop-color="#e9ecdf" stop-opacity="0"/></radialGradient>
+  <radialGradient id="fogFloor"><stop offset="0" stop-color="#b9c0bf" stop-opacity=".35"/><stop offset="1" stop-color="#b9c0bf" stop-opacity="0"/></radialGradient>
+  <radialGradient id="vignette" cx="50%" cy="48%" r="72%">
+    <stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/>
+  </radialGradient>
+
+  <clipPath id="clipCeil"><polygon points="0,-38 150,95 678,95 828,-38"/></clipPath>
+  <clipPath id="clipWalls">
+    <polygon points="0,-38 150,95 150,520 0,628"/>
+    <rect x="150" y="95" width="528" height="425"/>
+    <polygon points="828,-38 678,95 678,520 828,628"/>
+  </clipPath>
+  <clipPath id="clipFloor"><polygon points="0,628 150,520 678,520 828,628 828,709 0,709"/></clipPath>
+  <clipPath id="clipWin"><path d="M596,440 L596,196 Q600,162 620,150 Q640,162 644,196 L644,440 Z"/></clipPath>
+  <clipPath id="clipMainDoor"><path d="M699,535 L699,280 Q704,226 738,196 Q774,220 779,266 L779,593 Z"/></clipPath>
+  <clipPath id="clipChapel"><path d="M86,566 L86,292 Q90,242 110,226 Q130,244 134,297 L134,531 Z"/></clipPath>
+  <clipPath id="clipTableTop"><polygon points="238,548 592,548 616,584 214,584"/></clipPath>
+
+  <!-- 椅背镂空纹章（统一 currentColor） -->
+  <symbol id="e-raven" viewBox="0 0 60 60">
+    <path fill="currentColor" d="M22,50 Q14,36 17,25 Q19,13 30,11 Q39,9 41,18 L45,28 Q52,38 56,54 L44,47 L35,50 Z M19,16 L4,20 L20,23 Z"/>
+  </symbol>
+  <symbol id="e-tower" viewBox="0 0 20 24">
+    <path fill="currentColor" d="M5,23 V9 H3 V2 H6 V4.5 H8.5 V2 H11.5 V4.5 H14 V2 H17 V9 H15 V23 Z"/>
+  </symbol>
+  <symbol id="e-shield" viewBox="0 0 20 24">
+    <path fill="currentColor" d="M2,2 H18 V11 Q18,19 10,23 Q2,19 2,11 Z"/>
+  </symbol>
+  <symbol id="e-cross" viewBox="0 0 60 60">
+    <path fill="currentColor" d="M25,4H35V20H51V30H35V56H25V30H9V20H25Z"/>
+  </symbol>
+  <symbol id="e-pot" viewBox="0 0 20 24">
+    <path fill="currentColor" d="M6,2 H14 V4.5 Q13,6 13,7 Q18.5,10 17.5,16.5 Q16.5,22.5 10,22.5 Q3.5,22.5 2.5,16.5 Q1.5,10 7,7 Q7,6 6,4.5 Z"/>
+  </symbol>
+  <symbol id="e-wheat" viewBox="0 0 20 30">
+    <g fill="currentColor">
+      <path d="M9.2,29 V7 H10.8 V29 Z"/>
+      <ellipse cx="10" cy="4.5" rx="2" ry="3.4"/>
+      <ellipse cx="7.2" cy="9" rx="1.9" ry="3.3" transform="rotate(-30 7.2 9)"/>
+      <ellipse cx="12.8" cy="9" rx="1.9" ry="3.3" transform="rotate(30 12.8 9)"/>
+      <ellipse cx="7.2" cy="13.5" rx="1.9" ry="3.3" transform="rotate(-30 7.2 13.5)"/>
+      <ellipse cx="12.8" cy="13.5" rx="1.9" ry="3.3" transform="rotate(30 12.8 13.5)"/>
+      <ellipse cx="7.2" cy="18" rx="1.9" ry="3.3" transform="rotate(-30 7.2 18)"/>
+      <ellipse cx="12.8" cy="18" rx="1.9" ry="3.3" transform="rotate(30 12.8 18)"/>
+    </g>
+  </symbol>
+  <symbol id="e-stag" viewBox="0 0 100 100">
+    <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="58" cy="55" rx="26" ry="13" stroke="none"/>
+      <polygon points="36,52 46,46 34,26 25,30" stroke="none"/>
+      <ellipse cx="25" cy="29" rx="8.5" ry="5.5" stroke="none"/>
+      <polygon points="30,23 37,18 34,26" stroke="none"/>
+      <path d="M27,24 L21,9 L13,3 M21,9 L24,1 M22,15 L15,13 M31,23 L36,9 L44,3 M36,9 L34,1 M35,15 L42,14" fill="none" stroke-width="5"/>
+      <path d="M38,62 L36,95 M47,65 L49,95 M70,64 L68,95 M80,59 L85,93" fill="none" stroke-width="6"/>
+    </g>
+  </symbol>
+  <symbol id="e-fawn" viewBox="0 0 100 100">
+    <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="58" cy="58" rx="22" ry="11" stroke="none"/>
+      <polygon points="40,56 48,50 38,32 30,36" stroke="none"/>
+      <ellipse cx="31" cy="34" rx="8" ry="5.5" stroke="none"/>
+      <polygon points="33,30 40,20 38,32" stroke="none"/>
+      <path d="M42,64 L41,93 M50,66 L51,93 M68,66 L67,93 M76,62 L79,91" fill="none" stroke-width="6"/>
+    </g>
+  </symbol>
+  <symbol id="sym-moon" viewBox="0 0 60 60">
+    <path fill="currentColor" d="M38,4 A26,26 0 1 0 38,56 A21,21 0 1 1 38,4 Z"/>
+  </symbol>
+  <symbol id="flame" viewBox="0 0 10 16">
+    <path d="M5,0 Q9,7 8,11 Q7,15.5 5,15.5 Q3,15.5 2,11 Q1,7 5,0 Z" fill="#ffd27a"/>
+    <path d="M5,6 Q7,10 6.4,12.5 Q6,14.5 5,14.5 Q4,14.5 3.6,12.5 Q3,10 5,6 Z" fill="#fff3c9"/>
+  </symbol>
+</defs>
+
+<rect x="0" y="0" width="828" height="709" fill="#17120e"/>
+
+<!-- ================= 建筑结构 ================= -->
+<g filter="url(#rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+
+  <!-- 天花板 + 木梁 -->
+  <rect x="-10" y="-10" width="848" height="110" fill="url(#ceilG)" stroke="none"/>
+  <g clip-path="url(#clipCeil)">
+    <g fill="#1d1813" stroke="#120e0b" stroke-width="1.6">
+      <polygon points="140,-10 172,-10 236,95 224,95"/>
+      <polygon points="286,-10 312,-10 336,95 326,95"/>
+      <polygon points="516,-10 542,-10 502,95 492,95"/>
+      <polygon points="656,-10 688,-10 604,95 592,95"/>
+    </g>
+    <g stroke="#120e0b" stroke-width="1.6">
+      <polygon points="80,34 748,34 734,46 94,46" fill="#3a2f26"/>
+      <polygon points="94,46 734,46 726,54 102,54" fill="#1a1510"/>
+      <polygon points="126,74 702,74 694,82 134,82" fill="#352b23"/>
+      <polygon points="134,82 694,82 690,87 138,87" fill="#18130f"/>
+    </g>
+    <path d="M200,40 L230,40 M420,38 L460,38 M600,40 L640,40 M260,78 L300,78 M500,77 L540,77" stroke="#4a3d31" stroke-width="1" fill="none"/>
+  </g>
+
+  <!-- 后墙 -->
+  <rect x="150" y="95" width="528" height="425" fill="url(#bwG)"/>
+  <rect x="150" y="95" width="528" height="425" fill="url(#stone)" stroke="none" opacity=".9"/>
+  <!-- 左墙 -->
+  <polygon points="0,-38 150,95 150,520 0,628" fill="url(#lwG)"/>
+  <g stroke="#34312a" stroke-width="1.3" fill="none">
+    <path d="M150,127.7 L0,13.3 M150,160.5 L0,64.6 M150,193.2 L0,115.8 M150,225.9 L0,167.1 M150,258.6 L0,218.4 M150,291.4 L0,269.7 M150,323.7 L0,320.3 M150,356.4 L0,371.6 M150,389.1 L0,422.9 M150,421.8 L0,474.2 M150,454.6 L0,525.4 M150,487.3 L0,576.7"/>
+    <path d="M128,142 V173 M96,140 V176 M60,96 V136 M30,108 V150 M140,250 V275 M118,214 V248 M40,190 V232 M12,248 V292 M146,330 V352 M70,300 V352 M20,350 V404 M76,446 V500 M30,480 V535"/>
+  </g>
+  <!-- 右墙 -->
+  <polygon points="828,-38 678,95 678,520 828,628" fill="url(#rwG)"/>
+  <g stroke="#34312a" stroke-width="1.3" fill="none">
+    <path d="M678,127.7 L828,13.3 M678,160.5 L828,64.6 M678,193.2 L828,115.8 M678,225.9 L828,167.1 M678,258.6 L828,218.4 M678,291.4 L828,269.7 M678,323.7 L828,320.3 M678,356.4 L828,371.6 M678,389.1 L828,422.9 M678,421.8 L828,474.2 M678,454.6 L828,525.4 M678,487.3 L828,576.7"/>
+    <path d="M700,142 V173 M732,140 V176 M768,96 V136 M798,108 V150 M688,250 V275 M800,190 V232 M816,248 V292 M682,330 V352 M806,350 V404 M812,470 V520"/>
+  </g>
+  <!-- 墙角阴影 -->
+  <rect x="150" y="95" width="60" height="425" fill="url(#cornerL)" stroke="none"/>
+  <rect x="618" y="95" width="60" height="425" fill="url(#cornerR)" stroke="none"/>
+  <rect x="150" y="95" width="528" height="40" fill="#000" opacity=".25" stroke="none"/>
+
+  <!-- 地板 -->
+  <polygon points="0,628 150,520 678,520 828,628 828,709 0,709" fill="url(#floorG)"/>
+  <g clip-path="url(#clipFloor)" stroke="#1d1712" stroke-width="1.5" fill="none">
+    <path d="M16,520 L-380,709 M56,520 L-300,709 M96,520 L-220,709 M136,520 L-140,709 M176,520 L-60,709 M216.5,520 L20,709 M256.6,520 L100,709 M296.7,520 L180,709 M336.8,520 L260,709 M376.9,520 L340,709 M417,520 L420,709 M457.1,520 L500,709 M497.2,520 L580,709 M537.3,520 L660,709 M577.4,520 L740,709 M617.5,520 L820,709 M657.6,520 L900,709 M697.7,520 L980,709 M737.8,520 L1060,709 M778,520 L1140,709 M818,520 L1220,709"/>
+    <path d="M0,540 H828 M0,566 H828 M0,600 H828 M0,646 H828" stroke="#231c16" stroke-width="1" opacity=".7"/>
+  </g>
+  <line x1="150" y1="520" x2="678" y2="520" stroke="#15110d" stroke-width="3"/>
+</g>
+
+<!-- 墙面污渍 -->
+<rect x="0" y="0" width="828" height="709" filter="url(#stain)" clip-path="url(#clipWalls)" opacity=".6"/>
+
+<!-- ================= 后墙物件 ================= -->
+<g filter="url(#rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+
+  <!-- 拱顶铭文：月照之厅 · ？ · 鸦之高塔（中间符号被凿掉） -->
+  <g>
+    <rect x="206" y="106" width="148" height="24" fill="#7a7564"/>
+    <rect x="210" y="109" width="140" height="18" fill="none" stroke="#4e493e" stroke-width="1.2"/>
+    <use href="#sym-moon" x="218" y="110" width="16" height="16" style="color:#2f2a22"/>
+    <circle cx="250" cy="118" r="1.8" fill="#2f2a22" stroke="none"/>
+    <path d="M262,111 L270,109 L279,112 L281,119 L277,126 L266,127 L260,121 Z" fill="#544e42" stroke="#3a352c" stroke-width="1.2"/>
+    <path d="M264,114 L276,124 M268,111 L262,120 M273,113 L278,121 M266,124 L271,117" stroke="#3a352c" stroke-width="1" fill="none"/>
+    <circle cx="292" cy="118" r="1.8" fill="#2f2a22" stroke="none"/>
+    <path d="M311,127 V115 H309.5 V111 H311.5 V112.5 H313 V111 H315 V112.5 H316.5 V111 H318.5 V115 H317 V127 Z" fill="#2f2a22" stroke="none"/>
+    <use href="#e-raven" x="318" y="108" width="20" height="18" style="color:#2f2a22"/>
+  </g>
+
+  <!-- 楼梯平台拱龛 + 被布盖住的大画 -->
+  <path d="M200,330 L200,190 Q205,150 280,138 Q355,150 360,190 L360,330 Z" fill="#6a6555"/>
+  <path d="M210,330 L210,194 Q215,160 280,150 Q345,160 350,194 L350,330 Z" fill="#3a362e"/>
+  <rect x="210" y="150" width="140" height="180" fill="url(#stoneSmall)" stroke="none" opacity=".5" clip-path="url(#clipWalls)"/>
+  <rect x="226" y="170" width="108" height="122" fill="#5b4428" stroke="#1a1511"/>
+  <path d="M218,172 Q280,160 342,172 L346,284 Q333,297 318,287 Q300,301 281,290 Q262,302 246,289 Q230,298 214,285 Z" fill="#69645a"/>
+  <g fill="none" stroke="#4c483f" stroke-width="1.3">
+    <path d="M238,176 Q234,230 244,286 M262,170 Q258,228 264,296 M288,168 Q292,230 282,288 M314,172 Q320,232 318,286 M334,174 Q338,230 340,282"/>
+  </g>
+  <path d="M222,174 Q280,166 338,174" stroke="#9d9784" stroke-width="1.2" fill="none"/>
+  <rect x="216" y="164" width="128" height="6" fill="#2a2420"/>
+  <path d="M330,286 L338,284 L338,294 L329,294 Z" fill="#8a6a3a" stroke-width="1.2"/>
+
+  <!-- 平台 -->
+  <rect x="164" y="330" width="232" height="14" fill="#3e3228"/>
+  <path d="M164,344 L222,344 L195,520 L164,520 Z" fill="#26201a" stroke="none"/>
+  <path d="M338,344 L396,344 L396,520 L365,520 Z" fill="#26201a" stroke="none"/>
+  <!-- 平台栏杆（两侧） -->
+  <g fill="#3b2f25">
+    <rect x="164" y="296" width="58" height="6"/>
+    <rect x="338" y="296" width="58" height="6"/>
+  </g>
+  <path d="M170,302 V330 M180,302 V330 M190,302 V330 M200,302 V330 M210,302 V330 M350,302 V330 M360,302 V330 M370,302 V330 M380,302 V330 M390,302 V330" stroke="#3b2f25" stroke-width="3.2"/>
+
+  <!-- 主楼梯 -->
+  <g stroke="#1a1511" stroke-width="1.2">
+    <rect x="222" y="342" width="116" height="15" fill="#33291f"/>
+    <rect x="219.6" y="356.8" width="120.8" height="15" fill="#33291f"/>
+    <rect x="217.2" y="371.6" width="125.6" height="15" fill="#352b21"/>
+    <rect x="214.8" y="386.4" width="130.4" height="15" fill="#352b21"/>
+    <rect x="212.4" y="401.2" width="135.2" height="15" fill="#372c22"/>
+    <rect x="210" y="416" width="140" height="15" fill="#372c22"/>
+    <rect x="207.6" y="430.8" width="144.8" height="15" fill="#392e23"/>
+    <rect x="205.2" y="445.6" width="149.6" height="15" fill="#392e23"/>
+    <rect x="202.8" y="460.4" width="154.4" height="15" fill="#3b3024"/>
+    <rect x="200.4" y="475.2" width="159.2" height="15" fill="#3b3024"/>
+    <rect x="198" y="490" width="164" height="15" fill="#3d3126"/>
+    <rect x="195.6" y="504.8" width="168.8" height="15.2" fill="#3d3126"/>
+  </g>
+  <g fill="#54453a" stroke="none">
+    <rect x="222" y="342" width="116" height="3"/><rect x="219.6" y="356.8" width="120.8" height="3"/>
+    <rect x="217.2" y="371.6" width="125.6" height="3"/><rect x="214.8" y="386.4" width="130.4" height="3"/>
+    <rect x="212.4" y="401.2" width="135.2" height="3"/><rect x="210" y="416" width="140" height="3"/>
+    <rect x="207.6" y="430.8" width="144.8" height="3"/><rect x="205.2" y="445.6" width="149.6" height="3"/>
+    <rect x="202.8" y="460.4" width="154.4" height="3"/><rect x="200.4" y="475.2" width="159.2" height="3"/>
+    <rect x="198" y="490" width="164" height="3"/><rect x="195.6" y="504.8" width="168.8" height="3"/>
+  </g>
+  <!-- 楼梯扶手与栏杆柱 -->
+  <polygon points="186,520 195,520 222,342 215,342" fill="#2c241c"/>
+  <polygon points="374,520 365,520 338,342 345,342" fill="#2c241c"/>
+  <g stroke="#3b2f25" stroke-width="2.6">
+    <path d="M195.7,422.4 V502.2 M198.4,408.8 V484.4 M201.1,395.2 V466.6 M203.8,381.6 V448.8 M206.5,368 V431 M209.2,354.4 V413.2 M211.9,340.8 V395.4 M214.6,327.2 V377.6 M217.3,313.6 V359.8"/>
+    <path d="M364.3,422.4 V502.2 M361.6,408.8 V484.4 M358.9,395.2 V466.6 M356.2,381.6 V448.8 M353.5,368 V431 M350.8,354.4 V413.2 M348.1,340.8 V395.4 M345.4,327.2 V377.6 M342.7,313.6 V359.8"/>
+  </g>
+  <path d="M191,436 L220,298" stroke="#3b2f25" stroke-width="6" stroke-linecap="round"/>
+  <path d="M369,436 L340,298" stroke="#3b2f25" stroke-width="6" stroke-linecap="round"/>
+  <!-- 栏杆端柱 -->
+  <g fill="#3b2f25">
+    <rect x="183" y="434" width="15" height="88"/><circle cx="190.5" cy="428" r="7"/>
+    <rect x="362" y="434" width="15" height="88"/><circle cx="369.5" cy="428" r="7"/>
+  </g>
+  <!-- 铁栅门 -->
+  <g stroke="#120f0c" stroke-width="2.6" fill="none">
+    <path d="M203,446 V520 M212,446 V520 M221,446 V520 M230,446 V520 M239,446 V520 M248,446 V520 M257,446 V520 M266,446 V520 M275,446 V520 M285,446 V520 M294,446 V520 M303,446 V520 M312,446 V520 M321,446 V520 M330,446 V520 M339,446 V520 M348,446 V520 M357,446 V520"/>
+    <path d="M198,452 H362 M198,486 H362 M198,515 H362" stroke-width="3.4"/>
+    <path d="M280,446 V520" stroke-width="3"/>
+  </g>
+  <g fill="#120f0c" stroke="none">
+    <path d="M203,438 l-3,8 h6Z M212,438 l-3,8 h6Z M221,438 l-3,8 h6Z M230,438 l-3,8 h6Z M239,438 l-3,8 h6Z M248,438 l-3,8 h6Z M257,438 l-3,8 h6Z M266,438 l-3,8 h6Z M275,438 l-3,8 h6Z M285,438 l-3,8 h6Z M294,438 l-3,8 h6Z M303,438 l-3,8 h6Z M312,438 l-3,8 h6Z M321,438 l-3,8 h6Z M330,438 l-3,8 h6Z M339,438 l-3,8 h6Z M348,438 l-3,8 h6Z M357,438 l-3,8 h6Z"/>
+    <rect x="272" y="474" width="16" height="22" fill="#2a2420" stroke="#120f0c" stroke-width="1.4"/>
+  </g>
+  <path d="M280,481 a2.2,2.2 0 1 1 0.01,0 M279,483 h2 l1,7 h-4 Z" fill="#090706" stroke="none"/>
+
+  <!-- 壁炉烟囱胸墙 -->
+  <rect x="418" y="95" width="138" height="198" fill="#615c4e"/>
+  <rect x="418" y="95" width="138" height="198" fill="url(#stone)" stroke="none" opacity=".7"/>
+  <rect x="418" y="95" width="10" height="198" fill="#000" opacity=".25" stroke="none"/>
+  <rect x="546" y="95" width="10" height="198" fill="#000" opacity=".2" stroke="none"/>
+
+  <!-- 家族树挂毯 -->
+  <line x1="424" y1="118" x2="550" y2="118" stroke="#16120e" stroke-width="4"/>
+  <circle cx="423" cy="118" r="4.5" fill="#16120e"/><circle cx="551" cy="118" r="4.5" fill="#16120e"/>
+  <path d="M432,120 H542 V266 L534,272 L524,266 L514,273 L504,266 L494,272 L484,266 L474,273 L464,266 L454,272 L444,266 L432,272 Z" fill="#5a2c25"/>
+  <path d="M438,126 H536 V260 H438 Z" fill="none" stroke="#9c8562" stroke-width="1.2" opacity=".7"/>
+  <g fill="none" stroke="#a48c66" stroke-width="2" stroke-linecap="round" opacity=".85">
+    <path d="M487,258 V146"/>
+    <path d="M487,235 Q470,232 462,222 M487,235 Q504,232 512,222 M487,205 Q466,204 452,193 M487,205 Q508,204 522,193 M487,180 Q472,176 462,165 M487,180 Q502,176 512,165"/>
+    <path d="M487,258 Q474,262 466,258 M487,258 Q500,262 508,258" stroke-width="1.4"/>
+  </g>
+  <g fill="#b9a47e" stroke="#2e2219" stroke-width="1.2">
+    <path d="M480,131 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M455,158 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M505,158 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M445,186 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M480,183 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M515,186 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M455,215 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+    <path d="M505,215 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+  </g>
+  <g stroke="#7d6a4e" stroke-width=".9" opacity=".8">
+    <path d="M483,137 h8 M458,164 h8 M508,164 h8 M448,192 h8 M483,189 h8 M518,192 h8 M458,221 h8 M508,221 h8"/>
+  </g>
+  <use href="#e-stag" x="438" y="238" width="18" height="18" style="color:#a48c66" opacity=".7"/>
+  <use href="#e-raven" x="518" y="238" width="18" height="18" style="color:#a48c66" opacity=".7"/>
+
+  <!-- 壁炉台 -->
+  <polygon points="404,292 570,292 574,300 400,300" fill="#827c6a"/>
+  <rect x="400" y="300" width="174" height="10" fill="#6c6757"/>
+  <path d="M410,310 L422,310 L418,326 L414,326 Z M552,310 L564,310 L560,326 L556,326 Z" fill="#5d584a"/>
+  <!-- 壁炉主体 -->
+  <rect x="414" y="310" width="146" height="210" fill="#5d584b"/>
+  <g stroke="#3e3a31" stroke-width="1.3" fill="none">
+    <path d="M414,336 H440 M534,336 H560 M414,364 H440 M534,364 H560 M414,392 H440 M534,392 H560 M414,420 H440 M534,420 H560 M414,448 H440 M534,448 H560 M414,476 H440 M534,476 H560 M414,504 H440 M534,504 H560"/>
+    <path d="M427,310 V336 M547,336 V364 M427,364 V392 M547,392 V420 M427,420 V448 M547,448 V476 M427,476 V504"/>
+    <path d="M440,326 H534"/>
+  </g>
+  <path d="M440,520 L440,362 Q440,344 458,344 L516,344 Q534,344 534,362 L534,520 Z" fill="url(#hearthG)"/>
+  <!-- 炉内：冷灰、焦木、铁架 -->
+  <ellipse cx="487" cy="514" rx="40" ry="7" fill="#4a4741" stroke="none"/>
+  <path d="M458,508 Q470,494 486,500 L512,494 Q520,498 518,506 L494,510 Z" fill="#1d1712" stroke="#0d0a08" stroke-width="1.2"/>
+  <path d="M466,500 l14,-2 M498,498 l10,-1" stroke="#3a332c" stroke-width="1" fill="none"/>
+  <path d="M452,490 H522 M456,490 V512 M470,490 V512 M487,490 V512 M504,490 V512 M518,490 V512" stroke="#0c0a08" stroke-width="2.4" fill="none"/>
+  <circle cx="478" cy="509" r="1.3" fill="#8a3a22" stroke="none" opacity=".8"/>
+  <circle cx="496" cy="511" r="1" fill="#8a3a22" stroke="none" opacity=".7"/>
+  <!-- 炉前石板 -->
+  <polygon points="404,520 570,520 580,530 394,530" fill="#4c483d"/>
+
+  <!-- 壁炉台：7 槽鸦羽收集架（全空） -->
+  <rect x="456" y="277" width="62" height="15" fill="#3e3127"/>
+  <rect x="452" y="290" width="70" height="3" fill="#2e251d"/>
+  <g fill="#0f0c0a" stroke="none">
+    <rect x="460" y="280" width="4" height="7"/><rect x="468" y="280" width="4" height="7"/><rect x="476" y="280" width="4" height="7"/>
+    <rect x="485" y="280" width="4" height="7"/><rect x="494" y="280" width="4" height="7"/><rect x="502" y="280" width="4" height="7"/>
+    <rect x="510" y="280" width="4" height="7"/>
+  </g>
+  <!-- 壁炉台烛台 -->
+  <g fill="#2a2622" stroke="#120f0c" stroke-width="1.2">
+    <path d="M414,292 h14 l-3,-3 h-8 Z"/><rect x="419.5" y="276" width="3" height="13"/><path d="M416,276 h10 v-2 h-10 Z"/>
+    <path d="M546,292 h14 l-3,-3 h-8 Z"/><rect x="551.5" y="276" width="3" height="13"/><path d="M548,276 h10 v-2 h-10 Z"/>
+  </g>
+  <rect x="418" y="256" width="6" height="18" fill="#d7ccb0" stroke-width="1.2"/>
+  <rect x="550" y="260" width="6" height="14" fill="#d7ccb0" stroke-width="1.2"/>
+  <path d="M418,262 q1,4 0,7 M556,264 q-1,3 0,6" stroke="#bdb196" stroke-width="1.2" fill="none"/>
+
+  <!-- 尖拱窗：刚升起的收获月 + 雾湖孤塔 -->
+  <path d="M584,452 L584,192 Q589,148 620,134 Q651,148 656,192 L656,452 Z" fill="#6f6a59"/>
+  <path d="M596,440 L596,196 Q600,162 620,150 Q640,162 644,196 L644,440 Z" fill="url(#skyG)"/>
+  <g clip-path="url(#clipWin)" stroke="none">
+    <circle cx="604" cy="182" r=".9" fill="#d8dccf"/><circle cx="634" cy="210" r=".8" fill="#d8dccf"/><circle cx="612" cy="250" r=".7" fill="#d8dccf"/><circle cx="638" cy="280" r=".8" fill="#d8dccf"/>
+    <circle cx="607" cy="398" r="28" fill="url(#moonGlow)"/>
+    <circle cx="607" cy="398" r="8.5" fill="#e8e5d4"/>
+    <circle cx="604" cy="396" r="2" fill="#cfcab5"/><circle cx="610" cy="401" r="1.4" fill="#cfcab5"/>
+    <path d="M596,418 Q606,412 616,416 Q630,410 644,414 V440 H596 Z" fill="#3c464c"/>
+    <rect x="596" y="420" width="48" height="20" fill="#56626a"/>
+    <ellipse cx="631" cy="420" rx="9" ry="2.2" fill="#2a3237"/>
+    <path d="M628,420 V378 H634 V420 Z M626.5,378 L631,366 L635.5,378 Z" fill="#232b30"/>
+    <rect x="630.2" y="386" width="1.6" height="3" fill="#b23a2e" opacity=".9"/>
+    <rect x="596" y="404" width="48" height="16" fill="#c2c8c6" opacity=".25"/>
+    <rect x="596" y="424" width="48" height="10" fill="#c2c8c6" opacity=".2"/>
+    <path d="M596,198 L644,246 M596,246 L644,294 M596,294 L644,342 M596,342 L644,390 M596,390 L644,438 M644,198 L596,246 M644,246 L596,294 M644,294 L596,342 M644,342 L596,390 M644,390 L596,438" stroke="#1a1f24" stroke-width=".8" opacity=".55"/>
+  </g>
+  <path d="M620,150 V440 M596,270 H644 M596,360 H644" stroke="#1a1511" stroke-width="2.4" fill="none"/>
+  <polygon points="578,448 662,448 666,458 574,458" fill="#7a7563"/>
+</g>
+
+<!-- 月光斜照 -->
+<polygon points="596,452 644,452 572,640 458,640" fill="url(#shaftG)"/>
+
+<!-- ================= 左墙：礼拜堂十字门 + 厨房小门 ================= -->
+<g filter="url(#rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+  <!-- 十字门（通往 L2 礼拜堂） -->
+  <path d="M78,572 L78,288 Q83,230 110,212 Q137,232 142,294 L142,526 Z" fill="#6a6555"/>
+  <path d="M86,566 L86,292 Q90,242 110,226 Q130,244 134,297 L134,531 Z" fill="#3f3226"/>
+  <g clip-path="url(#clipChapel)" stroke="#2a2119" stroke-width="1.4" fill="none">
+    <path d="M94,200 V580 M102,200 V580 M118,200 V580 M126,200 V580"/>
+    <path d="M86,300 L134,304 M86,500 L134,486" stroke="#1a1612" stroke-width="4"/>
+  </g>
+  <path d="M110,318 V392 M97,340 L123,342" stroke="#1d1712" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="M110,318 V392 M97,340 L123,342" stroke="#5a4838" stroke-width="1.2" fill="none"/>
+  <!-- 单符号转盘 -->
+  <circle cx="110" cy="424" r="11" fill="#2a2622" stroke="#0f0c0a"/>
+  <circle cx="110" cy="424" r="7.5" fill="#4a443b" stroke="#0f0c0a" stroke-width="1.2"/>
+  <path d="M110,424 L110,416" stroke="#c4b69a" stroke-width="1.6"/>
+  <g fill="#7c705c" stroke="none">
+    <circle cx="110" cy="410" r="1.4"/><circle cx="124" cy="424" r="1.4"/><circle cx="110" cy="438" r="1.4"/><circle cx="96" cy="424" r="1.4"/>
+  </g>
+  <circle cx="127" cy="458" r="4.5" fill="none" stroke="#120f0c" stroke-width="2.2"/>
+
+  <!-- 厨房小门（L3）：门上挂陶罐，门缝可见门闩 -->
+  <path d="M10,621 L10,420 Q15,374 37,360 Q60,376 64,410 L64,582 Z" fill="#625d4e"/>
+  <path d="M16,616 L16,424 Q20,384 37,371 Q54,384 58,414 L58,586 Z" fill="#45382b"/>
+  <path d="M26,384 V612 M37,372 V602 M48,380 V594" stroke="#2c2219" stroke-width="1.4" fill="none"/>
+  <path d="M16,446 L58,440 M16,560 L58,546" stroke="#1a1612" stroke-width="3.6" fill="none"/>
+  <!-- 门缝与门闩 -->
+  <path d="M55.5,470 L58,470 L58,530 L55.5,530 Z" fill="#0c0907" stroke="none"/>
+  <path d="M54,494 h6" stroke="#6e604c" stroke-width="2.4"/>
+  <!-- 陶罐 -->
+  <path d="M37,418 V428" stroke="#16120e" stroke-width="1.4"/>
+  <circle cx="37" cy="417" r="1.6" fill="#16120e"/>
+  <path d="M33,428 H41 V431 Q40,432 40,433 Q46,437 45,444 Q44,451 37,451 Q30,451 29,444 Q28,437 34,433 Q34,432 33,431 Z" fill="#7b4c33"/>
+  <path d="M30,440 Q37,443 44,440" stroke="#5a3624" stroke-width="1.1" fill="none"/>
+
+  <!-- 壁灯（左墙） -->
+  <path d="M66,318 L74,314 L74,356 L66,360 Z" fill="#221e1a"/>
+  <path d="M74,336 Q86,338 85,328" fill="none" stroke="#221e1a" stroke-width="3"/>
+  <path d="M77,320 L93,318 L91,326 L79,328 Z" fill="#221e1a"/>
+  <rect x="81" y="296" width="8" height="22" fill="#d7ccb0" stroke-width="1.2"/>
+</g>
+
+<!-- ================= 右墙：城堡大门 + 家徽 ================= -->
+<g filter="url(#rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+  <!-- 家徽旗与盾 -->
+  <path d="M700,90 L780,84" stroke="#16120e" stroke-width="3.4"/>
+  <circle cx="699" cy="90" r="3.5" fill="#16120e"/><circle cx="781" cy="84" r="3.5" fill="#16120e"/>
+  <path d="M704,90 L718,89 L718,150 L711,142 L704,152 Z" fill="#5a2c25"/>
+  <path d="M762,85 L776,84 L776,145 L769,137 L762,147 Z" fill="#5a2c25"/>
+  <path d="M707,104 l8,-0.5 M765,98 l8,-0.5" stroke="#9c8562" stroke-width="1.1"/>
+  <path d="M724,96 L756,94 L756,124 Q756,142 740,152 Q724,144 724,126 Z" fill="#4a453b"/>
+  <path d="M728,100 L752,98.5 L752,124 Q752,138 740,146 Q728,139 728,126 Z" fill="#2e2a24" stroke-width="1.2"/>
+  <use href="#e-raven" x="729" y="104" width="24" height="26" style="color:#8c8470"/>
+  <circle cx="735.6" cy="111.5" r="0.9" fill="#b23a2e" stroke="none"/>
+
+  <!-- 城堡大门（L8，吊桥）：横着粗铁门闩 -->
+  <path d="M687,527 L687,272 Q692,214 738,180 Q786,206 791,256 L791,601 Z" fill="#67624f"/>
+  <path d="M699,535 L699,280 Q704,226 738,196 Q774,220 779,266 L779,593 Z" fill="#3d3024"/>
+  <g clip-path="url(#clipMainDoor)" stroke="#271e16" stroke-width="1.5" fill="none">
+    <path d="M709,190 V600 M719,190 V600 M729,190 V600 M749,190 V600 M759,190 V600 M769,190 V600"/>
+    <path d="M695,306 L783,299 M695,467 L783,505" stroke="#16130f" stroke-width="5"/>
+    <g fill="#16130f" stroke="none">
+      <circle cx="705" cy="305" r="2"/><circle cx="722" cy="304" r="2"/><circle cx="756" cy="301" r="2"/><circle cx="773" cy="300" r="2"/>
+      <circle cx="705" cy="470" r="2"/><circle cx="722" cy="477" r="2"/><circle cx="756" cy="492" r="2"/><circle cx="773" cy="499" r="2"/>
+    </g>
+  </g>
+  <!-- 门缝里的雾 -->
+  <path d="M737.6,198 L740.4,199 L740.4,564 L737.6,564 Z" fill="url(#fogSeam)" stroke="none"/>
+  <path d="M699,535 L779,593" stroke="#a9b0ae" stroke-width="1.5" opacity=".45"/>
+  <!-- 门环 -->
+  <circle cx="730" cy="430" r="6" fill="none" stroke="#120f0c" stroke-width="2.6"/>
+  <circle cx="748" cy="434" r="6" fill="none" stroke="#120f0c" stroke-width="2.6"/>
+  <!-- 粗铁门闩 + 托架 -->
+  <path d="M690,380 L788,397 L788,412 L690,395 Z" fill="#26231f"/>
+  <path d="M690,380 L788,397" stroke="#4e4a42" stroke-width="1.4"/>
+  <path d="M702,376 V402 M697,376 H707 M772,392 V420 M767,393 H777" stroke="#120f0c" stroke-width="3.6" fill="none"/>
+  <path d="M697,402 Q702,408 707,402 M767,419 Q772,426 777,419" stroke="#120f0c" stroke-width="3" fill="none"/>
+</g>
+
+<!-- 门下渗进来的雾 -->
+<ellipse cx="740" cy="590" rx="70" ry="16" fill="url(#fogFloor)"/>
+<ellipse cx="700" cy="610" rx="50" ry="10" fill="url(#fogFloor)" opacity=".7"/>
+
+<!-- ================= 地毯 ================= -->
+<g filter="url(#rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+  <polygon points="196,556 634,556 742,706 86,706" fill="#4e2621"/>
+  <polygon points="212,561 618,561 716,700 112,700" fill="none" stroke="#7a4a35" stroke-width="2" stroke-dasharray="6 4"/>
+  <polygon points="224,566 606,566 696,694 132,694" fill="#3c1d19" stroke="#6a3c2c" stroke-width="1.4"/>
+  <ellipse cx="414" cy="640" rx="96" ry="22" fill="#45221d" stroke="#6a3c2c" stroke-width="1.6"/>
+  <ellipse cx="414" cy="640" rx="70" ry="14" fill="none" stroke="#5e3427" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <path d="M170,600 h20 M638,600 h20 M140,650 h24 M664,650 h24" stroke="#6a3c2c" stroke-width="1.4"/>
+</g>
+
+<!-- ================= 后排椅子（塔楼 / 盾牌 / 十字） ================= -->
+<g filter="url(#rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round">
+  <!-- 十字 · 安塞姆神父 -->
+  <g>
+    <rect x="273" y="462" width="5" height="88" fill="#30261d"/><rect x="322" y="462" width="5" height="88" fill="#30261d"/>
+    <circle cx="275.5" cy="459" r="4" fill="#30261d"/><circle cx="324.5" cy="459" r="4" fill="#30261d"/>
+    <path d="M278,550 L278,478 Q278,464 300,458 Q322,464 322,478 L322,550 Z" fill="#3a2e23"/>
+    <use href="#e-cross" x="290" y="481" width="20" height="24" style="color:#0c0907"/>
+  </g>
+  <!-- 盾牌 · 埃德蒙 -->
+  <g>
+    <rect x="388" y="462" width="5" height="88" fill="#30261d"/><rect x="437" y="462" width="5" height="88" fill="#30261d"/>
+    <circle cx="390.5" cy="459" r="4" fill="#30261d"/><circle cx="439.5" cy="459" r="4" fill="#30261d"/>
+    <path d="M393,550 L393,478 Q393,464 415,458 Q437,464 437,478 L437,550 Z" fill="#3a2e23"/>
+    <use href="#e-shield" x="406" y="482" width="18" height="22" style="color:#0c0907"/>
+  </g>
+  <!-- 塔楼 · 奥斯瓦尔德（父亲） -->
+  <g>
+    <rect x="503" y="462" width="5" height="88" fill="#30261d"/><rect x="552" y="462" width="5" height="88" fill="#30261d"/>
+    <circle cx="505.5" cy="459" r="4" fill="#30261d"/><circle cx="554.5" cy="459" r="4" fill="#30261d"/>
+    <path d="M508,550 L508,478 Q508,464 530,458 Q552,464 552,478 L552,550 Z" fill="#3a2e23"/>
+    <use href="#e-tower" x="521" y="481" width="18" height="24" style="color:#0c0907"/>
+  </g>
+</g>
+
+<!-- ================= 长餐桌 ================= -->
+<ellipse cx="415" cy="672" rx="230" ry="18" fill="#000" opacity=".35" filter="url(#blur6)"/>
+<g filter="url(#rough)" stroke="#120e0b" stroke-width="2" stroke-linejoin="round">
+  <!-- 后腿 -->
+  <rect x="246" y="596" width="9" height="50" fill="#241c15"/>
+  <rect x="575" y="596" width="9" height="50" fill="#241c15"/>
+  <!-- 桌面 -->
+  <polygon points="238,548 592,548 616,584 214,584" fill="#47392b"/>
+  <g clip-path="url(#clipTableTop)" stroke="#33281e" stroke-width="1.1" fill="none">
+    <path d="M200,557 H630 M200,566 H630 M200,575 H630"/>
+    <path d="M330,548 L326,557 M480,557 L484,566 M380,566 L377,575 M540,575 L544,584"/>
+  </g>
+  <!-- 桌旗（褪色） -->
+  <polygon points="300,548 530,548 540,584 290,584" fill="#5a2a24" opacity=".85"/>
+  <path d="M290,584 L540,584 L540,606 L290,606 Z" fill="#4e2520"/>
+  <path d="M292,606 v4 M300,606 v4 M308,606 v4 M316,606 v4 M324,606 v4 M332,606 v4 M340,606 v4 M348,606 v4 M356,606 v4 M364,606 v4 M372,606 v4 M380,606 v4 M388,606 v4 M396,606 v4 M404,606 v4 M412,606 v4 M420,606 v4 M428,606 v4 M436,606 v4 M444,606 v4 M452,606 v4 M460,606 v4 M468,606 v4 M476,606 v4 M484,606 v4 M492,606 v4 M500,606 v4 M508,606 v4 M516,606 v4 M524,606 v4 M532,606 v4 M538,606 v4" stroke="#6a3a2c" stroke-width="1.2"/>
+  <!-- 桌沿 -->
+  <polygon points="214,584 290,584 290,597 214,597" fill="#30261c"/>
+  <polygon points="540,584 616,584 616,597 540,597" fill="#30261c"/>
+  <!-- 前腿 + 横档 -->
+  <rect x="220" y="597" width="13" height="80" fill="#2e251c"/>
+  <rect x="597" y="597" width="13" height="80" fill="#2e251c"/>
+  <rect x="409" y="610" width="12" height="67" fill="#2e251c"/>
+  <rect x="233" y="648" width="364" height="6" fill="#241c15"/>
+
+  <!-- 8 只蒙灰的锡盘 -->
+  <g fill="#5d5a51" stroke="#2a2621" stroke-width="1.2">
+    <ellipse cx="300" cy="553" rx="12" ry="3.2"/><ellipse cx="415" cy="553" rx="12" ry="3.2"/><ellipse cx="530" cy="553" rx="12" ry="3.2"/>
+    <ellipse cx="285" cy="577" rx="14" ry="4"/><ellipse cx="415" cy="577" rx="14" ry="4"/><ellipse cx="545" cy="577" rx="14" ry="4"/>
+    <ellipse cx="248" cy="566" rx="11" ry="3.4"/><ellipse cx="584" cy="566" rx="11" ry="3.4"/>
+  </g>
+  <g fill="none" stroke="#77736a" stroke-width=".8">
+    <ellipse cx="300" cy="553" rx="7" ry="1.8"/><ellipse cx="415" cy="553" rx="7" ry="1.8"/><ellipse cx="530" cy="553" rx="7" ry="1.8"/>
+    <ellipse cx="248" cy="566" rx="6" ry="1.8"/><ellipse cx="584" cy="566" rx="6" ry="1.8"/>
+  </g>
+
+  <!-- 熄灭的三叉烛台 -->
+  <g fill="#2a2622" stroke="#120f0c" stroke-width="1.3">
+    <path d="M350,566 h18 l-4,-5 h-10 Z"/>
+    <rect x="357.5" y="532" width="3" height="30"/>
+    <path d="M344,536 Q344,546 359,546 Q374,546 374,536" fill="none" stroke="#2a2622" stroke-width="2.6"/>
+    <rect x="341" y="531" width="6" height="4"/><rect x="356" y="526" width="6" height="4"/><rect x="371" y="531" width="6" height="4"/>
+  </g>
+  <g fill="#c9bea3" stroke="#120f0c" stroke-width="1.1">
+    <rect x="342" y="520" width="4" height="11"/><rect x="357" y="512" width="4" height="14"/><rect x="372" y="522" width="4" height="9"/>
+  </g>
+  <path d="M359,512 v-4 M344,520 v-3 M374,522 v-3" stroke="#120f0c" stroke-width="1"/>
+  <!-- 烛台上的蛛网 -->
+  <path d="M346,522 Q352,528 357,518 M346,526 Q352,531 359,522 M352,516 L350,530" stroke="#b3ad9e" stroke-width=".6" fill="none" opacity=".6"/>
+</g>
+<!-- 桌面积灰 -->
+<rect x="0" y="0" width="828" height="709" filter="url(#ash)" clip-path="url(#clipTableTop)" opacity=".55"/>
+
+<!-- ================= 桌两端：先祖之席（乌鸦） / 末位（陶罐） ================= -->
+<g filter="url(#rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round">
+  <!-- 末位 · 玛莎（陶罐） -->
+  <g>
+    <rect x="171" y="480" width="6" height="186" fill="#30261d"/><rect x="203" y="480" width="6" height="186" fill="#30261d"/>
+    <circle cx="174" cy="476" r="4" fill="#30261d"/><circle cx="206" cy="476" r="4" fill="#30261d"/>
+    <path d="M177,600 L177,494 Q177,482 190,477 Q203,482 203,494 L203,600 Z" fill="#3a2e23"/>
+    <use href="#e-pot" x="181" y="504" width="18" height="22" style="color:#0c0907"/>
+    <rect x="168" y="600" width="44" height="9" fill="#2b221a"/>
+  </g>
+  <!-- 主位 · 先祖之席（乌鸦，永远空着） -->
+  <g>
+    <rect x="623" y="420" width="7" height="246" fill="#2c231b"/><rect x="666" y="420" width="7" height="246" fill="#2c231b"/>
+    <path d="M621,420 l5,-10 l5,10 Z M664,420 l5,-10 l5,10 Z" fill="#2c231b"/>
+    <path d="M630,602 L630,438 Q630,420 648,404 Q666,420 666,438 L666,602 Z" fill="#35291f"/>
+    <path d="M636,598 L636,442 Q636,428 648,416 Q660,428 660,442 L660,598 Z" fill="none" stroke="#4a3b2e" stroke-width="1.2"/>
+    <use href="#e-raven" x="634" y="446" width="28" height="30" style="color:#0c0907"/>
+    <path d="M644,396 Q648,388 652,396 L650,404 L646,404 Z" fill="#2c231b"/>
+    <rect x="619" y="602" width="58" height="10" fill="#271f18"/>
+  </g>
+</g>
+
+<!-- ================= 前排椅子（麦穗 / 小鹿·短腿 / 雄鹿） ================= -->
+<g filter="url(#rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round" transform="translate(0,30)">
+  <!-- 麦穗 · 磨坊主汤姆 -->
+  <g>
+    <rect x="254" y="516" width="6" height="186" fill="#35291f"/><rect x="310" y="516" width="6" height="186" fill="#35291f"/>
+    <circle cx="257" cy="511" r="5" fill="#35291f"/><circle cx="313" cy="511" r="5" fill="#35291f"/>
+    <path d="M260,620 L260,530 Q260,514 285,506 Q310,514 310,530 L310,620 Z" fill="#40322a"/>
+    <path d="M266,614 L266,534 Q266,520 285,513 Q304,520 304,534 L304,614 Z" fill="none" stroke="#4f3f33" stroke-width="1.2"/>
+    <use href="#e-wheat" x="275" y="532" width="20" height="30" style="color:#0c0907"/>
+    <rect x="254" y="620" width="62" height="10" fill="#2e241b"/>
+    <rect x="264" y="630" width="4" height="64" fill="#1f1812"/><rect x="302" y="630" width="4" height="64" fill="#1f1812"/>
+    <rect x="260" y="676" width="50" height="4" fill="#2a2119"/>
+  </g>
+  <!-- 小鹿 · 玛格丽（椅腿被锯短：整把椅子矮一截） -->
+  <g>
+    <rect x="384" y="540" width="6" height="162" fill="#35291f"/><rect x="440" y="540" width="6" height="162" fill="#35291f"/>
+    <circle cx="387" cy="535" r="5" fill="#35291f"/><circle cx="443" cy="535" r="5" fill="#35291f"/>
+    <path d="M390,644 L390,554 Q390,538 415,530 Q440,538 440,554 L440,644 Z" fill="#40322a"/>
+    <path d="M396,638 L396,558 Q396,544 415,537 Q434,544 434,558 L434,638 Z" fill="none" stroke="#4f3f33" stroke-width="1.2"/>
+    <use href="#e-fawn" x="399" y="556" width="32" height="32" style="color:#0c0907"/>
+    <rect x="384" y="644" width="62" height="10" fill="#2e241b"/>
+    <rect x="394" y="654" width="4" height="42" fill="#1f1812"/><rect x="432" y="654" width="4" height="42" fill="#1f1812"/>
+    <path d="M383,688 h8 M439,688 h8" stroke="#8a7b62" stroke-width="1.2"/>
+    <rect x="390" y="684" width="50" height="4" fill="#2a2119"/>
+  </g>
+  <!-- 雄鹿 · 伊莎贝拉（母亲） -->
+  <g>
+    <rect x="514" y="516" width="6" height="186" fill="#35291f"/><rect x="570" y="516" width="6" height="186" fill="#35291f"/>
+    <circle cx="517" cy="511" r="5" fill="#35291f"/><circle cx="573" cy="511" r="5" fill="#35291f"/>
+    <path d="M520,620 L520,530 Q520,514 545,506 Q570,514 570,530 L570,620 Z" fill="#40322a"/>
+    <path d="M526,614 L526,534 Q526,520 545,513 Q564,520 564,534 L564,614 Z" fill="none" stroke="#4f3f33" stroke-width="1.2"/>
+    <use href="#e-stag" x="528" y="530" width="34" height="34" style="color:#0c0907"/>
+    <rect x="514" y="620" width="62" height="10" fill="#2e241b"/>
+    <rect x="524" y="630" width="4" height="64" fill="#1f1812"/><rect x="562" y="630" width="4" height="64" fill="#1f1812"/>
+    <rect x="520" y="676" width="50" height="4" fill="#2a2119"/>
+  </g>
+</g>
+
+<!-- ================= 右前角：刻度蜡烛钟（8 格） ================= -->
+<g filter="url(#rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round">
+  <ellipse cx="809" cy="696" rx="24" ry="5" fill="#000" opacity=".4" stroke="none"/>
+  <rect x="790" y="660" width="38" height="36" fill="#2f251c"/>
+  <rect x="786" y="654" width="46" height="8" fill="#3a2e23"/>
+  <rect x="800" y="566" width="18" height="88" fill="#33281f"/>
+  <path d="M804,576 V646 M814,576 V646" stroke="#241c15" stroke-width="1.2"/>
+  <rect x="786" y="558" width="46" height="8" fill="#3a2e23"/>
+  <path d="M790,558 L790,470 L826,470 L826,558 Z" fill="#1a1511"/>
+  <path d="M784,472 L809,446 L834,472 Z" fill="#3a2e23"/>
+  <circle cx="809" cy="442" r="3" fill="#2a2119"/>
+  <rect x="790" y="470" width="4" height="88" fill="#3a2e23"/><rect x="822" y="470" width="4" height="88" fill="#3a2e23"/>
+  <!-- 蜡烛与 8 道刻度 -->
+  <rect x="803" y="494" width="12" height="60" fill="#d4c9ab" stroke-width="1.2"/>
+  <path d="M803,501.5 h12 M803,509 h12 M803,516.5 h12 M803,524 h12 M803,531.5 h12 M803,539 h12 M803,546.5 h12" stroke="#6b5a40" stroke-width="1.1"/>
+  <path d="M809,494 v-4" stroke="#120e0b" stroke-width="1.1"/>
+  <rect x="800" y="554" width="18" height="4" fill="#2a2622"/>
+</g>
+
+<!-- ================= 吊灯 ================= -->
+<g filter="url(#rough)" stroke="#0e0b09" stroke-linejoin="round">
+  <path d="M430,0 V62" stroke="#16120e" stroke-width="3" stroke-dasharray="5 2"/>
+  <path d="M430,62 L362,90 M430,62 L498,90 M430,62 L400,100 M430,62 L460,100" stroke="#16120e" stroke-width="1.4" fill="none"/>
+  <!-- 后半圈蜡烛 -->
+  <g fill="#d7ccb0" stroke-width="1.1">
+    <rect x="377.5" y="66" width="6" height="18"/><rect x="427" y="62" width="6" height="18"/><rect x="476.5" y="66" width="6" height="18"/>
+  </g>
+  <ellipse cx="430" cy="92" rx="70" ry="12" fill="none" stroke="#16120e" stroke-width="5"/>
+  <ellipse cx="430" cy="96" rx="66" ry="11" fill="none" stroke="#16120e" stroke-width="2"/>
+  <!-- 前半圈蜡烛 -->
+  <g fill="#d7ccb0" stroke-width="1.1">
+    <rect x="357" y="74" width="6" height="18"/><rect x="497" y="74" width="6" height="18"/>
+    <rect x="377.5" y="83" width="6" height="18"/><rect x="427" y="86" width="6" height="18"/><rect x="476.5" y="83" width="6" height="18"/>
+  </g>
+  <path d="M430,104 V116" stroke="#16120e" stroke-width="2.4"/>
+  <circle cx="430" cy="118" r="3" fill="#16120e"/>
+  <!-- 吊灯上的蛛丝 -->
+  <path d="M364,92 Q350,110 352,132 M498,92 Q512,108 508,126" stroke="#9f998a" stroke-width=".6" fill="none" opacity=".5"/>
+</g>
+
+<!-- ================= 光 ================= -->
+<g>
+  <circle cx="430" cy="110" r="220" fill="url(#warmBig)"/>
+  <circle cx="809" cy="500" r="90" fill="url(#warmBig)"/>
+  <circle cx="85" cy="300" r="90" fill="url(#warmBig)"/>
+  <circle cx="487" cy="270" r="110" fill="url(#warmBig)"/>
+
+  <circle cx="380.5" cy="60" r="16" fill="url(#warm)"/><circle cx="430" cy="56" r="16" fill="url(#warm)"/><circle cx="479.5" cy="60" r="16" fill="url(#warm)"/>
+  <circle cx="360" cy="68" r="16" fill="url(#warm)"/><circle cx="500" cy="68" r="16" fill="url(#warm)"/>
+  <circle cx="380.5" cy="77" r="16" fill="url(#warm)"/><circle cx="430" cy="80" r="16" fill="url(#warm)"/><circle cx="479.5" cy="77" r="16" fill="url(#warm)"/>
+  <use href="#flame" x="377" y="54" width="7" height="12"/><use href="#flame" x="426.5" y="50" width="7" height="12"/><use href="#flame" x="476" y="54" width="7" height="12"/>
+  <use href="#flame" x="356.5" y="62" width="7" height="12"/><use href="#flame" x="496.5" y="62" width="7" height="12"/>
+  <use href="#flame" x="377" y="71" width="7" height="12"/><use href="#flame" x="426.5" y="74" width="7" height="12"/><use href="#flame" x="476" y="71" width="7" height="12"/>
+
+  <circle cx="421" cy="250" r="20" fill="url(#warm)"/><circle cx="553" cy="254" r="20" fill="url(#warm)"/>
+  <use href="#flame" x="417.5" y="243" width="7" height="13"/><use href="#flame" x="549.5" y="247" width="7" height="13"/>
+
+  <circle cx="85" cy="290" r="26" fill="url(#warm)"/>
+  <use href="#flame" x="80.5" y="281" width="9" height="15"/>
+
+  <circle cx="809" cy="486" r="26" fill="url(#warm)"/>
+  <use href="#flame" x="805" y="479" width="8" height="13"/>
+</g>
+
+<!-- 角落蛛网 -->
+<g stroke="#a8a293" stroke-width=".7" fill="none" opacity=".45">
+  <path d="M150,95 L196,95 M150,95 L150,140 M150,95 L184,128 M150,95 L170,138 M150,95 L192,112"/>
+  <path d="M164,95 Q160,104 150,108 M176,95 Q170,112 150,121 M188,95 Q182,120 150,134"/>
+  <path d="M678,95 L640,95 M678,95 L678,132 M678,95 L650,122"/>
+  <path d="M666,95 Q670,104 678,107 M654,95 Q660,112 678,120"/>
+</g>
+
+<!-- 月光里的浮尘 -->
+<g fill="#d6dbd6" opacity=".5">
+  <circle cx="566" cy="500" r=".9"/><circle cx="588" cy="470" r=".7"/><circle cx="540" cy="530" r="1"/>
+  <circle cx="520" cy="590" r=".8"/><circle cx="574" cy="548" r=".7"/><circle cx="500" cy="612" r=".9"/>
+</g>
+
+<!-- 暗角 -->
+<rect x="0" y="0" width="828" height="709" fill="url(#vignette)"/>
+</svg>

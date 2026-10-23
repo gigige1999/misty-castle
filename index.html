@@ -1,0 +1,2714 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medieval Room — Rusty Lake Style</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#14110d;
+    font-family:Georgia,"Palatino Linotype","Book Antiqua","Songti SC",serif;color:#2b251e}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  #app{width:1080px;height:717px;position:relative;flex-shrink:0;display:flex;
+    border:4px solid #15120e;box-shadow:0 0 70px rgba(0,0,0,.85);transform-origin:center center;
+    user-select:none}
+
+  /* ---------- 场景 ---------- */
+  #scene{position:relative;width:828px;height:709px;overflow:hidden;background:#5a4d40}
+  #scene > svg{position:absolute;inset:0;width:828px;height:709px}
+  #grain{pointer-events:none;mix-blend-mode:multiply}
+  #vignette{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 52% 45%,transparent 58%,rgba(12,9,6,.55) 100%)}
+  .hot{cursor:pointer}
+  .hot:hover{filter:brightness(1.13)}
+  .flame,.cflame{transform-box:fill-box;transform-origin:50% 100%;animation:flick .8s ease-in-out infinite alternate}
+  .cflame{transition:opacity .35s}
+  @keyframes flick{from{transform:scale(1,1)}to{transform:scale(.86,1.2)}}
+
+  #titleBox{position:absolute;left:0;top:0;width:246px;height:86px;background:#c8c0aa;
+    border-right:2px solid #2b251e;border-bottom:2px solid #2b251e;padding:12px 0 0 24px;z-index:5}
+  #titleBox h1{margin:0;font-weight:normal;font-size:27px;letter-spacing:.5px;line-height:1.1;
+    display:inline-block;border-bottom:1.5px solid #2b251e;padding-bottom:3px}
+  #titleBox p{margin:5px 0 0;font-size:14px;color:#3e362b}
+  #hintBtn{position:absolute;right:10px;bottom:8px;font:12px Georgia,serif;background:none;
+    border:1px solid #6b6252;color:#4a4134;padding:1px 7px;cursor:pointer}
+  #hintBtn:hover{background:#b8af97}
+
+  #subtitle{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);max-width:640px;
+    background:rgba(206,198,176,.95);border:1.5px solid #2b251e;padding:8px 18px;font-size:15px;
+    line-height:1.6;text-align:center;opacity:0;transition:opacity .35s;pointer-events:none;z-index:6}
+  #subtitle.show{opacity:1}
+
+  /* ---------- 特写 ---------- */
+  #zoom{position:absolute;inset:0;background:rgba(14,11,8,.78);display:flex;align-items:center;
+    justify-content:center;z-index:10}
+  #zoom.hidden{display:none}
+  #zcard{position:relative;width:640px;background:#c8c0aa;border:3px solid #2b251e;
+    box-shadow:0 0 50px rgba(0,0,0,.8);padding:14px 20px 16px}
+  #ztitle{font-size:22px;border-bottom:1.5px solid #2b251e;display:inline-block;padding-bottom:2px;margin-bottom:10px}
+  #zclose{position:absolute;right:12px;top:10px;width:30px;height:30px;border:1.5px solid #2b251e;
+    background:#b8af97;font:18px Georgia,serif;cursor:pointer;color:#2b251e;line-height:1}
+  #zclose:hover{background:#a69d84}
+  #zsvg{display:block;width:600px;height:400px;border:2px solid #2b251e;background:#a39b87}
+  #zcap{margin-top:10px;min-height:48px;font-size:15px;line-height:1.65}
+  .zhot{cursor:pointer}
+  .zhot:hover{filter:brightness(1.18)}
+  .zrain{animation:rain .45s linear infinite}
+  @keyframes rain{from{transform:translate(0,-34px)}to{transform:translate(-7px,0)}}
+  .shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+  .pulse{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.25}50%{opacity:.75}}
+
+  /* ---------- Details 面板 ---------- */
+  #divider{width:6px;background:#2b251e;flex-shrink:0}
+  #panel{flex:1;position:relative;padding:16px 0 0 18px;
+    background:radial-gradient(ellipse 140% 60% at 50% 0%,#d9d1bb 0%,#cfc7b1 46%,#c2b9a0 100%)}
+  #panel::before{content:'';position:absolute;inset:6px;border:1px solid rgba(43,37,30,.18);pointer-events:none}
+  #panel h2{margin:0;font-weight:normal;font-size:22px;letter-spacing:2.5px;width:206px;position:relative;
+    border-bottom:1.5px solid #2b251e;padding-bottom:4px;display:flex;align-items:baseline;justify-content:space-between}
+  #panel h2 small{font-size:11.5px;letter-spacing:3px;color:#7d7461;font-style:italic}
+  #panel h2::after{content:'';position:absolute;left:50%;bottom:-4.5px;width:6px;height:6px;margin-left:-3px;
+    background:#cfc7b1;border:1.5px solid #2b251e;transform:rotate(45deg)}
+  #grid{margin-top:16px;display:grid;grid-template-columns:98px 98px;column-gap:10px;row-gap:8px}
+  .cell{cursor:pointer;position:relative}
+  .box{position:relative;width:98px;height:112px;border:1.5px solid #2b251e;background:#a39b87;overflow:hidden;
+    box-shadow:0 1px 0 #e6dec8,0 3px 6px rgba(30,22,14,.22);transition:transform .22s ease,box-shadow .22s ease}
+  .box svg{display:block;width:95px;height:109px;transition:transform .35s cubic-bezier(.2,.7,.3,1.3),filter .25s}
+  /* 内框：象牙细线 + 暗角 + 四角金线 */
+  .box::after{content:'';position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(240,232,210,.5),inset 0 0 14px rgba(30,22,14,.38);
+    background:
+      linear-gradient(#efe2b8,#efe2b8) left 4px top 4px/8px 1px no-repeat,linear-gradient(#efe2b8,#efe2b8) left 4px top 4px/1px 8px no-repeat,
+      linear-gradient(#efe2b8,#efe2b8) right 4px top 4px/8px 1px no-repeat,linear-gradient(#efe2b8,#efe2b8) right 4px top 4px/1px 8px no-repeat,
+      linear-gradient(#efe2b8,#efe2b8) left 4px bottom 4px/8px 1px no-repeat,linear-gradient(#efe2b8,#efe2b8) left 4px bottom 4px/1px 8px no-repeat,
+      linear-gradient(#efe2b8,#efe2b8) right 4px bottom 4px/8px 1px no-repeat,linear-gradient(#efe2b8,#efe2b8) right 4px bottom 4px/1px 8px no-repeat;
+    opacity:.55;transition:opacity .25s}
+  .cell:hover .box{transform:translateY(-2px);box-shadow:0 1px 0 #e6dec8,0 7px 14px rgba(30,22,14,.35),0 0 0 1px rgba(239,196,99,.35)}
+  .cell:hover .box svg{transform:scale(1.06);filter:brightness(1.07) saturate(1.08)}
+  .cell:hover .box::after{opacity:1}
+  .cell:active .box{transform:translateY(0) scale(.97)}
+  .cell .lbl{position:relative;font-size:12.5px;letter-spacing:.3px;text-align:center;padding:5px 5px 0;height:25px;color:#3a3127;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+  .cell .lbl::before,.cell .lbl::after{content:'·';position:absolute;top:4px;color:#9a917c;opacity:0;transition:opacity .2s}
+  .cell .lbl::before{left:0}
+  .cell .lbl::after{right:0}
+  .cell:hover .lbl{color:#1a1511}
+  .cell:hover .lbl::before,.cell:hover .lbl::after{opacity:1}
+  .cell.dim svg{opacity:.28;filter:grayscale(1)}
+  .badge{position:absolute;left:-1px;top:7px;background:#2b251e;color:#efe2b8;font-size:10px;padding:1px 9px 1px 6px;letter-spacing:1px;
+    clip-path:polygon(0 0,100% 0,calc(100% - 5px) 50%,100% 100%,0 100%);box-shadow:0 1px 2px rgba(0,0,0,.3);z-index:2}
+  .done{position:absolute;right:4px;bottom:2px;font-size:14px;color:#2b251e}
+  /* 空格位：浅浅的凹槽 */
+  .cell.slot{cursor:default;pointer-events:none}
+  .cell.slot .box{background:rgba(120,110,90,.16);border:1px solid rgba(43,37,30,.22);box-shadow:inset 0 1px 4px rgba(30,22,14,.18)}
+  .cell.slot .box::after{opacity:0}
+  .cell.slot .box::before{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;
+    border:1px solid rgba(43,37,30,.18);transform:rotate(45deg)}
+  /* 新得物品：弹入 + 金光扫过 + 外发光 */
+  .cell.new{animation:newPop .7s cubic-bezier(.2,.8,.3,1.25)}
+  @keyframes newPop{0%{transform:scale(.55);opacity:0}100%{transform:scale(1);opacity:1}}
+  .cell.new .box{animation:newItem 1.9s ease-out}
+  @keyframes newItem{0%{box-shadow:0 0 0 0 rgba(239,196,99,.95),0 0 24px rgba(255,214,120,.9)}100%{box-shadow:0 0 0 14px rgba(239,196,99,0),0 0 0 rgba(255,214,120,0)}}
+  .shine{position:absolute;inset:-20%;pointer-events:none;z-index:1;
+    background:linear-gradient(115deg,transparent 38%,rgba(255,244,205,.85) 50%,transparent 62%);
+    transform:translateX(-120%);animation:shine 1.3s .25s ease-out forwards}
+  @keyframes shine{to{transform:translateX(120%)}}
+  .cell.new .lbl{animation:lblIn 1.2s ease-out}
+  @keyframes lblIn{0%{color:#a87a22;letter-spacing:2px}100%{color:#3a3127;letter-spacing:.4px}}
+  #panel .empty{margin-top:16px;font-size:13px;font-style:italic;color:#8a826d}
+  #dbgBtn{position:absolute;left:18px;bottom:8px;font:11px Georgia,"Songti SC",serif;background:none;border:1px dashed #9a917c;
+    color:#7d7461;padding:1px 8px;cursor:pointer;opacity:.75}
+  #dbgBtn:hover{opacity:1;background:#c2b9a1}
+  #dbgMenu{position:absolute;left:14px;bottom:32px;width:212px;background:#e2dac4;border:1.5px solid #2b251e;box-shadow:0 6px 24px rgba(0,0,0,.45);
+    padding:6px 0;display:none;z-index:40;max-height:640px;overflow-y:auto}
+  #dbgMenu.show{display:block}
+  #dbgMenu .dbg-h{font-size:11px;color:#7d7461;padding:2px 12px 6px;border-bottom:1px solid #b9af97;margin-bottom:4px}
+  #dbgMenu a{display:block;padding:5px 12px;font-size:13px;color:#2b251e;text-decoration:none;cursor:pointer}
+  #dbgMenu a:hover{background:#cfc5ab}
+  #dbgMenu a.on{font-weight:bold}
+  #dbgMenu a.on::before{content:'▸ '}
+  #dbgMenu a.off{color:#a39a85;cursor:default}
+  #dbgMenu a small{display:block;font-size:10.5px;line-height:1.35;color:#7d7461;margin-top:1px}
+  #dbgMenu a.dbg-re{font-weight:bold;border-bottom:1px solid #b9af97;margin-bottom:4px;padding-bottom:7px}
+  #dbgMenu a.off:hover{background:none}
+  /* 物品栏始终两列：多于 8 件时压矮格子；多于 12 件时滚动 */
+  #grid{max-height:606px;overflow-y:auto;overflow-x:hidden;padding:4px 4px 8px 0;margin-top:12px;scrollbar-width:thin;scrollbar-color:#8a826d transparent}
+  #grid::-webkit-scrollbar{width:5px}
+  #grid::-webkit-scrollbar-thumb{background:#8a826d;border-radius:3px}
+  #grid.compact{row-gap:4px}
+  #grid.compact .box{height:76px}
+  #grid.compact .box svg{height:73px}
+  #grid.compact .lbl{font-size:12px;padding:3px 0 0;height:20px}
+
+  /* ---------- 入场 Loading ---------- */
+  #loader{position:absolute;inset:0;z-index:100;overflow:hidden;cursor:default;
+    background:radial-gradient(ellipse 70% 75% at 50% 34%,#262a33 0%,#15171c 46%,#0a0a0c 100%);
+    transition:opacity 1.5s ease,transform 1.8s cubic-bezier(.3,.1,.2,1)}
+  #loader > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #loader.ready{cursor:pointer}
+  #loader.out{opacity:0;transform:scale(1.05);pointer-events:none}
+  #loader .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,transparent 55%,rgba(0,0,0,.7) 100%)}
+  .ld-fade{opacity:0;animation:ldIn 1.6s ease forwards}
+  @keyframes ldIn{to{opacity:1}}
+  .ld-moon{opacity:0;animation:ldMoon 2.6s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes ldMoon{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
+  .ld-halo{animation:ldHalo 5s ease-in-out infinite alternate}
+  @keyframes ldHalo{from{opacity:.75}to{opacity:1}}
+  .ld-star{animation:ldTw 3s ease-in-out infinite alternate}
+  @keyframes ldTw{from{opacity:.12}to{opacity:.95}}
+  .ld-ring{transform-origin:540px 240px;animation:ldSpin 120s linear infinite}
+  .ld-ring.r2{animation-duration:200s;animation-direction:reverse}
+  @keyframes ldSpin{to{transform:rotate(360deg)}}
+  .ld-mist{animation:ldMist 18s ease-in-out infinite alternate}
+  .ld-mist.m2{animation-duration:24s;animation-direction:alternate-reverse}
+  @keyframes ldMist{from{transform:translateX(-60px)}to{transform:translateX(60px)}}
+  .ld-bird{animation:ldFly 19s linear infinite}
+  @keyframes ldFly{0%{transform:translate(-120px,0)}50%{transform:translate(560px,-22px)}100%{transform:translate(1240px,8px)}}
+  .ld-wing{transform-box:fill-box;transform-origin:50% 100%;animation:ldFlap .46s ease-in-out infinite alternate}
+  @keyframes ldFlap{from{transform:scaleY(1)}to{transform:scaleY(-.45)}}
+  .ld-win{animation:ldFlick 2.6s steps(1) infinite}
+  @keyframes ldFlick{0%,100%{opacity:1}23%{opacity:.78}27%{opacity:.95}61%{opacity:.7}64%{opacity:1}}
+  .ld-flag{transform-box:fill-box;transform-origin:0 50%;animation:ldFlag 1.8s ease-in-out infinite alternate}
+  @keyframes ldFlag{from{transform:skewY(-6deg) scaleX(1)}to{transform:skewY(5deg) scaleX(.86)}}
+  .ld-title{opacity:0;letter-spacing:34px;animation:ldTitle 2.2s .8s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes ldTitle{to{opacity:1;letter-spacing:17px}}
+  .ld-prompt{animation:ldPulse 2.2s ease-in-out infinite}
+  @keyframes ldPulse{0%,100%{opacity:.35}50%{opacity:1}}
+  #loader.out .ld-winbig{opacity:1 !important;transition:opacity .4s}
+
+  /* ---------- 灰烬大厅 ---------- */
+  .lvroot{position:absolute;inset:0}
+  .lvroot.hidden{display:none}
+  .lvroot > svg{position:absolute;inset:0;width:828px;height:709px;display:block}
+  #hallBg{pointer-events:none}
+  .hs{fill:#f3e2b8;fill-opacity:0;cursor:pointer;transition:fill-opacity .2s}
+  .hs:hover{fill-opacity:.07}
+
+  /* ---------- 记忆书页 ---------- */
+  #memory{position:absolute;inset:0;z-index:15;background:rgba(10,8,6,.88);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;opacity:0;transition:opacity .7s;cursor:pointer}
+  #memory.show{opacity:1}
+  #memory.hidden{display:none}
+  #memory svg{width:600px;height:400px;box-shadow:0 0 60px rgba(0,0,0,.9);filter:sepia(.15)}
+  #memory h4{margin:16px 0 4px;font-weight:normal;font-size:20px;color:#d9d0b8;letter-spacing:1px}
+  #memory p{margin:0;font-size:13px;font-style:italic;color:#8a826d}
+  .zmoon{position:absolute;right:54px;top:16px;width:18px;height:18px;color:#6b6252;opacity:.7}
+  .ghost{animation:ghost .9s ease-out forwards}
+  @keyframes ghost{0%{opacity:0}25%{opacity:.75}100%{opacity:0}}
+
+  /* ---------- 关卡转场 ---------- */
+  #fade{position:absolute;inset:0;background:#0c0a08;z-index:20;opacity:0;pointer-events:none;
+    transition:opacity 1s;display:flex;align-items:center;justify-content:center}
+  #fade.show{opacity:1;pointer-events:auto}
+  #fade p{color:#a49b84;font-size:16px;font-style:italic;letter-spacing:1px;max-width:520px;text-align:center;line-height:1.9}
+</style>
+</head>
+<body>
+
+<!-- ======= 共享定义 ======= -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="fogG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7f888d"/><stop offset=".55" stop-color="#a9afb0"/><stop offset="1" stop-color="#c6c8c4"/>
+    </linearGradient>
+    <radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity=".75"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="warmBig"><stop offset="0" stop-color="#ffc56e" stop-opacity=".38"/><stop offset=".6" stop-color="#ffb35a" stop-opacity=".12"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="fogEnd"><stop offset="0" stop-color="#d9dcd8"/><stop offset="1" stop-color="#6d767b"/></radialGradient>
+
+    <symbol id="deer" viewBox="0 0 100 100">
+      <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="58" cy="55" rx="26" ry="13" stroke="none"/>
+        <polygon points="36,52 46,46 34,26 25,30" stroke="none"/>
+        <ellipse cx="25" cy="29" rx="8.5" ry="5.5" stroke="none"/>
+        <polygon points="30,23 37,18 34,26" stroke="none"/>
+        <path d="M27,24 L21,9 L13,3 M21,9 L24,1 M22,15 L15,13 M31,23 L36,9 L44,3 M36,9 L34,1 M35,15 L42,14" fill="none" stroke-width="2.4"/>
+        <path d="M38,62 L36,95 M47,65 L49,95 M70,64 L68,95 M80,59 L85,93" fill="none" stroke-width="4.5"/>
+        <path d="M83,48 L91,45 L87,54 Z" stroke="none"/>
+      </g>
+    </symbol>
+    <symbol id="sym-sun" viewBox="0 0 60 60">
+      <g fill="currentColor" stroke="currentColor" stroke-linecap="round">
+        <circle cx="30" cy="30" r="11" stroke="none"/>
+        <path d="M30,4V13M30,47V56M4,30H13M47,30H56M11.5,11.5L18,18M42,42L48.5,48.5M48.5,11.5L42,18M18,42L11.5,48.5" stroke-width="4" fill="none"/>
+      </g>
+    </symbol>
+    <mask id="mMoon" maskUnits="userSpaceOnUse" x="0" y="0" width="60" height="60">
+      <rect width="60" height="60" fill="#fff"/><circle cx="42" cy="22" r="20" fill="#000"/>
+    </mask>
+    <symbol id="sym-moon" viewBox="0 0 60 60">
+      <circle cx="30" cy="30" r="25" fill="currentColor" mask="url(#mMoon)"/>
+    </symbol>
+    <symbol id="sym-cross" viewBox="0 0 60 60">
+      <path fill="currentColor" d="M25,4H35V20H51V30H35V56H25V30H9V20H25Z"/>
+    </symbol>
+    <symbol id="sym-raven" viewBox="0 0 60 60">
+      <path fill="currentColor" d="M22,50 Q14,36 17,25 Q19,13 30,11 Q39,9 41,18 L45,28 Q52,38 56,54 L44,47 L35,50 Z M19,16 L4,20 L20,23 Z"/>
+    </symbol>
+    <!-- 大厅椅背纹章 -->
+    <symbol id="e-tower" viewBox="0 0 20 24">
+      <path fill="currentColor" d="M5,23 V9 H3 V2 H6 V4.5 H8.5 V2 H11.5 V4.5 H14 V2 H17 V9 H15 V23 Z"/>
+    </symbol>
+    <symbol id="e-shield" viewBox="0 0 20 24">
+      <path fill="currentColor" d="M2,2 H18 V11 Q18,19 10,23 Q2,19 2,11 Z"/>
+    </symbol>
+    <symbol id="e-pot" viewBox="0 0 20 24">
+      <path fill="currentColor" d="M6,2 H14 V4.5 Q13,6 13,7 Q18.5,10 17.5,16.5 Q16.5,22.5 10,22.5 Q3.5,22.5 2.5,16.5 Q1.5,10 7,7 Q7,6 6,4.5 Z"/>
+    </symbol>
+    <symbol id="e-wheat" viewBox="0 0 20 30">
+      <g fill="currentColor">
+        <path d="M9.2,29 V7 H10.8 V29 Z"/><ellipse cx="10" cy="4.5" rx="2" ry="3.4"/>
+        <ellipse cx="7.2" cy="9" rx="1.9" ry="3.3" transform="rotate(-30 7.2 9)"/><ellipse cx="12.8" cy="9" rx="1.9" ry="3.3" transform="rotate(30 12.8 9)"/>
+        <ellipse cx="7.2" cy="13.5" rx="1.9" ry="3.3" transform="rotate(-30 7.2 13.5)"/><ellipse cx="12.8" cy="13.5" rx="1.9" ry="3.3" transform="rotate(30 12.8 13.5)"/>
+        <ellipse cx="7.2" cy="18" rx="1.9" ry="3.3" transform="rotate(-30 7.2 18)"/><ellipse cx="12.8" cy="18" rx="1.9" ry="3.3" transform="rotate(30 12.8 18)"/>
+      </g>
+    </symbol>
+    <symbol id="e-fawn" viewBox="0 0 100 100">
+      <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="58" cy="58" rx="22" ry="11" stroke="none"/><polygon points="40,56 48,50 38,32 30,36" stroke="none"/>
+        <ellipse cx="31" cy="34" rx="8" ry="5.5" stroke="none"/><polygon points="33,30 40,20 38,32" stroke="none"/>
+        <path d="M42,64 L41,93 M50,66 L51,93 M68,66 L67,93 M76,62 L79,91" fill="none" stroke-width="6"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="wrap"><div id="app">
+
+  <!-- ================= 场景 ================= -->
+  <div id="scene">
+    <!-- 背景层（静态，带手绘抖动与墙面污渍） -->
+    <svg id="bgLayer" viewBox="0 0 828 709">
+      <defs>
+        <filter id="rough" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="stain" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.02" numOctaves="4" seed="9"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0.22  0 0 0 0 0.19  0 0 0 0 0.15  1.9 0 0 0 -0.8"/>
+        </filter>
+        <clipPath id="clipWalls">
+          <polygon points="0,90 136,162 136,558 0,662"/>
+          <rect x="136" y="160" width="570" height="398"/>
+          <polygon points="828,92 706,160 706,558 828,628"/>
+        </clipPath>
+        <clipPath id="clipFloor"><polygon points="0,662 136,558 706,558 828,628 828,709 0,709"/></clipPath>
+        <clipPath id="clipCeil"><polygon points="0,92 828,92 706,161 136,161"/></clipPath>
+        <linearGradient id="lwG" x1="0" x2="1"><stop offset="0" stop-color="#7c7667"/><stop offset="1" stop-color="#9a937f"/></linearGradient>
+        <linearGradient id="rwG" x1="0" x2="1"><stop offset="0" stop-color="#a09985"/><stop offset="1" stop-color="#827c6d"/></linearGradient>
+        <linearGradient id="bwG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#99927e"/><stop offset=".3" stop-color="#aaa38f"/><stop offset="1" stop-color="#a19a86"/></linearGradient>
+        <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b4035"/><stop offset="1" stop-color="#5f5144"/></linearGradient>
+      </defs>
+      <g filter="url(#rough)" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <rect x="0" y="0" width="828" height="60" fill="#b5ad99" stroke="none"/>
+        <polygon points="0,92 828,92 706,161 136,161" fill="#463d33"/>
+        <g id="ceilPlanks" clip-path="url(#clipCeil)" stroke="#362e26" stroke-width="2"></g>
+        <rect x="136" y="160" width="570" height="398" fill="url(#bwG)"/>
+        <polygon points="0,90 136,162 136,558 0,662" fill="url(#lwG)"/>
+        <polygon points="828,92 706,160 706,558 828,628" fill="url(#rwG)"/>
+        <rect clip-path="url(#clipWalls)" x="0" y="80" width="828" height="590" filter="url(#stain)" opacity=".5" stroke="none"/>
+        <rect x="136" y="160" width="570" height="16" fill="#000" opacity=".14" stroke="none"/>
+        <polygon points="0,662 136,558 706,558 828,628 828,709 0,709" fill="url(#floorG)"/>
+        <g id="floorPlanks" clip-path="url(#clipFloor)" stroke="#3d3329" stroke-width="1.8"></g>
+        <polyline points="0,662 136,558 706,558 828,628" fill="none" stroke="#1f1a15" stroke-width="3" opacity=".6"/>
+        <rect x="-2" y="56" width="832" height="38" fill="#3a3128"/>
+        <line x1="0" y1="63" x2="828" y2="63" stroke="#54493c" stroke-width="2"/>
+        <polygon points="0,92 30,92 142,150 142,166 126,166 0,108" fill="#3a3128"/>
+        <polygon points="828,92 798,92 704,146 704,163 718,163 828,108" fill="#3a3128"/>
+        <polygon points="252,93 278,93 298,160 284,163" fill="#3a3128"/>
+        <line x1="136" y1="162" x2="136" y2="558"/>
+        <line x1="706" y1="160" x2="706" y2="558"/>
+      </g>
+    </svg>
+
+    <!-- 物体层（可交互） -->
+    <svg id="objLayer" viewBox="0 0 828 709">
+      <defs>
+        <clipPath id="clipDoor"><path d="M62,624 L62,322 Q62,274 92,266 Q119,272 119,312 L119,596 Z"/></clipPath>
+        <clipPath id="clipWin"><path d="M244,402 L244,275 Q247,246 269,232 Q291,246 294,275 L294,402 Z"/></clipPath>
+      </defs>
+
+      <!-- 壁灯 -->
+      <g class="hot" data-obj="sconce" stroke="#2b251e" stroke-width="1.5">
+        <circle cx="36" cy="232" r="36" fill="url(#warm)" stroke="none" opacity=".6"/>
+        <path d="M12,286 L22,281 L22,342 L12,347 Z" fill="#2a2622"/>
+        <path d="M22,308 Q38,310 37,299" fill="none" stroke="#2a2622" stroke-width="3.5"/>
+        <path d="M25,290 L47,288 L44,298 L28,300 Z" fill="#2a2622"/>
+        <rect x="30" y="242" width="11" height="47" fill="#ddd3b8"/>
+        <path d="M31,247 q3,5 0,11" fill="none" stroke="#bfb497"/>
+        <line x1="35.5" y1="242" x2="35.5" y2="236"/>
+        <path class="flame" d="M35.5,219 Q42,229 39,235 Q35.5,240 32,235 Q29,229 35.5,219 Z" fill="#efc463" stroke="none"/>
+      </g>
+
+      <!-- 门 -->
+      <g class="hot" data-obj="door" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <path d="M46,634 L46,316 Q46,258 90,248 Q134,256 134,304 L134,600 Z" fill="#a39c89"/>
+        <path d="M46,360 L62,358 M46,430 L62,428 M46,500 L62,498 M46,570 L62,568 M134,350 L119,352 M134,420 L119,421 M134,490 L119,491 M134,560 L119,560 M55,280 L67,290 M90,248 L92,266 M125,268 L114,281" fill="none" stroke-width="1.5"/>
+        <g id="doorLeaf">
+          <path d="M62,624 L62,322 Q62,274 92,266 Q119,272 119,312 L119,596 Z" fill="#584635"/>
+          <g clip-path="url(#clipDoor)" stroke="#3c3125" stroke-width="1.6">
+            <path d="M76,630 L76,260 M90,630 L90,260 M104,630 L104,260"/>
+            <path d="M62,382 L119,372 L119,380 L62,390 Z" fill="#2a2622" stroke="none"/>
+            <path d="M62,556 L119,540 L119,548 L62,564 Z" fill="#2a2622" stroke="none"/>
+          </g>
+          <circle cx="70" cy="385" r="1.8" fill="#6d6250" stroke="none"/>
+          <circle cx="70" cy="558" r="1.8" fill="#6d6250" stroke="none"/>
+          <circle cx="107" cy="452" r="4" fill="#2a2622"/>
+          <circle cx="107" cy="467" r="10" fill="none" stroke="#2a2622" stroke-width="3.5"/>
+        </g>
+        <path id="doorOpen" d="M62,624 L62,322 Q62,274 92,266 Q119,272 119,312 L119,596 Z" fill="#cfd2cd" style="display:none"/>
+      </g>
+
+      <!-- 窗 -->
+      <g class="hot" data-obj="window" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <path d="M233,412 L233,272 Q236,236 269,218 Q302,236 305,272 L305,412 Z" fill="#a8a18e"/>
+        <path d="M244,402 L244,275 Q247,246 269,232 Q291,246 294,275 L294,402 Z" fill="url(#fogG)"/>
+        <g clip-path="url(#clipWin)" stroke="none">
+          <circle cx="282" cy="262" r="6" fill="#e3e4df" opacity=".8"/>
+          <path d="M244,352 L250,352 L250,320 L254,311 L258,320 L258,342 L263,342 L263,302 L269,288 L275,302 L275,338 L281,338 L281,314 L285,305 L289,314 L289,352 L294,352 L294,402 L244,402 Z" fill="#788085"/>
+          <rect x="266" y="310" width="3" height="5" fill="#4d555b"/>
+          <rect x="253" y="326" width="2.5" height="4" fill="#4d555b"/>
+          <path d="M249,402 L251,372 M251,382 L244,373 M251,388 L257,379 M287,402 L289,366 M289,377 L295,369 M289,383 L282,375" stroke="#59616a" stroke-width="1.5" fill="none"/>
+          <rect x="244" y="364" width="50" height="38" fill="#cfd1cd" opacity=".45"/>
+          <path d="M250,250 l-2,8 M262,290 l-2,8 M284,280 l-2,8 M272,340 l-2,8 M256,300 l-2,8" stroke="#dfe2e2" stroke-width="1" opacity=".5"/>
+        </g>
+        <g id="winBars">
+          <line x1="269" y1="232" x2="269" y2="402" stroke="#6f6857" stroke-width="3"/>
+          <line x1="244" y1="318" x2="294" y2="318" stroke="#6f6857" stroke-width="3"/>
+        </g>
+        <rect x="228" y="406" width="82" height="9" fill="#9b947f"/>
+        <ellipse id="winPuddle" cx="269" cy="408" rx="26" ry="2.5" fill="#5f6d74" stroke="none" style="display:none"/>
+      </g>
+
+      <!-- 挂毯 -->
+      <g class="hot" data-obj="tapestry" stroke="#2b251e" stroke-width="2">
+        <line x1="380" y1="227" x2="517" y2="227" stroke="#2a2622" stroke-width="4"/>
+        <circle cx="379" cy="227" r="4.5" fill="#2a2622"/><circle cx="518" cy="227" r="4.5" fill="#2a2622"/>
+        <rect x="392" y="229" width="112" height="178" fill="#6b3a30"/>
+        <rect x="398" y="235" width="100" height="166" fill="none" stroke="#b9a37f" stroke-width="1.2" opacity=".7"/>
+        <use href="#deer" x="404" y="262" width="88" height="100" style="color:#cdbd9c"/>
+        <path d="M418,232 L416,405 M478,232 L481,405" stroke="#58302a" stroke-width="1" opacity=".7"/>
+        <path id="tapCorner" d="M504,407 L504,362 L466,407 Z" fill="#9b947f" style="display:none"/>
+      </g>
+
+      <!-- 壁炉 -->
+      <g class="hot" data-obj="fireplace" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <polygon points="612,138 702,138 712,366 584,366" fill="#a49c88"/>
+        <polygon points="612,138 627,138 604,366 584,366" fill="#8f8774"/>
+        <path d="M640,180 L688,180 M600,240 L708,240 M596,300 L710,300" stroke="#8c8471" stroke-width="1.3" fill="none"/>
+        <polygon points="560,363 718,363 724,371 554,371" fill="#b6ae99"/>
+        <rect x="554" y="371" width="170" height="20" fill="#9a927e"/>
+        <rect x="562" y="391" width="154" height="156" fill="#a09884"/>
+        <g id="fpJoints" stroke="#82796a" stroke-width="1.4"></g>
+        <path d="M598,547 L598,438 Q600,406 643,403 Q686,406 688,438 L688,547 Z" fill="#1d1914"/>
+        <path d="M610,547 L610,446 Q613,420 643,418 Q673,420 676,446 L676,547 Z" fill="#28221b" stroke="none"/>
+        <path d="M612,540 L674,526 L677,534 L615,548 Z" fill="#4a3b2c"/>
+        <path d="M616,526 L676,541 L672,549 L612,535 Z" fill="#3f3226"/>
+        <path d="M622,547 L622,520 M664,547 L664,520" stroke="#2a2622" stroke-width="3"/>
+        <circle cx="622" cy="518" r="3.5" fill="#2a2622"/><circle cx="664" cy="518" r="3.5" fill="#2a2622"/>
+        <rect x="552" y="547" width="172" height="24" fill="#8f8774"/>
+        <path d="M595,547 L595,571 M640,547 L640,571 M685,547 L685,571" stroke-width="1.4"/>
+      </g>
+
+      <!-- 乌鸦雕像 -->
+      <g class="hot" data-obj="raven" stroke="#2b251e" stroke-width="1.5">
+        <rect x="641" y="351" width="30" height="12" fill="#2a2622"/>
+        <path d="M651,351 Q645,339 647,330 Q647,320 655,318 Q661,316 663,322 L668,332 Q676,341 681,359 L669,353 L661,351 Z" fill="#1d1915"/>
+        <path id="ravenBeak" d="M648,322 L635,326 L648,328 Z" fill="#1d1915"/>
+        <circle id="ravenEye" cx="652" cy="322" r="1.6" fill="#cbb894" stroke="none"/>
+      </g>
+
+      <!-- 书架 -->
+      <g class="hot" data-obj="shelf" stroke="#2b251e" stroke-width="1.6" stroke-linejoin="round">
+        <polygon points="746,292 758,291 758,238 746,239" fill="#6e3a30"/>
+        <polygon points="759,291 770,290 770,226 759,227" fill="#4f4236"/>
+        <polygon points="771,290 784,289 783,221 771,222" fill="#7c6a55"/>
+        <polygon points="786,289 796,288 806,244 797,242" fill="#5a3a30"/>
+        <path d="M801,287 Q799,270 807,264 L807,253 L812,253 L812,264 Q820,270 818,287 Z" fill="#4c4a42"/>
+        <polygon points="732,292 822,284 822,293 732,301" fill="#5b4a3a"/>
+        <path d="M742,300 L742,330 Q748,315 760,299 Z" fill="#4e3f30"/>
+        <path d="M810,292 L810,322 Q804,307 793,294 Z" fill="#4e3f30"/>
+      </g>
+
+      <!-- 地毯 -->
+      <g class="hot" data-obj="rug" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <polygon points="236,600 604,600 642,684 192,684" fill="#6a4236"/>
+        <polygon points="248,606 592,606 626,678 208,678" fill="none" stroke="#b39a76" stroke-width="1.4"/>
+        <polygon points="262,613 578,613 607,671 228,671" fill="#704739" stroke="#8a5b48" stroke-width="1.4"/>
+        <polygon points="417,618 474,642 417,666 360,642" fill="none" stroke="#c4ae8a" stroke-width="1.6"/>
+        <polygon points="417,630 446,642 417,654 388,642" fill="#8a5b48" stroke="#c4ae8a" stroke-width="1.2"/>
+        <path d="M300,642 l8,-6 l8,6 l-8,6 Z M518,642 l8,-6 l8,6 l-8,6 Z" fill="none" stroke="#b39a76" stroke-width="1.2"/>
+      </g>
+
+      <!-- 桌子 -->
+      <g class="hot" data-obj="table" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <rect x="206" y="478" width="8" height="80" fill="#43362a"/>
+        <rect x="338" y="478" width="8" height="80" fill="#43362a"/>
+        <rect x="198" y="546" width="160" height="6" fill="#43362a"/>
+        <polygon points="184,454 370,454 380,462 174,462" fill="#6a5643"/>
+        <rect x="174" y="462" width="206" height="16" fill="#574634"/>
+        <rect x="186" y="478" width="12" height="114" fill="#4e3f30"/>
+        <rect x="356" y="478" width="12" height="112" fill="#4e3f30"/>
+      </g>
+      <!-- 书 -->
+      <g class="hot" data-obj="book" stroke="#2b251e" stroke-width="1.5" stroke-linejoin="round">
+        <polygon points="240,447 282,447 288,455 236,455" fill="#6e3a30"/>
+        <rect x="236" y="455" width="52" height="5" fill="#d9cfb4"/>
+        <rect x="236" y="460" width="52" height="2.5" fill="#4a2620"/>
+        <path d="M262,448.5 L262,453.5 M257,451 L267,451" stroke="#c9b48a" stroke-width="1.4"/>
+      </g>
+      <!-- 圣杯 -->
+      <g id="sceneChalice" class="hot" data-obj="chalice" stroke="#2b251e" stroke-width="1.5">
+        <path d="M321,430 Q321,450 333,452 Q345,450 345,430 Z" fill="#8e8a7c"/>
+        <ellipse cx="333" cy="430" rx="12" ry="3" fill="#5f5b50"/>
+        <rect x="331" y="452" width="4" height="8" fill="#8e8a7c"/>
+        <ellipse cx="333" cy="455" rx="3.5" ry="2" fill="#8e8a7c"/>
+        <ellipse cx="333" cy="460" rx="9" ry="2.5" fill="#7a7668"/>
+      </g>
+
+      <!-- 椅子 -->
+      <g class="hot" data-obj="chair" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <rect x="378" y="428" width="10" height="172" fill="#4e3f30"/>
+        <rect x="445" y="428" width="10" height="172" fill="#4e3f30"/>
+        <path fill-rule="evenodd" fill="#5b4a3a" d="M386,434 L447,434 L447,520 L386,520 Z M421,442 L429,442 L429,450 L437,450 L437,458 L429,458 L429,472 L421,472 L421,458 L413,458 L413,450 L421,450 Z"/>
+        <polygon points="364,520 452,520 458,540 368,540" fill="#6a5643"/>
+        <rect x="368" y="540" width="9" height="62" fill="#4e3f30"/>
+        <rect x="438" y="540" width="9" height="62" fill="#4e3f30"/>
+      </g>
+
+      <!-- 箱子 -->
+      <g class="hot" data-obj="chest" stroke="#2b251e" stroke-width="2" stroke-linejoin="round">
+        <g id="chestOpenG" style="display:none">
+          <polygon points="720,492 822,492 828,432 726,438" fill="#5b4a3a"/>
+          <path d="M740,491 L742,437 M800,492 L804,433" stroke="#7a6d55" stroke-width="5"/>
+        </g>
+        <polygon points="704,502 806,502 806,627 704,627" fill="#5b4a3a"/>
+        <polygon points="806,502 822,492 822,613 806,627" fill="#46392d"/>
+        <g id="chestLidClosed">
+          <polygon points="704,502 720,492 822,492 806,502" fill="#6a5643"/>
+        </g>
+        <g id="chestInside" style="display:none">
+          <polygon points="704,502 720,492 822,492 806,502" fill="#17130f"/>
+          <polygon points="732,500 784,500 794,494 744,494" fill="#ddd3b8" stroke-width="1"/>
+        </g>
+        <line x1="704" y1="522" x2="806" y2="522"/><line x1="806" y1="522" x2="822" y2="511"/>
+        <line x1="704" y1="580" x2="806" y2="580" stroke="#3a2f25" stroke-width="1.4"/>
+        <rect x="716" y="502" width="8" height="125" fill="#7a6d55"/>
+        <rect x="786" y="502" width="8" height="125" fill="#7a6d55"/>
+        <rect x="747" y="512" width="16" height="20" fill="#8a7b5e"/>
+        <circle cx="755" cy="519" r="2.2" fill="#2a2622" stroke="none"/>
+        <rect x="754" y="520" width="2" height="7" fill="#2a2622" stroke="none"/>
+      </g>
+
+      <!-- 吊灯 -->
+      <g class="hot" data-obj="chandelier" stroke="#2a2622">
+        <path d="M445,40 L445,93" stroke-width="3" stroke-dasharray="5 3"/>
+        <circle cx="445" cy="98" r="5" fill="none" stroke-width="2.5"/>
+        <path d="M445,98 L378,146 M445,98 L418,152 M445,98 L472,152 M445,98 L512,146" stroke-width="2.2" stroke-dasharray="4 3" fill="none"/>
+        <ellipse cx="445" cy="150" rx="71" ry="12" fill="none" stroke-width="7"/>
+        <g id="sceneCandles"></g>
+        <path d="M398,161 l3,8 l3,-8 Z M442,162 l3,9 l3,-9 Z M486,161 l3,8 l3,-8 Z" fill="#2a2622"/>
+      </g>
+      <!-- 隐藏鸦羽：吊灯铁环上方，点亮后才看得见 -->
+      <g id="feather1" class="hot" data-obj="feather1" style="display:none">
+        <rect x="486" y="104" width="40" height="40" fill="transparent"/>
+        <path d="M494,140 Q500,122 518,108" stroke="#0e0c0a" stroke-width="2.4" fill="none"/>
+        <path d="M497,134 l-6,-3 M500,128 l-6,-4 M504,122 l-5,-5 M509,117 l-4,-5 M499,131 l6,-1 M503,125 l6,-2 M507,120 l6,-2 M512,114 l5,-2" stroke="#1d1915" stroke-width="2"/>
+        <circle cx="506" cy="124" r="16" fill="none" stroke="#efe6c8" stroke-width="1.2" class="pulse"/>
+      </g>
+
+      <!-- 光照 -->
+      <rect id="dark" x="0" y="0" width="828" height="709" fill="#0d0a07" opacity=".34" pointer-events="none" style="transition:opacity .8s"/>
+      <circle id="glow" cx="445" cy="210" r="430" fill="url(#warmBig)" opacity="0" pointer-events="none" style="transition:opacity .8s;mix-blend-mode:screen"/>
+    </svg>
+
+    <!-- ================= 灰烬大厅（枢纽） ================= -->
+    <div id="hall" class="lvroot hidden" data-level="hall">
+      <!-- 背景：由 art/scenes/S01-灰烬大厅.svg 内嵌（id 统一加 hb- 前缀），改图后需重新嵌入 -->
+      <svg id="hallBg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 709">
+      <defs>
+        <filter id="hb-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="4" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="hb-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.02" numOctaves="4" seed="9"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0.12  0 0 0 0 0.11  0 0 0 0 0.09  1.9 0 0 0 -0.8"/>
+        </filter>
+        <filter id="hb-ash" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="3"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0.62  0 0 0 0 0.6  0 0 0 0 0.55  11 0 0 0 -8.4"/>
+        </filter>
+        <filter id="hb-blur2"><feGaussianBlur stdDeviation="2"/></filter>
+        <filter id="hb-blur6" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        <pattern id="hb-stone" patternUnits="userSpaceOnUse" width="64" height="36">
+          <path d="M0,0.5H64M0,18.5H64M0.5,0V18M32.5,18V36" fill="none" stroke="#45413a" stroke-width="1.3"/>
+          <path d="M6,8 l5,1 M40,27 l6,-1 M20,30 l3,2" stroke="#4d4940" stroke-width="1" fill="none"/>
+        </pattern>
+        <pattern id="hb-stoneSmall" patternUnits="userSpaceOnUse" width="36" height="20">
+          <path d="M0,0.5H36M0,10.5H36M0.5,0V10M18.5,10V20" fill="none" stroke="#3f3b33" stroke-width="1.1"/>
+        </pattern>
+        <linearGradient id="hb-ceilG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#17120e"/><stop offset="1" stop-color="#2c241d"/>
+        </linearGradient>
+        <linearGradient id="hb-bwG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4f4b40"/><stop offset=".35" stop-color="#5e5a4c"/><stop offset="1" stop-color="#565246"/>
+        </linearGradient>
+        <linearGradient id="hb-lwG" x1="0" x2="1">
+          <stop offset="0" stop-color="#3b3830"/><stop offset="1" stop-color="#524e43"/>
+        </linearGradient>
+        <linearGradient id="hb-rwG" x1="0" x2="1">
+          <stop offset="0" stop-color="#504c41"/><stop offset="1" stop-color="#37342d"/>
+        </linearGradient>
+        <linearGradient id="hb-floorG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#29221c"/><stop offset="1" stop-color="#3a3027"/>
+        </linearGradient>
+        <linearGradient id="hb-skyG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1b222b"/><stop offset=".6" stop-color="#3b4750"/><stop offset="1" stop-color="#6b767a"/>
+        </linearGradient>
+        <linearGradient id="hb-hearthG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0b0807"/><stop offset="1" stop-color="#1c1612"/>
+        </linearGradient>
+        <linearGradient id="hb-fogSeam" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#9aa3a4" stop-opacity=".2"/><stop offset="1" stop-color="#c4c9c6" stop-opacity=".85"/>
+        </linearGradient>
+        <linearGradient id="hb-shaftG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c8d2d4" stop-opacity=".16"/><stop offset="1" stop-color="#c8d2d4" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="hb-cornerL" x1="0" x2="1">
+          <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="hb-cornerR" x1="1" x2="0">
+          <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="hb-warm"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hb-warmBig"><stop offset="0" stop-color="#ffc56e" stop-opacity=".32"/><stop offset=".6" stop-color="#ffb35a" stop-opacity=".1"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hb-moonGlow"><stop offset="0" stop-color="#e9ecdf" stop-opacity=".7"/><stop offset="1" stop-color="#e9ecdf" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hb-fogFloor"><stop offset="0" stop-color="#b9c0bf" stop-opacity=".35"/><stop offset="1" stop-color="#b9c0bf" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hb-vignette" cx="50%" cy="48%" r="72%">
+          <stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/>
+        </radialGradient>
+        <clipPath id="hb-clipCeil"><polygon points="0,-38 150,95 678,95 828,-38"/></clipPath>
+        <clipPath id="hb-clipWalls">
+          <polygon points="0,-38 150,95 150,520 0,628"/>
+          <rect x="150" y="95" width="528" height="425"/>
+          <polygon points="828,-38 678,95 678,520 828,628"/>
+        </clipPath>
+        <clipPath id="hb-clipFloor"><polygon points="0,628 150,520 678,520 828,628 828,709 0,709"/></clipPath>
+        <clipPath id="hb-clipWin"><path d="M596,440 L596,196 Q600,162 620,150 Q640,162 644,196 L644,440 Z"/></clipPath>
+        <clipPath id="hb-clipMainDoor"><path d="M699,535 L699,280 Q704,226 738,196 Q774,220 779,266 L779,593 Z"/></clipPath>
+        <clipPath id="hb-clipChapel"><path d="M86,566 L86,292 Q90,242 110,226 Q130,244 134,297 L134,531 Z"/></clipPath>
+        <clipPath id="hb-clipTableTop"><polygon points="238,548 592,548 616,584 214,584"/></clipPath>
+        <symbol id="hb-e-raven" viewBox="0 0 60 60">
+          <path fill="currentColor" d="M22,50 Q14,36 17,25 Q19,13 30,11 Q39,9 41,18 L45,28 Q52,38 56,54 L44,47 L35,50 Z M19,16 L4,20 L20,23 Z"/>
+        </symbol>
+        <symbol id="hb-e-tower" viewBox="0 0 20 24">
+          <path fill="currentColor" d="M5,23 V9 H3 V2 H6 V4.5 H8.5 V2 H11.5 V4.5 H14 V2 H17 V9 H15 V23 Z"/>
+        </symbol>
+        <symbol id="hb-e-shield" viewBox="0 0 20 24">
+          <path fill="currentColor" d="M2,2 H18 V11 Q18,19 10,23 Q2,19 2,11 Z"/>
+        </symbol>
+        <symbol id="hb-e-cross" viewBox="0 0 60 60">
+          <path fill="currentColor" d="M25,4H35V20H51V30H35V56H25V30H9V20H25Z"/>
+        </symbol>
+        <symbol id="hb-e-pot" viewBox="0 0 20 24">
+          <path fill="currentColor" d="M6,2 H14 V4.5 Q13,6 13,7 Q18.5,10 17.5,16.5 Q16.5,22.5 10,22.5 Q3.5,22.5 2.5,16.5 Q1.5,10 7,7 Q7,6 6,4.5 Z"/>
+        </symbol>
+        <symbol id="hb-e-wheat" viewBox="0 0 20 30">
+          <g fill="currentColor">
+            <path d="M9.2,29 V7 H10.8 V29 Z"/>
+            <ellipse cx="10" cy="4.5" rx="2" ry="3.4"/>
+            <ellipse cx="7.2" cy="9" rx="1.9" ry="3.3" transform="rotate(-30 7.2 9)"/>
+            <ellipse cx="12.8" cy="9" rx="1.9" ry="3.3" transform="rotate(30 12.8 9)"/>
+            <ellipse cx="7.2" cy="13.5" rx="1.9" ry="3.3" transform="rotate(-30 7.2 13.5)"/>
+            <ellipse cx="12.8" cy="13.5" rx="1.9" ry="3.3" transform="rotate(30 12.8 13.5)"/>
+            <ellipse cx="7.2" cy="18" rx="1.9" ry="3.3" transform="rotate(-30 7.2 18)"/>
+            <ellipse cx="12.8" cy="18" rx="1.9" ry="3.3" transform="rotate(30 12.8 18)"/>
+          </g>
+        </symbol>
+        <symbol id="hb-e-stag" viewBox="0 0 100 100">
+          <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="58" cy="55" rx="26" ry="13" stroke="none"/>
+            <polygon points="36,52 46,46 34,26 25,30" stroke="none"/>
+            <ellipse cx="25" cy="29" rx="8.5" ry="5.5" stroke="none"/>
+            <polygon points="30,23 37,18 34,26" stroke="none"/>
+            <path d="M27,24 L21,9 L13,3 M21,9 L24,1 M22,15 L15,13 M31,23 L36,9 L44,3 M36,9 L34,1 M35,15 L42,14" fill="none" stroke-width="5"/>
+            <path d="M38,62 L36,95 M47,65 L49,95 M70,64 L68,95 M80,59 L85,93" fill="none" stroke-width="6"/>
+          </g>
+        </symbol>
+        <symbol id="hb-e-fawn" viewBox="0 0 100 100">
+          <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="58" cy="58" rx="22" ry="11" stroke="none"/>
+            <polygon points="40,56 48,50 38,32 30,36" stroke="none"/>
+            <ellipse cx="31" cy="34" rx="8" ry="5.5" stroke="none"/>
+            <polygon points="33,30 40,20 38,32" stroke="none"/>
+            <path d="M42,64 L41,93 M50,66 L51,93 M68,66 L67,93 M76,62 L79,91" fill="none" stroke-width="6"/>
+          </g>
+        </symbol>
+        <symbol id="hb-sym-moon" viewBox="0 0 60 60">
+          <path fill="currentColor" d="M38,4 A26,26 0 1 0 38,56 A21,21 0 1 1 38,4 Z"/>
+        </symbol>
+        <symbol id="hb-flame" viewBox="0 0 10 16">
+          <path d="M5,0 Q9,7 8,11 Q7,15.5 5,15.5 Q3,15.5 2,11 Q1,7 5,0 Z" fill="#ffd27a"/>
+          <path d="M5,6 Q7,10 6.4,12.5 Q6,14.5 5,14.5 Q4,14.5 3.6,12.5 Q3,10 5,6 Z" fill="#fff3c9"/>
+        </symbol>
+      </defs>
+      <rect x="0" y="0" width="828" height="709" fill="#17120e"/>
+      <g filter="url(#hb-rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+        <rect x="-10" y="-10" width="848" height="110" fill="url(#hb-ceilG)" stroke="none"/>
+        <g clip-path="url(#hb-clipCeil)">
+          <g fill="#1d1813" stroke="#120e0b" stroke-width="1.6">
+            <polygon points="140,-10 172,-10 236,95 224,95"/>
+            <polygon points="286,-10 312,-10 336,95 326,95"/>
+            <polygon points="516,-10 542,-10 502,95 492,95"/>
+            <polygon points="656,-10 688,-10 604,95 592,95"/>
+          </g>
+          <g stroke="#120e0b" stroke-width="1.6">
+            <polygon points="80,34 748,34 734,46 94,46" fill="#3a2f26"/>
+            <polygon points="94,46 734,46 726,54 102,54" fill="#1a1510"/>
+            <polygon points="126,74 702,74 694,82 134,82" fill="#352b23"/>
+            <polygon points="134,82 694,82 690,87 138,87" fill="#18130f"/>
+          </g>
+          <path d="M200,40 L230,40 M420,38 L460,38 M600,40 L640,40 M260,78 L300,78 M500,77 L540,77" stroke="#4a3d31" stroke-width="1" fill="none"/>
+        </g>
+        <rect x="150" y="95" width="528" height="425" fill="url(#hb-bwG)"/>
+        <rect x="150" y="95" width="528" height="425" fill="url(#hb-stone)" stroke="none" opacity=".9"/>
+        <polygon points="0,-38 150,95 150,520 0,628" fill="url(#hb-lwG)"/>
+        <g stroke="#34312a" stroke-width="1.3" fill="none">
+          <path d="M150,127.7 L0,13.3 M150,160.5 L0,64.6 M150,193.2 L0,115.8 M150,225.9 L0,167.1 M150,258.6 L0,218.4 M150,291.4 L0,269.7 M150,323.7 L0,320.3 M150,356.4 L0,371.6 M150,389.1 L0,422.9 M150,421.8 L0,474.2 M150,454.6 L0,525.4 M150,487.3 L0,576.7"/>
+          <path d="M128,142 V173 M96,140 V176 M60,96 V136 M30,108 V150 M140,250 V275 M118,214 V248 M40,190 V232 M12,248 V292 M146,330 V352 M70,300 V352 M20,350 V404 M76,446 V500 M30,480 V535"/>
+        </g>
+        <polygon points="828,-38 678,95 678,520 828,628" fill="url(#hb-rwG)"/>
+        <g stroke="#34312a" stroke-width="1.3" fill="none">
+          <path d="M678,127.7 L828,13.3 M678,160.5 L828,64.6 M678,193.2 L828,115.8 M678,225.9 L828,167.1 M678,258.6 L828,218.4 M678,291.4 L828,269.7 M678,323.7 L828,320.3 M678,356.4 L828,371.6 M678,389.1 L828,422.9 M678,421.8 L828,474.2 M678,454.6 L828,525.4 M678,487.3 L828,576.7"/>
+          <path d="M700,142 V173 M732,140 V176 M768,96 V136 M798,108 V150 M688,250 V275 M800,190 V232 M816,248 V292 M682,330 V352 M806,350 V404 M812,470 V520"/>
+        </g>
+        <rect x="150" y="95" width="60" height="425" fill="url(#hb-cornerL)" stroke="none"/>
+        <rect x="618" y="95" width="60" height="425" fill="url(#hb-cornerR)" stroke="none"/>
+        <rect x="150" y="95" width="528" height="40" fill="#000" opacity=".25" stroke="none"/>
+        <polygon points="0,628 150,520 678,520 828,628 828,709 0,709" fill="url(#hb-floorG)"/>
+        <g clip-path="url(#hb-clipFloor)" stroke="#1d1712" stroke-width="1.5" fill="none">
+          <path d="M16,520 L-380,709 M56,520 L-300,709 M96,520 L-220,709 M136,520 L-140,709 M176,520 L-60,709 M216.5,520 L20,709 M256.6,520 L100,709 M296.7,520 L180,709 M336.8,520 L260,709 M376.9,520 L340,709 M417,520 L420,709 M457.1,520 L500,709 M497.2,520 L580,709 M537.3,520 L660,709 M577.4,520 L740,709 M617.5,520 L820,709 M657.6,520 L900,709 M697.7,520 L980,709 M737.8,520 L1060,709 M778,520 L1140,709 M818,520 L1220,709"/>
+          <path d="M0,540 H828 M0,566 H828 M0,600 H828 M0,646 H828" stroke="#231c16" stroke-width="1" opacity=".7"/>
+        </g>
+        <line x1="150" y1="520" x2="678" y2="520" stroke="#15110d" stroke-width="3"/>
+      </g>
+      <rect x="0" y="0" width="828" height="709" filter="url(#hb-stain)" clip-path="url(#hb-clipWalls)" opacity=".6"/>
+      <g filter="url(#hb-rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+        <g>
+          <rect x="206" y="106" width="148" height="24" fill="#7a7564"/>
+          <rect x="210" y="109" width="140" height="18" fill="none" stroke="#4e493e" stroke-width="1.2"/>
+          <use href="#hb-sym-moon" x="218" y="110" width="16" height="16" style="color:#2f2a22"/>
+          <circle cx="250" cy="118" r="1.8" fill="#2f2a22" stroke="none"/>
+          <path d="M262,111 L270,109 L279,112 L281,119 L277,126 L266,127 L260,121 Z" fill="#544e42" stroke="#3a352c" stroke-width="1.2"/>
+          <path d="M264,114 L276,124 M268,111 L262,120 M273,113 L278,121 M266,124 L271,117" stroke="#3a352c" stroke-width="1" fill="none"/>
+          <circle cx="292" cy="118" r="1.8" fill="#2f2a22" stroke="none"/>
+          <path d="M311,127 V115 H309.5 V111 H311.5 V112.5 H313 V111 H315 V112.5 H316.5 V111 H318.5 V115 H317 V127 Z" fill="#2f2a22" stroke="none"/>
+          <use href="#hb-e-raven" x="318" y="108" width="20" height="18" style="color:#2f2a22"/>
+        </g>
+        <path d="M200,330 L200,190 Q205,150 280,138 Q355,150 360,190 L360,330 Z" fill="#6a6555"/>
+        <path d="M210,330 L210,194 Q215,160 280,150 Q345,160 350,194 L350,330 Z" fill="#3a362e"/>
+        <rect x="210" y="150" width="140" height="180" fill="url(#hb-stoneSmall)" stroke="none" opacity=".5" clip-path="url(#hb-clipWalls)"/>
+        <rect x="226" y="170" width="108" height="122" fill="#5b4428" stroke="#1a1511"/>
+        <path d="M218,172 Q280,160 342,172 L346,284 Q333,297 318,287 Q300,301 281,290 Q262,302 246,289 Q230,298 214,285 Z" fill="#69645a"/>
+        <g fill="none" stroke="#4c483f" stroke-width="1.3">
+          <path d="M238,176 Q234,230 244,286 M262,170 Q258,228 264,296 M288,168 Q292,230 282,288 M314,172 Q320,232 318,286 M334,174 Q338,230 340,282"/>
+        </g>
+        <path d="M222,174 Q280,166 338,174" stroke="#9d9784" stroke-width="1.2" fill="none"/>
+        <rect x="216" y="164" width="128" height="6" fill="#2a2420"/>
+        <path d="M330,286 L338,284 L338,294 L329,294 Z" fill="#8a6a3a" stroke-width="1.2"/>
+        <rect x="164" y="330" width="232" height="14" fill="#3e3228"/>
+        <path d="M164,344 L222,344 L195,520 L164,520 Z" fill="#26201a" stroke="none"/>
+        <path d="M338,344 L396,344 L396,520 L365,520 Z" fill="#26201a" stroke="none"/>
+        <g fill="#3b2f25">
+          <rect x="164" y="296" width="58" height="6"/>
+          <rect x="338" y="296" width="58" height="6"/>
+        </g>
+        <path d="M170,302 V330 M180,302 V330 M190,302 V330 M200,302 V330 M210,302 V330 M350,302 V330 M360,302 V330 M370,302 V330 M380,302 V330 M390,302 V330" stroke="#3b2f25" stroke-width="3.2"/>
+        <g stroke="#1a1511" stroke-width="1.2">
+          <rect x="222" y="342" width="116" height="15" fill="#33291f"/>
+          <rect x="219.6" y="356.8" width="120.8" height="15" fill="#33291f"/>
+          <rect x="217.2" y="371.6" width="125.6" height="15" fill="#352b21"/>
+          <rect x="214.8" y="386.4" width="130.4" height="15" fill="#352b21"/>
+          <rect x="212.4" y="401.2" width="135.2" height="15" fill="#372c22"/>
+          <rect x="210" y="416" width="140" height="15" fill="#372c22"/>
+          <rect x="207.6" y="430.8" width="144.8" height="15" fill="#392e23"/>
+          <rect x="205.2" y="445.6" width="149.6" height="15" fill="#392e23"/>
+          <rect x="202.8" y="460.4" width="154.4" height="15" fill="#3b3024"/>
+          <rect x="200.4" y="475.2" width="159.2" height="15" fill="#3b3024"/>
+          <rect x="198" y="490" width="164" height="15" fill="#3d3126"/>
+          <rect x="195.6" y="504.8" width="168.8" height="15.2" fill="#3d3126"/>
+        </g>
+        <g fill="#54453a" stroke="none">
+          <rect x="222" y="342" width="116" height="3"/><rect x="219.6" y="356.8" width="120.8" height="3"/>
+          <rect x="217.2" y="371.6" width="125.6" height="3"/><rect x="214.8" y="386.4" width="130.4" height="3"/>
+          <rect x="212.4" y="401.2" width="135.2" height="3"/><rect x="210" y="416" width="140" height="3"/>
+          <rect x="207.6" y="430.8" width="144.8" height="3"/><rect x="205.2" y="445.6" width="149.6" height="3"/>
+          <rect x="202.8" y="460.4" width="154.4" height="3"/><rect x="200.4" y="475.2" width="159.2" height="3"/>
+          <rect x="198" y="490" width="164" height="3"/><rect x="195.6" y="504.8" width="168.8" height="3"/>
+        </g>
+        <polygon points="186,520 195,520 222,342 215,342" fill="#2c241c"/>
+        <polygon points="374,520 365,520 338,342 345,342" fill="#2c241c"/>
+        <g stroke="#3b2f25" stroke-width="2.6">
+          <path d="M195.7,422.4 V502.2 M198.4,408.8 V484.4 M201.1,395.2 V466.6 M203.8,381.6 V448.8 M206.5,368 V431 M209.2,354.4 V413.2 M211.9,340.8 V395.4 M214.6,327.2 V377.6 M217.3,313.6 V359.8"/>
+          <path d="M364.3,422.4 V502.2 M361.6,408.8 V484.4 M358.9,395.2 V466.6 M356.2,381.6 V448.8 M353.5,368 V431 M350.8,354.4 V413.2 M348.1,340.8 V395.4 M345.4,327.2 V377.6 M342.7,313.6 V359.8"/>
+        </g>
+        <path d="M191,436 L220,298" stroke="#3b2f25" stroke-width="6" stroke-linecap="round"/>
+        <path d="M369,436 L340,298" stroke="#3b2f25" stroke-width="6" stroke-linecap="round"/>
+        <g fill="#3b2f25">
+          <rect x="183" y="434" width="15" height="88"/><circle cx="190.5" cy="428" r="7"/>
+          <rect x="362" y="434" width="15" height="88"/><circle cx="369.5" cy="428" r="7"/>
+        </g>
+        <g stroke="#120f0c" stroke-width="2.6" fill="none">
+          <path d="M203,446 V520 M212,446 V520 M221,446 V520 M230,446 V520 M239,446 V520 M248,446 V520 M257,446 V520 M266,446 V520 M275,446 V520 M285,446 V520 M294,446 V520 M303,446 V520 M312,446 V520 M321,446 V520 M330,446 V520 M339,446 V520 M348,446 V520 M357,446 V520"/>
+          <path d="M198,452 H362 M198,486 H362 M198,515 H362" stroke-width="3.4"/>
+          <path d="M280,446 V520" stroke-width="3"/>
+        </g>
+        <g fill="#120f0c" stroke="none">
+          <path d="M203,438 l-3,8 h6Z M212,438 l-3,8 h6Z M221,438 l-3,8 h6Z M230,438 l-3,8 h6Z M239,438 l-3,8 h6Z M248,438 l-3,8 h6Z M257,438 l-3,8 h6Z M266,438 l-3,8 h6Z M275,438 l-3,8 h6Z M285,438 l-3,8 h6Z M294,438 l-3,8 h6Z M303,438 l-3,8 h6Z M312,438 l-3,8 h6Z M321,438 l-3,8 h6Z M330,438 l-3,8 h6Z M339,438 l-3,8 h6Z M348,438 l-3,8 h6Z M357,438 l-3,8 h6Z"/>
+          <rect x="272" y="474" width="16" height="22" fill="#2a2420" stroke="#120f0c" stroke-width="1.4"/>
+        </g>
+        <path d="M280,481 a2.2,2.2 0 1 1 0.01,0 M279,483 h2 l1,7 h-4 Z" fill="#090706" stroke="none"/>
+        <rect x="418" y="95" width="138" height="198" fill="#615c4e"/>
+        <rect x="418" y="95" width="138" height="198" fill="url(#hb-stone)" stroke="none" opacity=".7"/>
+        <rect x="418" y="95" width="10" height="198" fill="#000" opacity=".25" stroke="none"/>
+        <rect x="546" y="95" width="10" height="198" fill="#000" opacity=".2" stroke="none"/>
+        <line x1="424" y1="118" x2="550" y2="118" stroke="#16120e" stroke-width="4"/>
+        <circle cx="423" cy="118" r="4.5" fill="#16120e"/><circle cx="551" cy="118" r="4.5" fill="#16120e"/>
+        <path d="M432,120 H542 V266 L534,272 L524,266 L514,273 L504,266 L494,272 L484,266 L474,273 L464,266 L454,272 L444,266 L432,272 Z" fill="#5a2c25"/>
+        <path d="M438,126 H536 V260 H438 Z" fill="none" stroke="#9c8562" stroke-width="1.2" opacity=".7"/>
+        <g fill="none" stroke="#a48c66" stroke-width="2" stroke-linecap="round" opacity=".85">
+          <path d="M487,258 V146"/>
+          <path d="M487,235 Q470,232 462,222 M487,235 Q504,232 512,222 M487,205 Q466,204 452,193 M487,205 Q508,204 522,193 M487,180 Q472,176 462,165 M487,180 Q502,176 512,165"/>
+          <path d="M487,258 Q474,262 466,258 M487,258 Q500,262 508,258" stroke-width="1.4"/>
+        </g>
+        <g fill="#b9a47e" stroke="#2e2219" stroke-width="1.2">
+          <path d="M480,131 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M455,158 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M505,158 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M445,186 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M480,183 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M515,186 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M455,215 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+          <path d="M505,215 h14 v6 q0,6 -7,8 q-7,-2 -7,-8 Z"/>
+        </g>
+        <g stroke="#7d6a4e" stroke-width=".9" opacity=".8">
+          <path d="M483,137 h8 M458,164 h8 M508,164 h8 M448,192 h8 M483,189 h8 M518,192 h8 M458,221 h8 M508,221 h8"/>
+        </g>
+        <use href="#hb-e-stag" x="438" y="238" width="18" height="18" style="color:#a48c66" opacity=".7"/>
+        <use href="#hb-e-raven" x="518" y="238" width="18" height="18" style="color:#a48c66" opacity=".7"/>
+        <polygon points="404,292 570,292 574,300 400,300" fill="#827c6a"/>
+        <rect x="400" y="300" width="174" height="10" fill="#6c6757"/>
+        <path d="M410,310 L422,310 L418,326 L414,326 Z M552,310 L564,310 L560,326 L556,326 Z" fill="#5d584a"/>
+        <rect x="414" y="310" width="146" height="210" fill="#5d584b"/>
+        <g stroke="#3e3a31" stroke-width="1.3" fill="none">
+          <path d="M414,336 H440 M534,336 H560 M414,364 H440 M534,364 H560 M414,392 H440 M534,392 H560 M414,420 H440 M534,420 H560 M414,448 H440 M534,448 H560 M414,476 H440 M534,476 H560 M414,504 H440 M534,504 H560"/>
+          <path d="M427,310 V336 M547,336 V364 M427,364 V392 M547,392 V420 M427,420 V448 M547,448 V476 M427,476 V504"/>
+          <path d="M440,326 H534"/>
+        </g>
+        <path d="M440,520 L440,362 Q440,344 458,344 L516,344 Q534,344 534,362 L534,520 Z" fill="url(#hb-hearthG)"/>
+        <ellipse cx="487" cy="514" rx="40" ry="7" fill="#4a4741" stroke="none"/>
+        <path d="M458,508 Q470,494 486,500 L512,494 Q520,498 518,506 L494,510 Z" fill="#1d1712" stroke="#0d0a08" stroke-width="1.2"/>
+        <path d="M466,500 l14,-2 M498,498 l10,-1" stroke="#3a332c" stroke-width="1" fill="none"/>
+        <path d="M452,490 H522 M456,490 V512 M470,490 V512 M487,490 V512 M504,490 V512 M518,490 V512" stroke="#0c0a08" stroke-width="2.4" fill="none"/>
+        <circle cx="478" cy="509" r="1.3" fill="#8a3a22" stroke="none" opacity=".8"/>
+        <circle cx="496" cy="511" r="1" fill="#8a3a22" stroke="none" opacity=".7"/>
+        <polygon points="404,520 570,520 580,530 394,530" fill="#4c483d"/>
+        <rect x="456" y="277" width="62" height="15" fill="#3e3127"/>
+        <rect x="452" y="290" width="70" height="3" fill="#2e251d"/>
+        <g fill="#0f0c0a" stroke="none">
+          <rect x="460" y="280" width="4" height="7"/><rect x="468" y="280" width="4" height="7"/><rect x="476" y="280" width="4" height="7"/>
+          <rect x="485" y="280" width="4" height="7"/><rect x="494" y="280" width="4" height="7"/><rect x="502" y="280" width="4" height="7"/>
+          <rect x="510" y="280" width="4" height="7"/>
+        </g>
+        <g fill="#2a2622" stroke="#120f0c" stroke-width="1.2">
+          <path d="M414,292 h14 l-3,-3 h-8 Z"/><rect x="419.5" y="276" width="3" height="13"/><path d="M416,276 h10 v-2 h-10 Z"/>
+          <path d="M546,292 h14 l-3,-3 h-8 Z"/><rect x="551.5" y="276" width="3" height="13"/><path d="M548,276 h10 v-2 h-10 Z"/>
+        </g>
+        <rect x="418" y="256" width="6" height="18" fill="#d7ccb0" stroke-width="1.2"/>
+        <rect x="550" y="260" width="6" height="14" fill="#d7ccb0" stroke-width="1.2"/>
+        <path d="M418,262 q1,4 0,7 M556,264 q-1,3 0,6" stroke="#bdb196" stroke-width="1.2" fill="none"/>
+        <path d="M584,452 L584,192 Q589,148 620,134 Q651,148 656,192 L656,452 Z" fill="#6f6a59"/>
+        <path d="M596,440 L596,196 Q600,162 620,150 Q640,162 644,196 L644,440 Z" fill="url(#hb-skyG)"/>
+        <g clip-path="url(#hb-clipWin)" stroke="none">
+          <circle cx="604" cy="182" r=".9" fill="#d8dccf"/><circle cx="634" cy="210" r=".8" fill="#d8dccf"/><circle cx="612" cy="250" r=".7" fill="#d8dccf"/><circle cx="638" cy="280" r=".8" fill="#d8dccf"/>
+          <circle cx="607" cy="398" r="28" fill="url(#hb-moonGlow)"/>
+          <circle cx="607" cy="398" r="8.5" fill="#e8e5d4"/>
+          <circle cx="604" cy="396" r="2" fill="#cfcab5"/><circle cx="610" cy="401" r="1.4" fill="#cfcab5"/>
+          <path d="M596,418 Q606,412 616,416 Q630,410 644,414 V440 H596 Z" fill="#3c464c"/>
+          <rect x="596" y="420" width="48" height="20" fill="#56626a"/>
+          <ellipse cx="631" cy="420" rx="9" ry="2.2" fill="#2a3237"/>
+          <path d="M628,420 V378 H634 V420 Z M626.5,378 L631,366 L635.5,378 Z" fill="#232b30"/>
+          <rect x="630.2" y="386" width="1.6" height="3" fill="#b23a2e" opacity=".9"/>
+          <rect x="596" y="404" width="48" height="16" fill="#c2c8c6" opacity=".25"/>
+          <rect x="596" y="424" width="48" height="10" fill="#c2c8c6" opacity=".2"/>
+          <path d="M596,198 L644,246 M596,246 L644,294 M596,294 L644,342 M596,342 L644,390 M596,390 L644,438 M644,198 L596,246 M644,246 L596,294 M644,294 L596,342 M644,342 L596,390 M644,390 L596,438" stroke="#1a1f24" stroke-width=".8" opacity=".55"/>
+        </g>
+        <path d="M620,150 V440 M596,270 H644 M596,360 H644" stroke="#1a1511" stroke-width="2.4" fill="none"/>
+        <polygon points="578,448 662,448 666,458 574,458" fill="#7a7563"/>
+      </g>
+      <polygon points="596,452 644,452 572,640 458,640" fill="url(#hb-shaftG)"/>
+      <g filter="url(#hb-rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+        <path d="M78,572 L78,288 Q83,230 110,212 Q137,232 142,294 L142,526 Z" fill="#6a6555"/>
+        <path d="M86,566 L86,292 Q90,242 110,226 Q130,244 134,297 L134,531 Z" fill="#3f3226"/>
+        <g clip-path="url(#hb-clipChapel)" stroke="#2a2119" stroke-width="1.4" fill="none">
+          <path d="M94,200 V580 M102,200 V580 M118,200 V580 M126,200 V580"/>
+          <path d="M86,300 L134,304 M86,500 L134,486" stroke="#1a1612" stroke-width="4"/>
+        </g>
+        <path d="M110,318 V392 M97,340 L123,342" stroke="#1d1712" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M110,318 V392 M97,340 L123,342" stroke="#5a4838" stroke-width="1.2" fill="none"/>
+        <circle cx="110" cy="424" r="11" fill="#2a2622" stroke="#0f0c0a"/>
+        <circle cx="110" cy="424" r="7.5" fill="#4a443b" stroke="#0f0c0a" stroke-width="1.2"/>
+        <path d="M110,424 L110,416" stroke="#c4b69a" stroke-width="1.6"/>
+        <g fill="#7c705c" stroke="none">
+          <circle cx="110" cy="410" r="1.4"/><circle cx="124" cy="424" r="1.4"/><circle cx="110" cy="438" r="1.4"/><circle cx="96" cy="424" r="1.4"/>
+        </g>
+        <circle cx="127" cy="458" r="4.5" fill="none" stroke="#120f0c" stroke-width="2.2"/>
+        <path d="M10,621 L10,420 Q15,374 37,360 Q60,376 64,410 L64,582 Z" fill="#625d4e"/>
+        <path d="M16,616 L16,424 Q20,384 37,371 Q54,384 58,414 L58,586 Z" fill="#45382b"/>
+        <path d="M26,384 V612 M37,372 V602 M48,380 V594" stroke="#2c2219" stroke-width="1.4" fill="none"/>
+        <path d="M16,446 L58,440 M16,560 L58,546" stroke="#1a1612" stroke-width="3.6" fill="none"/>
+        <path d="M55.5,470 L58,470 L58,530 L55.5,530 Z" fill="#0c0907" stroke="none"/>
+        <path d="M54,494 h6" stroke="#6e604c" stroke-width="2.4"/>
+        <path d="M37,418 V428" stroke="#16120e" stroke-width="1.4"/>
+        <circle cx="37" cy="417" r="1.6" fill="#16120e"/>
+        <path d="M33,428 H41 V431 Q40,432 40,433 Q46,437 45,444 Q44,451 37,451 Q30,451 29,444 Q28,437 34,433 Q34,432 33,431 Z" fill="#7b4c33"/>
+        <path d="M30,440 Q37,443 44,440" stroke="#5a3624" stroke-width="1.1" fill="none"/>
+        <path d="M66,318 L74,314 L74,356 L66,360 Z" fill="#221e1a"/>
+        <path d="M74,336 Q86,338 85,328" fill="none" stroke="#221e1a" stroke-width="3"/>
+        <path d="M77,320 L93,318 L91,326 L79,328 Z" fill="#221e1a"/>
+        <rect x="81" y="296" width="8" height="22" fill="#d7ccb0" stroke-width="1.2"/>
+      </g>
+      <g filter="url(#hb-rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+        <path d="M700,90 L780,84" stroke="#16120e" stroke-width="3.4"/>
+        <circle cx="699" cy="90" r="3.5" fill="#16120e"/><circle cx="781" cy="84" r="3.5" fill="#16120e"/>
+        <path d="M704,90 L718,89 L718,150 L711,142 L704,152 Z" fill="#5a2c25"/>
+        <path d="M762,85 L776,84 L776,145 L769,137 L762,147 Z" fill="#5a2c25"/>
+        <path d="M707,104 l8,-0.5 M765,98 l8,-0.5" stroke="#9c8562" stroke-width="1.1"/>
+        <path d="M724,96 L756,94 L756,124 Q756,142 740,152 Q724,144 724,126 Z" fill="#4a453b"/>
+        <path d="M728,100 L752,98.5 L752,124 Q752,138 740,146 Q728,139 728,126 Z" fill="#2e2a24" stroke-width="1.2"/>
+        <use href="#hb-e-raven" x="729" y="104" width="24" height="26" style="color:#8c8470"/>
+        <circle cx="735.6" cy="111.5" r="0.9" fill="#b23a2e" stroke="none"/>
+        <path d="M687,527 L687,272 Q692,214 738,180 Q786,206 791,256 L791,601 Z" fill="#67624f"/>
+        <path d="M699,535 L699,280 Q704,226 738,196 Q774,220 779,266 L779,593 Z" fill="#3d3024"/>
+        <g clip-path="url(#hb-clipMainDoor)" stroke="#271e16" stroke-width="1.5" fill="none">
+          <path d="M709,190 V600 M719,190 V600 M729,190 V600 M749,190 V600 M759,190 V600 M769,190 V600"/>
+          <path d="M695,306 L783,299 M695,467 L783,505" stroke="#16130f" stroke-width="5"/>
+          <g fill="#16130f" stroke="none">
+            <circle cx="705" cy="305" r="2"/><circle cx="722" cy="304" r="2"/><circle cx="756" cy="301" r="2"/><circle cx="773" cy="300" r="2"/>
+            <circle cx="705" cy="470" r="2"/><circle cx="722" cy="477" r="2"/><circle cx="756" cy="492" r="2"/><circle cx="773" cy="499" r="2"/>
+          </g>
+        </g>
+        <path d="M737.6,198 L740.4,199 L740.4,564 L737.6,564 Z" fill="url(#hb-fogSeam)" stroke="none"/>
+        <path d="M699,535 L779,593" stroke="#a9b0ae" stroke-width="1.5" opacity=".45"/>
+        <circle cx="730" cy="430" r="6" fill="none" stroke="#120f0c" stroke-width="2.6"/>
+        <circle cx="748" cy="434" r="6" fill="none" stroke="#120f0c" stroke-width="2.6"/>
+        <path d="M690,380 L788,397 L788,412 L690,395 Z" fill="#26231f"/>
+        <path d="M690,380 L788,397" stroke="#4e4a42" stroke-width="1.4"/>
+        <path d="M702,376 V402 M697,376 H707 M772,392 V420 M767,393 H777" stroke="#120f0c" stroke-width="3.6" fill="none"/>
+        <path d="M697,402 Q702,408 707,402 M767,419 Q772,426 777,419" stroke="#120f0c" stroke-width="3" fill="none"/>
+      </g>
+      <ellipse cx="740" cy="590" rx="70" ry="16" fill="url(#hb-fogFloor)"/>
+      <ellipse cx="700" cy="610" rx="50" ry="10" fill="url(#hb-fogFloor)" opacity=".7"/>
+      <g filter="url(#hb-rough)" stroke="#1a1511" stroke-width="2" stroke-linejoin="round">
+        <polygon points="196,556 634,556 742,706 86,706" fill="#4e2621"/>
+        <polygon points="212,561 618,561 716,700 112,700" fill="none" stroke="#7a4a35" stroke-width="2" stroke-dasharray="6 4"/>
+        <polygon points="224,566 606,566 696,694 132,694" fill="#3c1d19" stroke="#6a3c2c" stroke-width="1.4"/>
+        <ellipse cx="414" cy="640" rx="96" ry="22" fill="#45221d" stroke="#6a3c2c" stroke-width="1.6"/>
+        <ellipse cx="414" cy="640" rx="70" ry="14" fill="none" stroke="#5e3427" stroke-width="1.2" stroke-dasharray="3 3"/>
+        <path d="M170,600 h20 M638,600 h20 M140,650 h24 M664,650 h24" stroke="#6a3c2c" stroke-width="1.4"/>
+      </g>
+      <g filter="url(#hb-rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round">
+        <g>
+          <rect x="273" y="462" width="5" height="88" fill="#30261d"/><rect x="322" y="462" width="5" height="88" fill="#30261d"/>
+          <circle cx="275.5" cy="459" r="4" fill="#30261d"/><circle cx="324.5" cy="459" r="4" fill="#30261d"/>
+          <path d="M278,550 L278,478 Q278,464 300,458 Q322,464 322,478 L322,550 Z" fill="#3a2e23"/>
+          <use href="#hb-e-cross" x="290" y="481" width="20" height="24" style="color:#0c0907"/>
+        </g>
+        <g>
+          <rect x="388" y="462" width="5" height="88" fill="#30261d"/><rect x="437" y="462" width="5" height="88" fill="#30261d"/>
+          <circle cx="390.5" cy="459" r="4" fill="#30261d"/><circle cx="439.5" cy="459" r="4" fill="#30261d"/>
+          <path d="M393,550 L393,478 Q393,464 415,458 Q437,464 437,478 L437,550 Z" fill="#3a2e23"/>
+          <use href="#hb-e-shield" x="406" y="482" width="18" height="22" style="color:#0c0907"/>
+        </g>
+        <g>
+          <rect x="503" y="462" width="5" height="88" fill="#30261d"/><rect x="552" y="462" width="5" height="88" fill="#30261d"/>
+          <circle cx="505.5" cy="459" r="4" fill="#30261d"/><circle cx="554.5" cy="459" r="4" fill="#30261d"/>
+          <path d="M508,550 L508,478 Q508,464 530,458 Q552,464 552,478 L552,550 Z" fill="#3a2e23"/>
+          <use href="#hb-e-tower" x="521" y="481" width="18" height="24" style="color:#0c0907"/>
+        </g>
+      </g>
+      <ellipse cx="415" cy="672" rx="230" ry="18" fill="#000" opacity=".35" filter="url(#hb-blur6)"/>
+      <g filter="url(#hb-rough)" stroke="#120e0b" stroke-width="2" stroke-linejoin="round">
+        <rect x="246" y="596" width="9" height="50" fill="#241c15"/>
+        <rect x="575" y="596" width="9" height="50" fill="#241c15"/>
+        <polygon points="238,548 592,548 616,584 214,584" fill="#47392b"/>
+        <g clip-path="url(#hb-clipTableTop)" stroke="#33281e" stroke-width="1.1" fill="none">
+          <path d="M200,557 H630 M200,566 H630 M200,575 H630"/>
+          <path d="M330,548 L326,557 M480,557 L484,566 M380,566 L377,575 M540,575 L544,584"/>
+        </g>
+        <polygon points="300,548 530,548 540,584 290,584" fill="#5a2a24" opacity=".85"/>
+        <path d="M290,584 L540,584 L540,606 L290,606 Z" fill="#4e2520"/>
+        <path d="M292,606 v4 M300,606 v4 M308,606 v4 M316,606 v4 M324,606 v4 M332,606 v4 M340,606 v4 M348,606 v4 M356,606 v4 M364,606 v4 M372,606 v4 M380,606 v4 M388,606 v4 M396,606 v4 M404,606 v4 M412,606 v4 M420,606 v4 M428,606 v4 M436,606 v4 M444,606 v4 M452,606 v4 M460,606 v4 M468,606 v4 M476,606 v4 M484,606 v4 M492,606 v4 M500,606 v4 M508,606 v4 M516,606 v4 M524,606 v4 M532,606 v4 M538,606 v4" stroke="#6a3a2c" stroke-width="1.2"/>
+        <polygon points="214,584 290,584 290,597 214,597" fill="#30261c"/>
+        <polygon points="540,584 616,584 616,597 540,597" fill="#30261c"/>
+        <rect x="220" y="597" width="13" height="80" fill="#2e251c"/>
+        <rect x="597" y="597" width="13" height="80" fill="#2e251c"/>
+        <rect x="409" y="610" width="12" height="67" fill="#2e251c"/>
+        <rect x="233" y="648" width="364" height="6" fill="#241c15"/>
+        <g fill="#5d5a51" stroke="#2a2621" stroke-width="1.2">
+          <ellipse cx="300" cy="553" rx="12" ry="3.2"/><ellipse cx="415" cy="553" rx="12" ry="3.2"/><ellipse cx="530" cy="553" rx="12" ry="3.2"/>
+          <ellipse cx="285" cy="577" rx="14" ry="4"/><ellipse cx="415" cy="577" rx="14" ry="4"/><ellipse cx="545" cy="577" rx="14" ry="4"/>
+          <ellipse cx="248" cy="566" rx="11" ry="3.4"/><ellipse cx="584" cy="566" rx="11" ry="3.4"/>
+        </g>
+        <g fill="none" stroke="#77736a" stroke-width=".8">
+          <ellipse cx="300" cy="553" rx="7" ry="1.8"/><ellipse cx="415" cy="553" rx="7" ry="1.8"/><ellipse cx="530" cy="553" rx="7" ry="1.8"/>
+          <ellipse cx="248" cy="566" rx="6" ry="1.8"/><ellipse cx="584" cy="566" rx="6" ry="1.8"/>
+        </g>
+        <g fill="#2a2622" stroke="#120f0c" stroke-width="1.3">
+          <path d="M350,566 h18 l-4,-5 h-10 Z"/>
+          <rect x="357.5" y="532" width="3" height="30"/>
+          <path d="M344,536 Q344,546 359,546 Q374,546 374,536" fill="none" stroke="#2a2622" stroke-width="2.6"/>
+          <rect x="341" y="531" width="6" height="4"/><rect x="356" y="526" width="6" height="4"/><rect x="371" y="531" width="6" height="4"/>
+        </g>
+        <g fill="#c9bea3" stroke="#120f0c" stroke-width="1.1">
+          <rect x="342" y="520" width="4" height="11"/><rect x="357" y="512" width="4" height="14"/><rect x="372" y="522" width="4" height="9"/>
+        </g>
+        <path d="M359,512 v-4 M344,520 v-3 M374,522 v-3" stroke="#120f0c" stroke-width="1"/>
+        <path d="M346,522 Q352,528 357,518 M346,526 Q352,531 359,522 M352,516 L350,530" stroke="#b3ad9e" stroke-width=".6" fill="none" opacity=".6"/>
+      </g>
+      <rect x="0" y="0" width="828" height="709" filter="url(#hb-ash)" clip-path="url(#hb-clipTableTop)" opacity=".55"/>
+      <g filter="url(#hb-rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round">
+        <g>
+          <rect x="171" y="480" width="6" height="186" fill="#30261d"/><rect x="203" y="480" width="6" height="186" fill="#30261d"/>
+          <circle cx="174" cy="476" r="4" fill="#30261d"/><circle cx="206" cy="476" r="4" fill="#30261d"/>
+          <path d="M177,600 L177,494 Q177,482 190,477 Q203,482 203,494 L203,600 Z" fill="#3a2e23"/>
+          <use href="#hb-e-pot" x="181" y="504" width="18" height="22" style="color:#0c0907"/>
+          <rect x="168" y="600" width="44" height="9" fill="#2b221a"/>
+        </g>
+        <g>
+          <rect x="623" y="420" width="7" height="246" fill="#2c231b"/><rect x="666" y="420" width="7" height="246" fill="#2c231b"/>
+          <path d="M621,420 l5,-10 l5,10 Z M664,420 l5,-10 l5,10 Z" fill="#2c231b"/>
+          <path d="M630,602 L630,438 Q630,420 648,404 Q666,420 666,438 L666,602 Z" fill="#35291f"/>
+          <path d="M636,598 L636,442 Q636,428 648,416 Q660,428 660,442 L660,598 Z" fill="none" stroke="#4a3b2e" stroke-width="1.2"/>
+          <use href="#hb-e-raven" x="634" y="446" width="28" height="30" style="color:#0c0907"/>
+          <path d="M644,396 Q648,388 652,396 L650,404 L646,404 Z" fill="#2c231b"/>
+          <rect x="619" y="602" width="58" height="10" fill="#271f18"/>
+        </g>
+      </g>
+      <g filter="url(#hb-rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round" transform="translate(0,30)">
+        <g>
+          <rect x="254" y="516" width="6" height="186" fill="#35291f"/><rect x="310" y="516" width="6" height="186" fill="#35291f"/>
+          <circle cx="257" cy="511" r="5" fill="#35291f"/><circle cx="313" cy="511" r="5" fill="#35291f"/>
+          <path d="M260,620 L260,530 Q260,514 285,506 Q310,514 310,530 L310,620 Z" fill="#40322a"/>
+          <path d="M266,614 L266,534 Q266,520 285,513 Q304,520 304,534 L304,614 Z" fill="none" stroke="#4f3f33" stroke-width="1.2"/>
+          <use href="#hb-e-wheat" x="275" y="532" width="20" height="30" style="color:#0c0907"/>
+          <rect x="254" y="620" width="62" height="10" fill="#2e241b"/>
+          <rect x="264" y="630" width="4" height="64" fill="#1f1812"/><rect x="302" y="630" width="4" height="64" fill="#1f1812"/>
+          <rect x="260" y="676" width="50" height="4" fill="#2a2119"/>
+        </g>
+        <g>
+          <rect x="384" y="540" width="6" height="162" fill="#35291f"/><rect x="440" y="540" width="6" height="162" fill="#35291f"/>
+          <circle cx="387" cy="535" r="5" fill="#35291f"/><circle cx="443" cy="535" r="5" fill="#35291f"/>
+          <path d="M390,644 L390,554 Q390,538 415,530 Q440,538 440,554 L440,644 Z" fill="#40322a"/>
+          <path d="M396,638 L396,558 Q396,544 415,537 Q434,544 434,558 L434,638 Z" fill="none" stroke="#4f3f33" stroke-width="1.2"/>
+          <use href="#hb-e-fawn" x="399" y="556" width="32" height="32" style="color:#0c0907"/>
+          <rect x="384" y="644" width="62" height="10" fill="#2e241b"/>
+          <rect x="394" y="654" width="4" height="42" fill="#1f1812"/><rect x="432" y="654" width="4" height="42" fill="#1f1812"/>
+          <path d="M383,688 h8 M439,688 h8" stroke="#8a7b62" stroke-width="1.2"/>
+          <rect x="390" y="684" width="50" height="4" fill="#2a2119"/>
+        </g>
+        <g>
+          <rect x="514" y="516" width="6" height="186" fill="#35291f"/><rect x="570" y="516" width="6" height="186" fill="#35291f"/>
+          <circle cx="517" cy="511" r="5" fill="#35291f"/><circle cx="573" cy="511" r="5" fill="#35291f"/>
+          <path d="M520,620 L520,530 Q520,514 545,506 Q570,514 570,530 L570,620 Z" fill="#40322a"/>
+          <path d="M526,614 L526,534 Q526,520 545,513 Q564,520 564,534 L564,614 Z" fill="none" stroke="#4f3f33" stroke-width="1.2"/>
+          <use href="#hb-e-stag" x="528" y="530" width="34" height="34" style="color:#0c0907"/>
+          <rect x="514" y="620" width="62" height="10" fill="#2e241b"/>
+          <rect x="524" y="630" width="4" height="64" fill="#1f1812"/><rect x="562" y="630" width="4" height="64" fill="#1f1812"/>
+          <rect x="520" y="676" width="50" height="4" fill="#2a2119"/>
+        </g>
+      </g>
+      <g filter="url(#hb-rough)" stroke="#120e0b" stroke-width="1.8" stroke-linejoin="round">
+        <ellipse cx="809" cy="696" rx="24" ry="5" fill="#000" opacity=".4" stroke="none"/>
+        <rect x="790" y="660" width="38" height="36" fill="#2f251c"/>
+        <rect x="786" y="654" width="46" height="8" fill="#3a2e23"/>
+        <rect x="800" y="566" width="18" height="88" fill="#33281f"/>
+        <path d="M804,576 V646 M814,576 V646" stroke="#241c15" stroke-width="1.2"/>
+        <rect x="786" y="558" width="46" height="8" fill="#3a2e23"/>
+        <path d="M790,558 L790,470 L826,470 L826,558 Z" fill="#1a1511"/>
+        <path d="M784,472 L809,446 L834,472 Z" fill="#3a2e23"/>
+        <circle cx="809" cy="442" r="3" fill="#2a2119"/>
+        <rect x="790" y="470" width="4" height="88" fill="#3a2e23"/><rect x="822" y="470" width="4" height="88" fill="#3a2e23"/>
+        <rect x="803" y="494" width="12" height="60" fill="#d4c9ab" stroke-width="1.2"/>
+        <path d="M803,501.5 h12 M803,509 h12 M803,516.5 h12 M803,524 h12 M803,531.5 h12 M803,539 h12 M803,546.5 h12" stroke="#6b5a40" stroke-width="1.1"/>
+        <path d="M809,494 v-4" stroke="#120e0b" stroke-width="1.1"/>
+        <rect x="800" y="554" width="18" height="4" fill="#2a2622"/>
+      </g>
+      <g filter="url(#hb-rough)" stroke="#0e0b09" stroke-linejoin="round">
+        <path d="M430,0 V62" stroke="#16120e" stroke-width="3" stroke-dasharray="5 2"/>
+        <path d="M430,62 L362,90 M430,62 L498,90 M430,62 L400,100 M430,62 L460,100" stroke="#16120e" stroke-width="1.4" fill="none"/>
+        <g fill="#d7ccb0" stroke-width="1.1">
+          <rect x="377.5" y="66" width="6" height="18"/><rect x="427" y="62" width="6" height="18"/><rect x="476.5" y="66" width="6" height="18"/>
+        </g>
+        <ellipse cx="430" cy="92" rx="70" ry="12" fill="none" stroke="#16120e" stroke-width="5"/>
+        <ellipse cx="430" cy="96" rx="66" ry="11" fill="none" stroke="#16120e" stroke-width="2"/>
+        <g fill="#d7ccb0" stroke-width="1.1">
+          <rect x="357" y="74" width="6" height="18"/><rect x="497" y="74" width="6" height="18"/>
+          <rect x="377.5" y="83" width="6" height="18"/><rect x="427" y="86" width="6" height="18"/><rect x="476.5" y="83" width="6" height="18"/>
+        </g>
+        <path d="M430,104 V116" stroke="#16120e" stroke-width="2.4"/>
+        <circle cx="430" cy="118" r="3" fill="#16120e"/>
+        <path d="M364,92 Q350,110 352,132 M498,92 Q512,108 508,126" stroke="#9f998a" stroke-width=".6" fill="none" opacity=".5"/>
+      </g>
+      <g>
+        <circle cx="430" cy="110" r="220" fill="url(#hb-warmBig)"/>
+        <circle cx="809" cy="500" r="90" fill="url(#hb-warmBig)"/>
+        <circle cx="85" cy="300" r="90" fill="url(#hb-warmBig)"/>
+        <circle cx="487" cy="270" r="110" fill="url(#hb-warmBig)"/>
+        <circle cx="380.5" cy="60" r="16" fill="url(#hb-warm)"/><circle cx="430" cy="56" r="16" fill="url(#hb-warm)"/><circle cx="479.5" cy="60" r="16" fill="url(#hb-warm)"/>
+        <circle cx="360" cy="68" r="16" fill="url(#hb-warm)"/><circle cx="500" cy="68" r="16" fill="url(#hb-warm)"/>
+        <circle cx="380.5" cy="77" r="16" fill="url(#hb-warm)"/><circle cx="430" cy="80" r="16" fill="url(#hb-warm)"/><circle cx="479.5" cy="77" r="16" fill="url(#hb-warm)"/>
+        <use href="#hb-flame" x="377" y="54" width="7" height="12"/><use href="#hb-flame" x="426.5" y="50" width="7" height="12"/><use href="#hb-flame" x="476" y="54" width="7" height="12"/>
+        <use href="#hb-flame" x="356.5" y="62" width="7" height="12"/><use href="#hb-flame" x="496.5" y="62" width="7" height="12"/>
+        <use href="#hb-flame" x="377" y="71" width="7" height="12"/><use href="#hb-flame" x="426.5" y="74" width="7" height="12"/><use href="#hb-flame" x="476" y="71" width="7" height="12"/>
+        <circle cx="421" cy="250" r="20" fill="url(#hb-warm)"/><circle cx="553" cy="254" r="20" fill="url(#hb-warm)"/>
+        <use href="#hb-flame" x="417.5" y="243" width="7" height="13"/><use href="#hb-flame" x="549.5" y="247" width="7" height="13"/>
+        <circle cx="85" cy="290" r="26" fill="url(#hb-warm)"/>
+        <use href="#hb-flame" x="80.5" y="281" width="9" height="15"/>
+        <circle cx="809" cy="486" r="26" fill="url(#hb-warm)"/>
+        <use href="#hb-flame" x="805" y="479" width="8" height="13"/>
+      </g>
+      <g stroke="#a8a293" stroke-width=".7" fill="none" opacity=".45">
+        <path d="M150,95 L196,95 M150,95 L150,140 M150,95 L184,128 M150,95 L170,138 M150,95 L192,112"/>
+        <path d="M164,95 Q160,104 150,108 M176,95 Q170,112 150,121 M188,95 Q182,120 150,134"/>
+        <path d="M678,95 L640,95 M678,95 L678,132 M678,95 L650,122"/>
+        <path d="M666,95 Q670,104 678,107 M654,95 Q660,112 678,120"/>
+      </g>
+      <g fill="#d6dbd6" opacity=".5">
+        <circle cx="566" cy="500" r=".9"/><circle cx="588" cy="470" r=".7"/><circle cx="540" cy="530" r="1"/>
+        <circle cx="520" cy="590" r=".8"/><circle cx="574" cy="548" r=".7"/><circle cx="500" cy="612" r=".9"/>
+      </g>
+      <rect x="0" y="0" width="828" height="709" fill="url(#hb-vignette)"/>
+      </svg>
+      <svg id="hallObj" viewBox="0 0 828 709">
+        <defs>
+          <radialGradient id="hWarm"><stop offset="0" stop-color="#ffd27a" stop-opacity=".75"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="hDoorLight"><stop offset="0" stop-color="#9fb2c4" stop-opacity=".35"/><stop offset="1" stop-color="#9fb2c4" stop-opacity="0"/></radialGradient>
+        </defs>
+        <!-- 动态层：由全局状态派生（JS 渲染） -->
+        <g id="hallDyn" pointer-events="none"></g>
+        <!-- 热区 -->
+        <g id="hallHot">
+          <path class="hs" data-obj="h_gate" d="M186,300 L374,300 L380,522 L180,522 Z"/>
+          <path class="hs" data-obj="cloth" d="M212,160 L348,160 L348,300 L212,300 Z"/>
+          <rect class="hs" data-obj="h_inscription" x="202" y="102" width="156" height="32"/>
+          <path class="hs" data-obj="h_chapelDoor" d="M78,572 L78,288 Q83,230 110,212 Q137,232 142,294 L142,526 Z"/>
+          <path class="hs" data-obj="h_kitchenDoor" d="M10,621 L10,420 Q15,374 37,360 Q60,376 64,410 L64,582 Z"/>
+          <path class="hs" data-obj="hearth" d="M400,300 L574,300 L580,530 L394,530 Z"/>
+          <rect class="hs" data-obj="h_tree" x="428" y="114" width="118" height="162"/>
+          <rect class="hs" data-obj="h_rack" x="448" y="274" width="78" height="22"/>
+          <path class="hs" data-obj="h_window" d="M584,452 L584,192 Q589,148 620,134 Q651,148 656,192 L656,452 Z"/>
+          <path class="hs" data-obj="h_mainDoor" d="M687,527 L687,272 Q692,214 738,180 Q786,206 791,256 L791,601 Z"/>
+          <rect class="hs" data-obj="crest" x="698" y="82" width="84" height="72"/>
+          <rect class="hs" data-obj="chandelier" x="350" y="40" width="160" height="82"/>
+          <path class="hs" data-obj="h_table" d="M164,456 L619,456 L619,396 L677,396 L677,705 L164,705 Z"/>
+          <rect class="hs" data-obj="h_clock" x="784" y="440" width="44" height="262"/>
+        </g>
+      </svg>
+    </div>
+
+    <svg id="grain" viewBox="0 0 828 709">
+      <filter id="grainF"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 .16  0 0 0 0 .13  0 0 0 0 .1  0 0 0 -1.2 .8"/></filter>
+      <rect width="828" height="709" filter="url(#grainF)" opacity=".35"/>
+    </svg>
+    <div id="vignette"></div>
+
+    <div id="titleBox">
+      <h1 id="lvTitle">The Stone Room</h1>
+      <p id="lvSub">Ravenhold · I</p>
+      <button id="hintBtn">Hint ?</button>
+    </div>
+    <div id="subtitle"></div>
+    <div id="fade"><p></p></div>
+    <div id="memory" class="hidden"><svg viewBox="0 0 600 400"></svg><h4></h4><p>— 已收入《家族之书》 · 点击继续 —</p></div>
+
+    <div id="zoom" class="hidden">
+      <div id="zcard">
+        <div id="ztitle"></div>
+        <button id="zclose" title="返回">✕</button>
+        <svg class="zmoon" viewBox="0 0 60 60"><use href="#sym-moon"/></svg>
+        <svg id="zsvg" viewBox="0 0 600 400"></svg>
+        <div id="zcap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="divider"></div>
+
+  <!-- ================= Details 面板 ================= -->
+  <aside id="panel">
+    <h2>Items <small>随身之物</small></h2>
+    <div id="grid"></div>
+    <button id="dbgBtn" title="关卡调试">关卡调试 ▾</button>
+    <div id="dbgMenu"></div>
+  </aside>
+
+  <!-- ================= 入场 Loading ================= -->
+  <div id="loader"><svg viewBox="0 0 1080 717" preserveAspectRatio="xMidYMid slice"></svg><div class="vig"></div></div>
+  <script>document.write(`<script src="levels/loader.js?v=${Date.now()}"><\/script>`)</script>
+
+</div></div>
+
+<script>
+/* ======================= 缩放适配 ======================= */
+const app = document.getElementById('app');
+function fit(){ app.style.transform = `scale(${Math.min(innerWidth/1100, innerHeight/737)})`; }
+addEventListener('resize', fit); fit();
+
+/* ======================= 程序化细节 ======================= */
+(function(){
+  const vp = {x:421, y:300};
+  let s = '';
+  for(let xb=150; xb<=700; xb+=55){
+    const xBot = vp.x + (xb-vp.x)*(709-vp.y)/(558-vp.y);
+    s += `<line x1="${xb}" y1="558" x2="${xBot}" y2="709"/>`;
+  }
+  [575,596,622,655,694].forEach(y=> s += `<line x1="0" y1="${y}" x2="828" y2="${y}" stroke-width="1.3" opacity=".7"/>`);
+  document.getElementById('floorPlanks').innerHTML = s;
+
+  s = '';
+  for(let xb=150; xb<=700; xb+=34){
+    const xf = vp.x + (xb-vp.x)*(vp.y-92)/(vp.y-161);
+    s += `<line x1="${xb}" y1="161" x2="${xf}" y2="92"/>`;
+  }
+  document.getElementById('ceilPlanks').innerHTML = s;
+
+  s = '';
+  const rows=[391,417,443,469,495,521,547];
+  for(let r=0;r<rows.length-1;r++){
+    s += `<line x1="562" y1="${rows[r]}" x2="716" y2="${rows[r]}"/>`;
+    for(let x=562+(r%2?24:48); x<716; x+=48) s += `<line x1="${x}" y1="${rows[r]}" x2="${x}" y2="${rows[r+1]}"/>`;
+  }
+  document.getElementById('fpJoints').innerHTML = s;
+
+  const C = [[378,148],[401,143],[427,140],[463,140],[489,143],[512,148]];
+  document.getElementById('sceneCandles').innerHTML = C.map(([x,b],i)=>`
+    <rect x="${x-3.5}" y="${b-26}" width="7" height="26" fill="#e3dac0" stroke="#2b251e" stroke-width="1.2"/>
+    <ellipse cx="${x}" cy="${b}" rx="6" ry="2.2" fill="#2a2622"/>
+    <path id="sf${i}" class="cflame" d="M${x},${b-40} Q${x+4.5},${b-33} ${x+2.5},${b-29} Q${x},${b-26} ${x-2.5},${b-29} Q${x-4.5},${b-33} ${x},${b-40} Z" fill="#efc463" stroke="none" opacity="0"/>
+  `).join('');
+})();
+
+/* ======================= 音效 ======================= */
+let AC, master, rainOn=false;
+function ac(){
+  if(!AC){
+    AC = new (window.AudioContext||window.webkitAudioContext)();
+    master = AC.createGain(); master.gain.value = .9; master.connect(AC.destination);
+    [55, 82.4].forEach((f,i)=>{ const o=AC.createOscillator(), g=AC.createGain();
+      o.frequency.value=f; g.gain.value=i?.006:.012; o.connect(g); g.connect(master); o.start(); });
+  }
+  if(AC.state==='suspended') AC.resume();
+  return AC;
+}
+function tone(f,d,type='sine',g=.05,slide){
+  try{ const a=ac(), o=a.createOscillator(), v=a.createGain(), t=a.currentTime;
+    o.type=type; o.frequency.setValueAtTime(f,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(slide,t+d);
+    v.gain.setValueAtTime(g,t); v.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(v); v.connect(master); o.start(t); o.stop(t+d+.05);
+  }catch(e){}
+}
+function noise(d,freq,g,q=1,loop=false){
+  try{ const a=ac(), len=Math.floor(a.sampleRate*d), b=a.createBuffer(1,len,a.sampleRate), ch=b.getChannelData(0);
+    for(let i=0;i<len;i++) ch[i]=Math.random()*2-1;
+    const s=a.createBufferSource(); s.buffer=b; s.loop=loop;
+    const f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq; f.Q.value=q;
+    const v=a.createGain(), t=a.currentTime; v.gain.setValueAtTime(g,t);
+    if(!loop) v.gain.exponentialRampToValueAtTime(.0001,t+d);
+    s.connect(f); f.connect(v); v.connect(master); s.start(t);
+  }catch(e){}
+}
+const sfx = {
+  tap:  ()=>noise(.05,1700,.09,2),
+  open: ()=>{ noise(.12,700,.08,1); tone(240,.12,'triangle',.03,180); },
+  pick: ()=>{ tone(660,.15,'triangle',.05); setTimeout(()=>tone(990,.22,'triangle',.05),90); },
+  thud: ()=>{ tone(95,.35,'sine',.14,50); noise(.15,380,.09); },
+  fail: ()=>tone(115,.4,'sawtooth',.04,80),
+  water:()=>{ for(let i=0;i<6;i++) setTimeout(()=>tone(450+Math.random()*600,.09,'sine',.045,280),i*65); },
+  caw:  ()=>{ tone(540,.25,'sawtooth',.045,300); noise(.25,1200,.06,3);
+              setTimeout(()=>{ tone(500,.32,'sawtooth',.045,260); noise(.32,1100,.06,3); },320); },
+  flame:()=>noise(.22,900,.05,.7),
+  blow: ()=>noise(.9,450,.09,.5),
+  creak:()=>tone(150,1.4,'sawtooth',.03,70),
+  clack:()=>{ noise(.05,2600,.1,4); tone(320,.06,'square',.02); },
+  chime:()=>[392,466,587,698].forEach((f,i)=>setTimeout(()=>tone(f,1,'sine',.05),i*190)),
+  rain: ()=>{ if(rainOn) return; rainOn=true; noise(2,1400,.018,.4,true); }
+};
+
+/* ======================= 游戏状态 ======================= */
+const S = {
+  bookRead:false, chalice:'table', filled:false, winOpen:false,
+  ravenFed:false, key:'none', chestOpen:false, noteRead:false, noteView:false,
+  candles:[0,0,0,0,0,0], litOnce:false, lit:false, codeSeen:false,
+  dials:[0,0,0], ash:false, escaped:false
+};
+const SYM = ['sun','moon','cross','raven'];
+const SYM_CN = {sun:'太阳', moon:'月亮', cross:'十字', raven:'乌鸦'};
+const CODE = [1,2,3];
+const PATTERN = [1,0,1,1,0,1];
+
+/* ======================= 全局（跨关）状态 ======================= */
+// 大厅的所有变化都由这里派生（策划案 2.5.5）
+const G = {
+  level:'L1',
+  progress:{L1:false,L2:false,L3:false,L4:false,L5:false,L6:false,L7:false,L8:false},
+  feathers:{L1:false,L2:false,L3:false,L4:false,L5:false,L6:false,L7:false},   // 隐藏鸦羽（各关实现后写入）
+  memories:[],                                                                  // 记忆书页（各关实现后写入）
+  inv:[],                                                                       // 物品栏：当前持有的解谜物品
+  busy:false,
+  hall:{
+    inscriptionSeen:false, dial:0, dialTried:false,
+    chapelOpen:false,       // 十字门（L1 后）
+    kitchenOpen:false,      // 厨房小门（L2 后 · 灭烛钩）
+    lanternSeat:null,       // 提灯放在哪把椅子上（L4 后 · 座次谜题，待做）
+    gateOpen:false,         // 主楼梯铁栅门（L4 后）
+    drawbridgeDown:false,   // 城堡大门 / 吊桥（L7 后）
+    moonStage:0             // 窗外月亮位置（随进度，待做）
+  }
+};
+const LEVELS = {
+  L1:  {title:'The Stone Room', sub:'Ravenhold · I',  cn:'石屋',       ready:true},
+  hall:{title:'The Great Hall', sub:'Ravenhold · 灰烬大厅', cn:'灰烬大厅', ready:true},
+  L2:  {title:'The Chapel',     sub:'Ravenhold · II', cn:'礼拜堂',     ready:false},   // levels/L2.js 加载后置为 ready
+  L3:  {title:'The Kitchen',    sub:'Ravenhold · III',cn:'厨房与酒窖', ready:false},
+  L4:  {title:'The Watermill',  sub:'Ravenhold · IV', cn:'磨坊',       ready:false},
+  L5:  {title:'The Gallery',    sub:'Ravenhold · V',  cn:'肖像长廊',   ready:false},
+  L6:  {title:'The Bedchamber', sub:'Ravenhold · VI', cn:'夫人寝室',   ready:false},
+  L7:  {title:'The Clock Tower',sub:'Ravenhold · VII',cn:'书房与钟楼', ready:false},
+  L8:  {title:'The Raven Tower',sub:'Ravenhold · VIII',cn:'雾湖鸦塔',  ready:false}
+};
+const nDone = ()=>Object.values(G.progress).filter(Boolean).length;
+// 剧情阶段：Ln → n；大厅 → 已通关数 + .5（例如 L1 后的大厅 = 1.5）
+function stage(lv){ return lv==='hall' ? nDone()+.5 : +lv.slice(1); }
+
+/* ======================= 物品栏 ======================= */
+// 规则：
+//  1. 一次性物品：最后一次用掉时立即 take()，从物品栏消失（钥匙、摇柄、铅牌、配方……）
+//  2. 反复使用 / 关键物品：保留到最后一次用到的关卡（圣杯、圣铃、家族之书……）
+//  3. 兜底：切换关卡时，usedIn 里没有任何「当前或之后」阶段的物品会被清掉
+// usedIn：会用到它的剧情阶段（Ln = n，Ln 之后的大厅 = n + .5）
+const ITEMS = {
+  chalice:{name:'Chalice',     usedIn:[1,3,8]},   // L1 接雨喂乌鸦 · L3 量水 · L8 喂乌鸦
+  key:    {name:'Iron Key',    usedIn:[1]},       // L1 开箱子（用掉即消失）
+  scrap:  {name:'Burnt Scrap', usedIn:[6]},       // L1 产出 · L6 补全
+  fbook:  {name:'Family Book', usedIn:[8]},       // L1 通关后获得 · 收录记忆书页 · L8 排序
+  snuffer:{name:'Snuffer',     usedIn:[2,2.5]},   // L2 产出 · L2 拔铅塞 · 大厅挑厨房门闩（用掉即消失）
+  bell:   {name:'Holy Bell',   usedIn:[2,3,4,8]}, // L2 告解室 · L3 砝码 · L4 驱鸦 · L8
+  page:   {name:'Baptism Page',usedIn:[3,5]},     // L2 受洗册残页 · L3 查 1408 酒桶 · L5 画像
+  tag:    {name:'Lead Tag',    usedIn:[3]}        // L2 洗礼池铅牌 · L3 找到 1408 酒桶后消失
+};
+let newItem = null;
+const has  = id => G.inv.includes(id);
+function give(id){ if(!has(id)) G.inv.push(id); newItem = id; }
+function take(id){ G.inv = G.inv.filter(x=>x!==id); }
+function pruneInv(){ const s=stage(G.level); G.inv = G.inv.filter(id=>Math.max(...ITEMS[id].usedIn) >= s); }
+
+/* ======================= 关卡通关登记（调试 / 回到某关初始状态用） ======================= */
+// COMPLETE.Ln()：把第 n 关的状态直接设为“已通关”，发放产出、消耗该用掉的东西（各关模块里注册）
+const COMPLETE = {};
+const HALL_HOOKS = {};   // 关卡模块向大厅注入：scene() 场景叠加 · chair(c) 椅子点击 · tableOverlay() 餐桌特写叠加
+const addMem = id => { if(!G.memories.includes(id)) G.memories.push(id); };
+COMPLETE.L1 = ()=>{
+  Object.assign(S, {bookRead:true, chalice:'hand', filled:false, winOpen:true, ravenFed:true, key:'used',
+    chestOpen:true, noteRead:true, candles:[...PATTERN], litOnce:true, lit:true, codeSeen:true, dials:[...CODE], ash:true, escaped:true});
+  G.progress.L1 = true; addMem('m1'); give('chalice'); give('scrap'); give('fbook');
+};
+// 调试起点：每个关卡 / 大厅节点的“初始状态” = 依次通关之前所有关卡
+// inv：进入该节点时物品栏里应有的【完整】物品（按策划案 5.1 道具流转核对；一次性物品用掉后不再出现）
+//   圣杯 L1 得 → L3 量水、L8 · 烧焦纸片 L1 得 → L6 · 家族之书 L1 后得 → L8
+//   圣铃 L2 得 → L3 砝码、L4 驱鸦、L8 · 残页 L2 得 → L3、L5 · 铅牌 L2 得 → L3 开桶后用掉
+//   灭烛钩 L2 得 → 大厅挑开厨房门闩后用掉 · 安眠药 L3 得 → L8
+//   E 提灯 L4 得 → 大厅座次谜题后用掉 · 铜齿轮 → L7 · 木鹿 → L6/L8 · 金麦穗 → L8
+const START_POINTS = [
+  {id:'L1',    label:'第 1 关 · 石屋',        level:'L1',   before:[],
+   inv:[]},
+  {id:'hall1', label:'大厅（第 1 关后）',     level:'hall', before:['L1'],
+   inv:['chalice','scrap','fbook']},
+  {id:'L2',    label:'第 2 关 · 礼拜堂',      level:'L2',   before:['L1'], setup:()=>{ G.hall.inscriptionSeen=true; G.hall.chapelOpen=true; },
+   inv:['chalice','scrap','fbook']},
+  {id:'hall2', label:'大厅（第 2 关后）',     level:'hall', before:['L1','L2'],
+   inv:['chalice','scrap','fbook','bell','snuffer','page','tag']},
+  {id:'L3',    label:'第 3 关 · 厨房与酒窖',  level:'L3',   before:['L1','L2'], setup:()=>{ G.hall.kitchenOpen=true; take('snuffer'); },
+   inv:['chalice','scrap','fbook','bell','page','tag']},
+  {id:'L4',    label:'第 4 关 · 磨坊',        level:'L4',   before:['L1','L2','L3'],
+   inv:['chalice','scrap','fbook','bell','page','potion']},
+  {id:'hall4', label:'大厅（第 4 关后）',     level:'hall', before:['L1','L2','L3','L4'],
+   inv:['chalice','scrap','fbook','bell','page','potion','elamp','cgear','deer','wheat']},
+  {id:'L5',    label:'第 5 关 · 肖像长廊',    level:'L5',   before:['L1','L2','L3','L4'],
+   setup:()=>{ G.hall.lanternSeat='shield'; G.hall.gateOpen=true; take('elamp'); },
+   inv:['chalice','scrap','fbook','bell','page','potion','cgear','deer','wheat']},
+  {id:'L6',    label:'第 6 关 · 夫人寝室',    level:'L6',   before:['L1','L2','L3','L4','L5'],
+   setup:()=>{ S5.doorOpen=true; take('skey'); },
+   inv:['chalice','scrap','fbook','bell','potion','cgear','deer','wheat']},
+  {id:'L7',    label:'第 7 关 · 书房与钟楼',  level:'L7',   before:['L1','L2','L3','L4','L5','L6'],
+   inv:['chalice','fbook','bell','potion','cgear','deer','wheat','hmirror']},
+  {id:'hall7', label:'大厅（第 7 关后）',     level:'hall', before:['L1','L2','L3','L4','L5','L6','L7'],
+   inv:['chalice','fbook','bell','potion','deer','wheat','hmirror','ring','pact']}
+];
+// 当前所处的起点 id（自然通关走到下一关后也能对上）
+function currentStartId(){
+  if(G.level==='hall'){ const ids = START_POINTS.filter(p=>p.level==='hall').map(p=>p.id), want='hall'+nDone();
+    return ids.includes(want) ? want : ids.filter(id=>+id.slice(4) <= nDone()).pop() || 'hall1'; }
+  return START_POINTS.some(p=>p.id===G.level) ? G.level : 'L1';
+}
+
+/* ======================= 隐藏鸦羽 ======================= */
+function pickFeather(lv){
+  if(G.feathers[lv]) return;
+  G.feathers[lv] = true; sfx.pick();
+  const n = Object.values(G.feathers).filter(Boolean).length;
+  say(`你拾起一根乌黑的鸦羽。（鸦羽 ${n} / 7 · 回到大厅后会插上壁炉台的木架）`, 5000);
+  updateAll();
+}
+
+/* ======================= 记忆书页（策划案 3.1） ======================= */
+// moon：画中窗外月亮的位置（1 刚升起 … 7 落下），第 8 关按它排序
+const MEMORIES = {
+  m1:{no:'①', title:'被锁的夜',     moon:2, from:'L1', art:()=>memLocked()},
+  m2:{no:'②', title:'被抹去的名字', moon:5, from:'L2', art:()=>memErased()}
+};
+function memFrame(inner, moon){
+  const t=(moon-1)/6, a=Math.PI*(1-t), mx=536+20*Math.cos(a), my=94-52*Math.sin(a);
+  return `<rect width="600" height="400" fill="#d6caa9"/>
+    <rect x="14" y="14" width="572" height="372" fill="none" stroke="#8a7a5c" stroke-width="2"/>
+    <rect x="22" y="22" width="556" height="356" fill="none" stroke="#a8987a" stroke-width="1" stroke-dasharray="4 4"/>
+    ${inner}
+    <path d="M506,108 L506,56 Q508,26 536,18 Q564,26 566,56 L566,108 Z" fill="#3b4148" stroke="#2b251e" stroke-width="3"/>
+    <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="#e8e4d4"/>
+    <path d="M536,18 V108 M506,70 H566" stroke="#2b251e" stroke-width="2"/>`;
+}
+function memLocked(){
+  return memFrame(`
+    <rect x="30" y="364" width="540" height="10" fill="#b9ab8b"/>
+    <path d="M30,364 H470" stroke="#2b251e" stroke-width="2"/>
+    <path d="M70,364 V140 M110,364 V120 M420,364 V120 M460,364 V140 M70,200 H150 M380,200 H460 M70,280 H140 M390,280 H460" stroke="#b3a586" stroke-width="2"/>
+    <path d="M150,364 L150,150 Q156,70 240,58 Q324,70 330,150 L330,364 Z" fill="#c2b494" stroke="#2b251e" stroke-width="3"/>
+    <path d="M168,364 L168,156 Q174,90 240,80 Q306,90 312,156 L312,364 Z" fill="#8a7658" stroke="#2b251e" stroke-width="2.5"/>
+    <path d="M200,86 V364 M240,80 V364 M280,86 V364" stroke="#6e5c42" stroke-width="2"/>
+    <path d="M168,170 H312 M168,320 H312" stroke="#4a3c2c" stroke-width="7"/>
+    ${CH.sil('oswald', 333, 124, 1.3, {len:186, hold:'cane'})}
+    <g fill="#2b251e"><path d="M310,156 Q290,190 268,230 L261,225 Q280,186 300,150 Z"/></g>
+    <use href="#deer" x="306" y="196" width="54" height="64" style="color:#5e4e3a"/>
+    <g stroke="#2b251e" stroke-width="2.5" fill="none"><circle cx="258" cy="234" r="7"/><path d="M262,228 l8,-6"/></g>
+    <circle cx="256" cy="238" r="4" fill="#2b251e"/>`, MEMORIES.m1.moon);
+}
+function memErased(){
+  return memFrame(`
+    <path d="M30,230 Q300,214 570,230 V378 H30 Z" fill="#b9b19a"/>
+    <path d="M30,232 Q300,216 570,232" stroke="#2b251e" stroke-width="2" fill="none"/>
+    <path d="M60,256 H200 M260,262 H420 M120,282 H300 M380,290 H520 M90,310 H230" stroke="#9c9480" stroke-width="2"/>
+    <g fill="#5d5648"><path d="M408,226 V172 H422 V226 Z M404,172 L415,148 L426,172 Z"/><ellipse cx="415" cy="227" rx="24" ry="4"/></g>
+    <path d="M30,300 Q150,288 250,304 Q300,312 320,378 H30 Z" fill="#a49577" stroke="#2b251e" stroke-width="2"/>
+    <path d="M40,212 Q160,196 260,214 M330,200 Q450,188 560,204" stroke="#efe8d6" stroke-width="8" opacity=".55" fill="none"/>
+    <g fill="#2b251e">
+      ${CH.sil({hair:'man', hairOpt:{col:'#2b251e'}, body:'cloak', cape:'#2b251e', cloth:'#2b251e', len:166, face:{male:true}}, 178, 180, 1.0)}
+      <path d="M196,204 Q214,180 222,148 L230,150 Q224,186 204,214 Z"/>
+      <rect x="225" y="104" width="6" height="50"/><rect x="214" y="116" width="28" height="6"/>
+    </g>
+    <path d="M168,200 L166,330 M188,200 L190,330" stroke="#6b604c" stroke-width="3"/>
+    <g opacity=".75">
+      <ellipse cx="300" cy="262" rx="7" ry="8" fill="#f2eee2"/>
+      <path d="M292,272 Q300,268 308,272 L314,312 L286,312 Z" fill="#f2eee2"/>
+    </g>
+    <path d="M468,330 V266" stroke="#2b251e" stroke-width="5"/>
+    <use href="#sym-raven" x="452" y="236" width="34" height="34" style="color:#2b251e"/>`, MEMORIES.m2.moon);
+}
+const memEl = () => document.getElementById('memory');
+function showMemory(id, then){
+  const m = MEMORIES[id];
+  if(!G.memories.includes(id)) G.memories.push(id);
+  if(!has('fbook')) give('fbook');
+  const el = memEl();
+  el.querySelector('svg').innerHTML = m.art();
+  el.querySelector('h4').textContent = `记忆页 ${m.no} · ${m.title}`;
+  el.classList.remove('hidden'); requestAnimationFrame(()=>el.classList.add('show'));
+  sfx.chime(); G.busy = true; updatePanel();
+  const done = ()=>{ el.removeEventListener('click', done); el.classList.remove('show');
+    setTimeout(()=>{ el.classList.add('hidden'); G.busy=false; then && then(); }, 700); };
+  setTimeout(()=>el.addEventListener('click', done), 900);
+}
+
+/* ======================= 字幕 & 提示 ======================= */
+const sub = document.getElementById('subtitle');
+let subT;
+function say(t, ms=4200){
+  sub.textContent = t; sub.classList.add('show');
+  clearTimeout(subT); subT = setTimeout(()=>sub.classList.remove('show'), ms);
+}
+/* 三级提示（策划案 7.1）：每个阻塞点给 [氛围, 指向, 方法]；同一阻塞点连续请求才逐级深入 */
+const HINTS = {
+  L1(){
+    if(S.escaped) return G.feathers.L1 ? ['门开着，走廊通向大厅。','点击敞开的门，回到大厅。']
+      : ['吊灯亮着。抬头看看。','吊灯铁环的上方，阴影里好像有什么东西。','点击吊灯上方那根乌黑的羽毛。'];
+    if(!S.bookRead) return ['桌上那本书也许写着什么。'];
+    if(S.chalice==='table') return ['书里画着一只圣杯。','书里画着一只圣杯——桌上就放着一只。','点击桌上的圣杯，把它拿起来。'];
+    if(!S.ravenFed && !S.winOpen) return ['「天空的眼泪」……','窗外正在下雨。','打开窗：点击窗户特写里的铁插销。'];
+    if(!S.ravenFed && !S.filled) return ['窗台上积了一洼雨水。','拿着圣杯，去窗台接雨水。','打开窗户特写，点击窗台上的水洼。'];
+    if(!S.ravenFed) return ['乌鸦口渴了。','把雨水带给壁炉台上的乌鸦。','打开乌鸦特写，点击乌鸦。'];
+    if(S.key==='ground') return ['乌鸦脚边掉下了什么东西。'];
+    if(!S.chestOpen) return ['那把钥匙应该能打开什么。','角落里有一口上锁的箱子。','打开箱子特写，点击锁孔。'];
+    if(!S.noteRead) return ['箱子里有一张字条。'];
+    if(!S.lit) return ['这屋里太暗了。','照字条上的样子点亮吊灯。','只点亮 I、III、IV、VI 四支蜡烛。'];
+    if(!S.codeSeen) return ['房间亮了。挂毯后面似乎藏着什么。','挂毯的右下角翘起来了。','打开挂毯特写，点击翘起的那一角。'];
+    return ['门上有三个铁轮。','把铁轮转成挂毯后墙上刻的记号。','从左到右：月亮、十字、乌鸦，然后拉门环。'];
+  },
+  hall(){
+    const H=G.hall, P=G.progress;
+    if(!P.L2){
+      if(H.chapelOpen) return ['礼拜堂的门已经开了。'];
+      return ['这座大厅里，只有一扇门在发光。','拱顶的石刻缺了中间一个记号。还记得石屋门锁上的三个记号吗？','月 · 十字 · 乌鸦——把十字门上的转盘拨到「十字」，再拉门环。'];
+    }
+    // ↓ 依赖后续关卡（字段预留）
+    if(!H.kitchenOpen) return ['厨房的小门在发光。','门从里面闩着，门缝太窄。也许能用什么细长带钩的东西。','打开厨房小门特写，点击门缝——灭烛钩能把门闩挑起来。'];
+    if(!P.L4) return ['厨房的门开了。'];
+    if(!H.gateOpen) return ['唯一满着的那杯酒，就是那一夜唯一没睡着的人。'];
+    if(!P.L7) return ['主楼梯通向二楼。'];
+    return ['城堡大门的门闩断了。'];
+  }
+};
+let hintKey='', hintN=0;
+function giveHint(){
+  const f = HINTS[G.level]; if(!f) return;
+  const list = [].concat(f());
+  if(list[0]===hintKey) hintN = Math.min(hintN+1, list.length-1); else { hintKey=list[0]; hintN=0; }
+  say(list[hintN], 5500);
+}
+document.getElementById('hintBtn').addEventListener('click', ()=>{ sfx.tap(); giveHint(); });
+
+/* ======================= 特写视图 ======================= */
+const ink = 'stroke="#2b251e" stroke-width="2" stroke-linejoin="round"';
+const zoomEl = document.getElementById('zoom'), zsvg = document.getElementById('zsvg'),
+      zcap = document.getElementById('zcap'), ztitle = document.getElementById('ztitle'),
+      zcard = document.getElementById('zcard');
+let cur = null;
+
+function chaliceArt(filled){
+  return `<g ${ink}>
+    <path d="M240,110 Q240,214 300,222 Q360,214 360,110 Z" fill="#8e8a7c"/>
+    <ellipse cx="300" cy="110" rx="60" ry="12" fill="#5f5b50"/>
+    ${filled?'<ellipse cx="300" cy="113" rx="54" ry="9" fill="#55646b" stroke="none"/><path d="M266,112 Q292,106 318,110" stroke="#a3b3b7" stroke-width="2" fill="none"/>':''}
+    <path d="M256,132 Q258,190 290,206" fill="none" stroke="#b9b4a5" stroke-width="3"/>
+    <rect x="292" y="222" width="16" height="52" fill="#8e8a7c"/>
+    <ellipse cx="300" cy="244" rx="15" ry="7" fill="#8e8a7c"/>
+    <path d="M252,300 Q262,276 292,272 L308,272 Q338,276 348,300 Z" fill="#8e8a7c"/>
+    <ellipse cx="300" cy="300" rx="48" ry="9" fill="#7a7668"/>
+  </g>`;
+}
+function keyArt(){
+  return `<g ${ink} fill="#4b3e2a">
+    <circle cx="0" cy="0" r="13" fill="none" stroke="#4b3e2a" stroke-width="7"/>
+    <rect x="12" y="-3.5" width="58" height="7"/>
+    <rect x="58" y="3" width="6" height="11"/><rect x="47" y="3" width="5" height="8"/>
+  </g>`;
+}
+function candleRing(cx,cy,rx,ry,xs,w,h,states,idPrefix){
+  return xs.map((x,i)=>{
+    const t=(x-cx)/rx, b=cy+ry*Math.sqrt(Math.max(0,1-t*t)), top=b-h;
+    const on = states[i];
+    return `<g ${idPrefix?`id="${idPrefix}${i}" class="zhot"`:''}>
+      <rect x="${x-w/2-8}" y="${top-h*.6}" width="${w+16}" height="${h*1.6}" fill="transparent"/>
+      <rect x="${x-w/2}" y="${top}" width="${w}" height="${h}" fill="#e3dac0" ${ink}/>
+      <ellipse cx="${x}" cy="${b}" rx="${w*.85}" ry="${w*.3}" fill="#2a2622"/>
+      <line x1="${x}" y1="${top}" x2="${x}" y2="${top-w*.35}" stroke="#2b251e" stroke-width="2"/>
+      ${on?`<path class="flame" d="M${x},${top-w*1.9} Q${x+w*.62},${top-w*.85} ${x+w*.32},${top-w*.28} Q${x},${top+w*.08} ${x-w*.32},${top-w*.28} Q${x-w*.62},${top-w*.85} ${x},${top-w*1.9} Z" fill="#efc463"/>
+            <circle cx="${x}" cy="${top-w}" r="${w*2.2}" fill="url(#warm)" opacity=".6"/>`:''}
+    </g>`;
+  }).join('');
+}
+
+const VIEWS = {
+  /* ---------- 书 ---------- */
+  book(){
+    S.bookRead = true;
+    return { title:'Book',
+      cap:'书页上画着雨云、圣杯与乌鸦，旁边写着：「乌鸦口渴了。把天空的眼泪给它，它便交出所守护之物。」',
+      svg:`<rect width="600" height="400" fill="#9d9682"/>
+      <rect y="300" width="600" height="100" fill="#5e4c3b"/><line x1="0" y1="300" x2="600" y2="300" stroke="#2b251e" stroke-width="2"/>
+      <path d="M58,84 Q180,62 300,94 Q420,62 542,84 L542,334 Q420,312 300,342 Q180,312 58,334 Z" fill="#5a2e26" ${ink}/>
+      <path d="M70,90 Q180,70 300,100 L300,330 Q180,302 70,322 Z" fill="#ddd3b8" ${ink}/>
+      <path d="M530,90 Q420,70 300,100 L300,330 Q420,302 530,322 Z" fill="#d6ccb0" ${ink}/>
+      <g stroke="#3b3026" stroke-width="2" fill="none" stroke-linecap="round">
+        <path d="M108,152 q-6,-22 20,-24 q8,-20 32,-10 q20,-12 34,6 q22,0 18,22 Z" fill="#c4b99d"/>
+        <path d="M126,164 l-5,14 M144,166 l-5,14 M162,164 l-5,14 M180,166 l-5,14 M135,186 l-5,14 M153,188 l-5,14 M171,186 l-5,14"/>
+        <path d="M128,214 Q128,250 153,252 Q178,250 178,214 Z" fill="#b3ab95"/>
+        <ellipse cx="153" cy="214" rx="25" ry="5" fill="#8f8775"/>
+        <path d="M153,252 L153,276 M136,284 Q153,270 170,284 Z"/>
+        <path d="M196,244 Q232,236 262,212 M250,210 L263,211 L257,223"/>
+      </g>
+      <use href="#sym-raven" x="382" y="112" width="74" height="74" style="color:#2f2720"/>
+      <g font-family="Georgia,serif" font-style="italic" font-size="16" fill="#3b3026">
+        <text x="322" y="216">The raven thirsts.</text>
+        <text x="322" y="242">Give it the tears of the sky,</text>
+        <text x="322" y="268">and it shall surrender</text>
+        <text x="322" y="294">what it guards.</text>
+      </g>`};
+  },
+
+  /* ---------- 圣杯 ---------- */
+  chalice(){
+    const onTable = S.chalice==='table';
+    return { title:'Chalice',
+      cap: onTable ? '一只锡制圣杯，杯底积着灰。点击把它拿起来。'
+         : S.filled ? '圣杯里盛满了冰冷的雨水。' : '一只空圣杯，也许能用来盛些什么。',
+      svg:`<rect width="600" height="400" fill="${onTable?'#9d9682':'#8f8875'}"/>
+        ${onTable?`<rect y="296" width="600" height="104" fill="#6a5643"/><line x1="0" y1="296" x2="600" y2="296" stroke="#2b251e" stroke-width="2"/>`:''}
+        <g id="z-chal" class="${onTable?'zhot':''}">${chaliceArt(S.filled)}</g>
+        ${onTable?'':'<text x="300" y="370" text-anchor="middle" font-size="15" font-style="italic" fill="#3b3026">— in hand —</text>'}`,
+      bind(){ if(onTable) on('z-chal', ()=>{ S.chalice='hand'; give('chalice'); sfx.pick(); act('你拿起了圣杯。它已放进右侧的物品栏。'); }); }
+    };
+  },
+
+  /* ---------- 窗 ---------- */
+  window(){
+    const open = S.winOpen;
+    let rain=''; for(let i=0;i<46;i++){ const x=192+(i*37)%226, y=30+(i*61)%350; rain+=`<line x1="${x}" y1="${y}" x2="${x-6}" y2="${y+22}"/>`; }
+    let lattice=''; for(let k=-8;k<10;k++){ lattice+=`<line x1="${200+k*26}" y1="52" x2="${200+k*26+320}" y2="372"/><line x1="${400-k*26}" y1="52" x2="${400-k*26-320}" y2="372"/>`; }
+    return { title:'Window View',
+      cap: !open ? '窗外下着冷雨，雾里的城堡若隐若现。窗扇中间有一个铁插销。'
+         : S.filled ? '圣杯已经盛满了雨水。' : '窗开着。雨水打在窗台上，积成了一小洼。',
+      svg:`<defs><clipPath id="zcw"><path d="M200,368 L200,158 Q206,92 300,52 Q394,92 400,158 L400,368 Z"/></clipPath></defs>
+      <rect width="600" height="400" fill="#a39b87"/>
+      <path d="M176,388 L176,150 Q184,70 300,26 Q416,70 424,150 L424,388 Z" fill="#a8a18e" ${ink}/>
+      <path d="M176,200 L200,200 M176,280 L200,280 M400,200 L424,200 M400,280 L424,280 M214,92 L228,108 M386,92 L372,108 M300,26 L300,52" stroke="#2b251e" stroke-width="1.5"/>
+      <g clip-path="url(#zcw)">
+        <rect x="190" y="40" width="220" height="340" fill="url(#fogG)"/>
+        <circle cx="352" cy="118" r="20" fill="#e2e3de" opacity=".75"/>
+        <path d="M200,300 L214,300 L214,230 L222,212 L230,230 L230,280 L246,280 L246,190 L258,160 L270,190 L270,270 L290,270 L290,226 L300,206 L310,226 L310,280 L330,280 L330,200 L342,176 L354,200 L354,290 L372,290 L372,246 L380,232 L388,246 L388,300 L400,300 L400,370 L200,370 Z" fill="#7b8388"/>
+        <rect x="254" y="208" width="6" height="12" fill="#4f575d"/><rect x="336" y="214" width="6" height="12" fill="#4f575d"/><rect x="297" y="236" width="5" height="10" fill="#4f575d"/>
+        <path d="M222,370 L226,310 M226,330 L212,316 M225,342 L240,326 M372,370 L376,300 M376,322 L390,306 M375,336 L362,322" stroke="#59616a" stroke-width="3" fill="none"/>
+        <rect x="200" y="318" width="200" height="52" fill="#cfd1cd" opacity=".5"/>
+        <g class="zrain" stroke="#e1e5e5" stroke-width="1.2" opacity=".55">${rain}</g>
+        ${open?'':`<g stroke="#5e5849" stroke-width="1" opacity=".35">${lattice}</g>`}
+      </g>
+      ${open?`
+        <path d="M200,368 L200,160 L232,124 L232,350 Z" fill="#8c8979" ${ink} opacity=".95"/>
+        <path d="M400,368 L400,160 L368,124 L368,350 Z" fill="#8c8979" ${ink} opacity=".95"/>
+      `:`
+        <rect x="296" y="52" width="8" height="316" fill="#6f6857" ${ink}/>
+        <rect x="200" y="206" width="200" height="7" fill="#6f6857" ${ink}/>
+        <g id="z-latch" class="zhot">
+          <rect x="280" y="250" width="40" height="44" fill="transparent"/>
+          <rect x="290" y="256" width="20" height="30" fill="#2a2622" ${ink}/>
+          <rect x="304" y="265" width="26" height="9" fill="#2a2622" ${ink}/>
+          <circle cx="300" cy="271" r="22" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/>
+        </g>`}
+      <rect x="166" y="366" width="268" height="22" fill="#9b947f" ${ink}/>
+      ${open?`<ellipse cx="300" cy="370" rx="84" ry="6" fill="#5b6a71"/>
+        <g id="z-sill" class="zhot"><rect x="166" y="330" width="268" height="60" fill="transparent"/></g>`:''}`,
+      bind(){
+        if(!open) on('z-latch', ()=>{
+          S.winOpen=true; sfx.open(); sfx.rain(); act('你拔开插销，推开了窗。冷雨打在窗台上，很快积成一小洼。');
+          // 第 5 关反转伏笔：窗玻璃上一闪而过的小女孩倒影
+          zsvg.insertAdjacentHTML('beforeend', `<g class="ghost" opacity="0" pointer-events="none">
+            <g transform="translate(300,186) scale(1.6)" filter="url(#chGhost)">${CH.draw('margery', {hold:'deer', len:110, face:{age:'child', eyes:'open', mood:'blank'}})}</g></g>`);
+          setTimeout(()=>sfx.blow(), 80);
+        });
+        else on('z-sill', ()=>{
+          if(S.chalice!=='hand'){ sfx.tap(); return setCap('雨水在窗台上积成一洼……要是有个容器能盛住它就好了。'); }
+          if(S.filled){ sfx.tap(); return setCap('圣杯已经盛满了雨水。'); }
+          S.filled=true; sfx.water(); act('你用圣杯接满了雨水——「天空的眼泪」。');
+        });
+      }
+    };
+  },
+
+  /* ---------- 乌鸦 ---------- */
+  raven(){
+    const fed = S.ravenFed;
+    return { title:'Raven Statue',
+      cap: fed ? (S.key==='ground' ? '乌鸦的喙张着，一把铁钥匙落在壁炉台上。' : '乌鸦一动不动，暗红的眼睛盯着你。')
+         : '一只黑铁乌鸦，喙紧紧闭着。底座上刻着 SITIO——拉丁文「我渴」。',
+      svg:`<rect width="600" height="400" fill="#a49c88"/>
+      <path d="M0,120 L600,120 M0,220 L600,220 M150,0 L150,120 M420,0 L420,120 M90,120 L90,220 M300,120 L300,220 M520,120 L520,220" stroke="#8c8471" stroke-width="1.5"/>
+      <rect y="300" width="600" height="24" fill="#b6ae99" ${ink}/>
+      <rect y="324" width="600" height="80" fill="#9a927e" ${ink}/>
+      <rect x="226" y="252" width="160" height="50" fill="#2a2622" ${ink}/>
+      <text x="306" y="285" text-anchor="middle" font-family="Georgia,serif" font-size="18" letter-spacing="6" fill="#6c6457">SITIO</text>
+      <g id="z-raven" class="zhot">
+        <path d="M330,252 Q300,204 312,164 Q318,122 352,114 Q378,110 388,134 L404,172 Q432,212 452,268 L406,244 L382,252 Z" fill="#1d1915" ${ink}/>
+        <path d="M368,152 Q398,192 420,242" stroke="#3b352e" stroke-width="3" fill="none"/>
+        ${fed ? `<path d="M320,124 L256,124 L322,140 Z" fill="#1d1915" ${ink}/><path d="M322,146 L264,172 L328,158 Z" fill="#1d1915" ${ink}/>
+                 <circle cx="340" cy="132" r="14" fill="#a5332a" opacity=".35"/>`
+              : `<path d="M320,128 L256,146 L324,154 Z" fill="#1d1915" ${ink}/>`}
+        <circle cx="340" cy="132" r="5" fill="${fed?'#b23a2e':'#cbb894'}"/>
+      </g>
+      ${S.key==='ground'?`<g id="z-key" class="zhot" transform="translate(118,306) rotate(-6)"><rect x="-20" y="-20" width="110" height="40" fill="transparent"/>${keyArt()}</g>`:''}`,
+      bind(){
+        on('z-raven', ()=>{
+          if(fed){ sfx.tap(); return setCap('乌鸦一动不动，暗红的眼睛盯着你。'); }
+          if(S.filled){
+            S.filled=false; S.ravenFed=true; S.key='ground'; sfx.water();
+            setTimeout(sfx.caw, 350);
+            act('你把雨水倒在乌鸦喙下。它的眼睛泛起暗红——喙「咔」地张开，一把铁钥匙掉在了壁炉台上。');
+          }else if(S.chalice==='hand'){ sfx.tap(); setCap('乌鸦的喙紧闭着。底座刻着 SITIO——「我渴」。可手里的圣杯是空的。'); }
+          else { sfx.tap(); setCap('乌鸦的喙紧闭着。底座上刻着 SITIO——拉丁文「我渴」。'); }
+        });
+        if(S.key==='ground') on('z-key', ()=>{ S.key='hand'; give('key'); sfx.pick(); act('你捡起了这把生锈的铁钥匙。'); });
+      }
+    };
+  },
+
+  /* ---------- 钥匙 ---------- */
+  key(){
+    return { title:'Key', cap:'一把生锈的铁钥匙，齿上还沾着雨水。也许能打开那口旧箱子。',
+      svg:`<rect width="600" height="400" fill="#8f8875"/><g transform="translate(170,215) rotate(-12) scale(3.4)">${keyArt()}</g>`};
+  },
+
+  /* ---------- 箱子 ---------- */
+  chest(){
+    if(S.noteView){
+      const xs=[192,236,280,320,364,408];
+      return { title:'Chest — Note',
+        cap:'字条上画着这盏吊灯：六支蜡烛里只有四支燃着。「如同最后一夜那样燃烧。」（点击字条放回）',
+        svg:`<rect width="600" height="400" fill="#17130f"/>
+        <g id="z-noteview" class="zhot" transform="rotate(-2 300 200)">
+          <rect x="116" y="22" width="368" height="356" fill="#ddd3b8" ${ink}/>
+          <text x="300" y="70" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="20" fill="#3b3026">As it burned on the last night.</text>
+          <path d="M300,96 L300,150 M300,150 L184,248 M300,150 L250,262 M300,150 L350,262 M300,150 L416,248" stroke="#3b3026" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+          <ellipse cx="300" cy="250" rx="130" ry="22" fill="none" stroke="#3b3026" stroke-width="5"/>
+          ${candleRing(300,250,130,22,xs,12,40,PATTERN,null)}
+          <g font-family="Georgia,serif" font-size="13" fill="#5a4e3e" text-anchor="middle">
+            ${xs.map((x,i)=>`<text x="${x}" y="${i<3?300+i*4:308-(i-3)*4}">${['I','II','III','IV','V','VI'][i]}</text>`).join('')}
+          </g>
+          <text x="300" y="352" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="16" fill="#3b3026">— four flames, no more —</text>
+        </g>`,
+        bind(){ on('z-noteview', ()=>{ S.noteView=false; sfx.tap(); act('你把字条放回了箱子里。'); }); }
+      };
+    }
+    const open=S.chestOpen;
+    return { title:'Chest',
+      cap: open ? '箱子里压着一张发黄的字条。' : (S.key==='hand' ? '一口上锁的橡木箱。手里的钥匙看起来正合适。' : '一口上锁的橡木箱，锁孔里满是铁锈。'),
+      svg:`<rect width="600" height="400" fill="#a29b87"/>
+      <rect y="330" width="600" height="70" fill="#5a4d40"/><line x1="0" y1="330" x2="600" y2="330" stroke="#2b251e" stroke-width="2"/>
+      <g ${ink}>
+        ${open?`<polygon points="150,120 510,120 518,14 158,26" fill="#5b4a3a"/>
+                <path d="M196,120 L202,24 M462,120 L468,18" stroke="#7a6d55" stroke-width="20"/>`:''}
+        <polygon points="110,180 470,180 470,372 110,372" fill="#5b4a3a"/>
+        <polygon points="470,180 510,120 510,312 470,372" fill="#46392d"/>
+        ${open?`<polygon points="110,180 150,120 510,120 470,180" fill="#17130f"/>
+                <g id="z-note" class="zhot"><polygon points="214,168 372,164 396,134 240,138" fill="#ddd3b8"/>
+                  <path d="M246,150 L370,147 M240,158 L362,155" stroke="#7a6f5c" stroke-width="2"/>
+                  <polygon points="214,168 372,164 396,134 240,138" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/></g>`
+              :`<polygon points="110,180 150,120 510,120 470,180" fill="#6a5643"/>`}
+        <line x1="110" y1="232" x2="470" y2="232"/><line x1="470" y1="232" x2="510" y2="172"/>
+        <path d="M110,300 L470,300" stroke="#3a2f25" stroke-width="1.5"/>
+        <rect x="146" y="180" width="26" height="192" fill="#7a6d55"/>
+        <rect x="408" y="180" width="26" height="192" fill="#7a6d55"/>
+        ${[200,260,330].map(y=>`<circle cx="159" cy="${y}" r="3" fill="#4a3c2f"/><circle cx="421" cy="${y}" r="3" fill="#4a3c2f"/>`).join('')}
+        <g id="z-lock" class="${open?'':'zhot'}">
+          <rect x="270" y="212" width="40" height="54" fill="#8a7b5e"/>
+          <circle cx="290" cy="233" r="6" fill="#2a2622"/><rect x="287" y="237" width="6" height="16" fill="#2a2622"/>
+        </g>
+      </g>`,
+      bind(){
+        if(!open) on('z-lock', ()=>{
+          if(S.key!=='hand'){ sfx.fail(); return setCap('锁得死死的。需要一把钥匙。'); }
+          S.key='used'; take('key'); S.chestOpen=true; sfx.clack(); setTimeout(sfx.thud,250);
+          act('钥匙在锁孔里艰难地转动……「咔哒」，箱盖开了。里面压着一张字条。');
+        });
+        else on('z-note', ()=>{ S.noteView=true; S.noteRead=true; sfx.open(); render(); updateAll(); });
+      }
+    };
+  },
+
+  /* ---------- 吊灯 ---------- */
+  chandelier(){
+    const xs=[112,180,254,346,420,488];
+    const n=S.candles.reduce((a,b)=>a+b,0);
+    return { title:'Chandelier',
+      cap: S.lit ? '四支烛火安静地燃着，整个房间都亮了。' :
+           (S.litOnce ? `已点燃 ${n} 支蜡烛。点击蜡烛点燃或掐灭。` : '铁环吊灯上插着六支蜡烛，都没有点燃。点击蜡烛，借墙上壁灯的火点燃它们。'),
+      svg:`<rect width="600" height="400" fill="#a39b87"/>
+      <rect width="600" height="64" fill="#463d33"/><rect y="56" width="600" height="14" fill="#3a3128"/>
+      <path d="M300,0 L300,132" stroke="#2a2622" stroke-width="6" stroke-dasharray="10 6"/>
+      <circle cx="300" cy="138" r="9" fill="none" stroke="#2a2622" stroke-width="4"/>
+      <path d="M300,140 L92,262 M300,140 L214,234 M300,140 L386,234 M300,140 L508,262" stroke="#2a2622" stroke-width="4" stroke-dasharray="8 5" fill="none"/>
+      <ellipse cx="300" cy="270" rx="220" ry="40" fill="none" stroke="#2a2622" stroke-width="14"/>
+      ${candleRing(300,270,220,40,xs,22,80,S.candles,'z-c')}
+      <path d="M170,302 l7,22 l7,-22 Z M293,310 l7,24 l7,-24 Z M416,302 l7,22 l7,-22 Z" fill="#2a2622"/>`,
+      bind(){
+        xs.forEach((_,i)=> on('z-c'+i, ()=>{
+          if(S.lit){ sfx.tap(); return setCap('四支烛火安静地燃着，最好别再动它们。'); }
+          const first=!S.litOnce; S.litOnce=true;
+          S.candles[i]^=1; S.candles[i]?sfx.flame():sfx.tap();
+          const c=S.candles.reduce((a,b)=>a+b,0);
+          if(S.candles.every((v,k)=>v===PATTERN[k])){
+            S.lit=true; sfx.chime(); act('烛火忽然稳定下来，房间被照亮了。挂毯的边缘在光里微微翘起……');
+          }else if(c===6){
+            render(); updateAll(); setCap('第六支刚亮起，一阵冷风从门缝灌进来——');
+            setTimeout(()=>{ S.candles=[0,0,0,0,0,0]; sfx.blow(); act('六支烛火同时熄灭了。似乎不能全部点亮。'); }, 700);
+          }else{
+            act(first ? '你取下壁灯，借它的火点燃了一支蜡烛。' : (S.candles[i] ? `点燃了第 ${['一','二','三','四','五','六'][i]} 支蜡烛。` : `掐灭了第 ${['一','二','三','四','五','六'][i]} 支蜡烛。`));
+          }
+        }));
+      }
+    };
+  },
+
+  /* ---------- 挂毯 ---------- */
+  tapestry(){
+    if(S.codeSeen){
+      return { title:'Tapestry',
+        cap:'挂毯后面的石墙上刻着三个记号，下方标着 I、II、III：月亮、十字、乌鸦。',
+        svg:`<rect width="600" height="400" fill="#a8a08b"/>
+        <line x1="130" y1="34" x2="470" y2="34" stroke="#2a2622" stroke-width="7"/>
+        <circle cx="128" cy="34" r="9" fill="#2a2622"/><circle cx="472" cy="34" r="9" fill="#2a2622"/>
+        <path d="M150,38 L262,38 Q246,120 262,200 Q244,290 256,384 L150,384 Z" fill="#6b3a30" ${ink}/>
+        <path d="M180,40 Q172,200 184,384 M214,40 Q226,200 210,384 M240,40 Q230,200 236,384" stroke="#51291f" stroke-width="3" fill="none"/>
+        <rect x="292" y="112" width="180" height="160" fill="#948d79" ${ink}/>
+        <path d="M292,150 L310,140 M460,240 L472,252 M320,272 L330,262" stroke="#6e6754" stroke-width="1.5"/>
+        <use href="#sym-moon" x="304" y="156" width="48" height="48" style="color:#3a3229"/>
+        <use href="#sym-cross" x="358" y="156" width="48" height="48" style="color:#3a3229"/>
+        <use href="#sym-raven" x="412" y="156" width="48" height="48" style="color:#3a3229"/>
+        <g font-family="Georgia,serif" font-size="16" fill="#3a3229" text-anchor="middle">
+          <text x="328" y="236">I</text><text x="382" y="236">II</text><text x="436" y="236">III</text>
+        </g>`};
+    }
+    return { title:'Tapestry',
+      cap: S.lit ? '烛光下，挂毯的右下角微微翘起，后面的墙似乎凹凸不平。点击掀开它。'
+                 : '褪色的挂毯上绣着一只雄鹿。屋里太暗了，看不清细节。',
+      svg:`<rect width="600" height="400" fill="#a8a08b"/>
+      <line x1="130" y1="34" x2="470" y2="34" stroke="#2a2622" stroke-width="7"/>
+      <circle cx="128" cy="34" r="9" fill="#2a2622"/><circle cx="472" cy="34" r="9" fill="#2a2622"/>
+      <g id="z-tap" class="zhot">
+        <rect x="150" y="38" width="300" height="346" fill="#6b3a30" ${ink}/>
+        <rect x="166" y="54" width="268" height="314" fill="none" stroke="#b9a37f" stroke-width="2" opacity=".7"/>
+        <use href="#deer" x="190" y="110" width="230" height="250" style="color:#cdbd9c"/>
+        <path d="M200,40 L196,384 M398,40 L404,384" stroke="#58302a" stroke-width="2" opacity=".7"/>
+        ${S.lit?`<path d="M450,384 L450,318 Q428,352 392,384 Z" fill="#8a8371" ${ink}/>
+                 <path d="M450,318 Q428,352 392,384" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/>`:''}
+      </g>
+      ${S.lit?'':'<rect width="600" height="400" fill="#0d0a07" opacity=".55" pointer-events="none"/>'}`,
+      bind(){
+        on('z-tap', ()=>{
+          if(!S.lit){ sfx.tap(); return setCap('太暗了。挂毯后面似乎有凹凸的刻痕，但什么都看不清。'); }
+          S.codeSeen=true; sfx.open(); act('你掀开挂毯。后面的石墙上刻着三个记号——月亮、十字、乌鸦。');
+        });
+      }
+    };
+  },
+
+  /* ---------- 门 ---------- */
+  door(){
+    const cx=[220,300,380];
+    return { title:'Door',
+      cap:'厚重的橡木门，门环下嵌着三个可以转动的铁轮。转好后拉动门环。',
+      svg:`<defs><clipPath id="zcd"><path d="M165,400 L165,138 Q170,56 300,46 Q430,56 435,138 L435,400 Z"/></clipPath></defs>
+      <rect width="600" height="400" fill="#938c79"/>
+      <rect y="384" width="600" height="16" fill="#5a4d40"/>
+      <path d="M130,400 L130,130 Q134,30 300,16 Q466,30 470,130 L470,400 Z" fill="#a39c89" ${ink}/>
+      <path d="M130,200 L165,200 M130,290 L165,290 M435,200 L470,200 M435,290 L470,290 M150,72 L178,94 M450,72 L422,94 M300,16 L300,46" stroke="#2b251e" stroke-width="1.6"/>
+      <path d="M165,400 L165,138 Q170,56 300,46 Q430,56 435,138 L435,400 Z" fill="#584635" ${ink}/>
+      <g clip-path="url(#zcd)">
+        <path d="M210,40 L210,400 M255,40 L255,400 M300,40 L300,400 M345,40 L345,400 M390,40 L390,400" stroke="#3c3125" stroke-width="2"/>
+        <rect x="160" y="104" width="280" height="14" fill="#2a2622"/>
+        <rect x="160" y="344" width="280" height="14" fill="#2a2622"/>
+      </g>
+      <circle cx="300" cy="148" r="12" fill="#2a2622"/>
+      <g id="z-knock" class="zhot"><circle cx="300" cy="182" r="40" fill="transparent"/>
+        <circle cx="300" cy="182" r="27" fill="none" stroke="#2a2622" stroke-width="9"/></g>
+      ${cx.map((x,i)=>`<g id="z-d${i}" class="zhot">
+        <circle cx="${x}" cy="276" r="34" fill="#8a7d63" stroke="#2a2622" stroke-width="5"/>
+        <circle cx="${x}" cy="276" r="26" fill="none" stroke="#6c6048" stroke-width="1.5"/>
+        <use href="#sym-${SYM[S.dials[i]]}" x="${x-19}" y="257" width="38" height="38" style="color:#2a2622"/>
+        <path d="M${x},238 l-5,-8 l10,0 Z" fill="#2a2622"/>
+      </g>`).join('')}`,
+      bind(){
+        cx.forEach((_,i)=> on('z-d'+i, ()=>{ S.dials[i]=(S.dials[i]+1)%4; sfx.clack(); render(); }));
+        on('z-knock', ()=>{
+          if(S.dials.every((d,i)=>d===CODE[i])){ escape(); return; }
+          sfx.thud(); setTimeout(sfx.fail,120);
+          zcard.classList.remove('shake'); void zcard.offsetWidth; zcard.classList.add('shake');
+          setCap(S.codeSeen ? '门纹丝不动。对照挂毯后的刻痕再试试。' : '门纹丝不动。这些记号一定在房间的某处出现过。');
+        });
+      }
+    };
+  },
+
+  /* ---------- 壁炉 ---------- */
+  fireplace(){
+    return { title:'Fireplace',
+      cap: S.ash ? '烧焦的纸片上只剩半句：「……别相信那只乌鸦。」' : '壁炉早已熄灭，炉膛里只剩一堆冷灰。',
+      svg:`<rect width="600" height="400" fill="#a09884"/>
+      <path d="M0,60 L600,60 M0,130 L600,130 M60,0 L60,60 M200,0 L200,60 M380,0 L380,60 M520,0 L520,60 M120,60 L120,130 M480,60 L480,130" stroke="#82796a" stroke-width="1.6"/>
+      <path d="M100,400 L100,170 Q108,72 300,64 Q492,72 500,170 L500,400 Z" fill="#1d1914" ${ink}/>
+      <path d="M140,400 L140,188 Q152,108 300,100 Q448,108 460,188 L460,400 Z" fill="#28221b"/>
+      <path d="M190,360 L410,320 L416,340 L196,380 Z" fill="#4a3b2c" ${ink}/>
+      <path d="M200,318 L412,362 L404,380 L190,338 Z" fill="#3f3226" ${ink}/>
+      <path d="M210,400 L210,300 M390,400 L390,300" stroke="#2a2622" stroke-width="8"/>
+      <circle cx="210" cy="296" r="10" fill="#2a2622"/><circle cx="390" cy="296" r="10" fill="#2a2622"/>
+      <g id="z-ash" class="zhot"><ellipse cx="300" cy="384" rx="160" ry="22" fill="#5d574d"/>
+        <ellipse cx="250" cy="380" rx="40" ry="6" fill="#6f695e"/></g>
+      ${S.ash?`<polygon points="330,250 420,240 432,290 340,302" fill="#cfc4a6" stroke="#1d1914" stroke-width="2" transform="rotate(-4 380 270)"/>
+               <path d="M346,262 L410,256 M348,276 L392,272" stroke="#5a4e3e" stroke-width="2"/>`:''}`,
+      bind(){ on('z-ash', ()=>{ if(S.ash) return; S.ash=true; give('scrap'); sfx.pick(); act('你在冷灰里摸到一张烧焦的纸片，只剩半句：「……别相信那只乌鸦。」你把它收了起来。'); }); }
+    };
+  },
+
+  /* ---------- 物品：烧焦纸片 ---------- */
+  scrap(){
+    return { title:'Burnt Scrap', cap:'烧焦的纸片，只剩半句：「……别相信那只乌鸦。」字迹很娟秀，像是女人写的。',
+      svg:`<rect width="600" height="400" fill="#8f8875"/>
+      <g transform="rotate(-5 300 200)">
+        <path d="M120,110 L250,92 L300,104 L420,86 L486,128 L470,206 L492,268 L410,306 L300,296 L190,318 L118,262 L134,190 Z" fill="#cfc4a6" stroke="#3a2a1c" stroke-width="7" stroke-linejoin="round"/>
+        <path d="M120,110 L250,92 L300,104 L420,86 L486,128 L470,206 L492,268 L410,306 L300,296 L190,318 L118,262 L134,190 Z" fill="none" stroke="#1d1914" stroke-width="2"/>
+        <path d="M140,124 l14,10 M470,140 l-16,8 M476,262 l-18,-6 M200,306 l6,-14" stroke="#5a4632" stroke-width="3" fill="none"/>
+        <text x="306" y="214" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="26" fill="#3b3026">…do not trust the raven.</text>
+      </g>`};
+  },
+
+  /* ======================= 灰烬大厅 ======================= */
+  h_inscription(){
+    G.hall.inscriptionSeen = true;
+    return { title:'Inscription',
+      cap:'楼梯拱顶上的石刻：「月照之厅 · ？ · 鸦之高塔」。中间那个记号被人凿掉了，只剩一片碎痕。',
+      svg:`<rect width="600" height="400" fill="#4f4b40"/>
+      <path d="M0,60H600M0,120H600M0,300H600M0,360H600M90,0V60M300,0V60M500,0V60M190,60V120M420,60V120M140,300V360M380,300V360M240,360V400M520,360V400" stroke="#3c382f" stroke-width="2"/>
+      <rect x="50" y="128" width="500" height="150" fill="#7a7564" ${hk}/>
+      <rect x="62" y="140" width="476" height="126" fill="none" stroke="#4e493e" stroke-width="2"/>
+      <use href="#sym-moon" x="92" y="160" width="76" height="76" style="color:#2f2a22"/>
+      <circle cx="200" cy="198" r="6" fill="#2f2a22"/>
+      <path d="M240,166 L276,156 L318,164 L350,178 L358,206 L344,236 L300,246 L258,240 L236,214 Z" fill="#5a5447" ${hk}/>
+      <path d="M250,180 L300,226 M276,160 L262,214 M310,168 L330,220 M286,236 L318,190 M340,196 L300,200" stroke="#3a352c" stroke-width="2" fill="none"/>
+      <circle cx="400" cy="198" r="6" fill="#2f2a22"/>
+      <path d="M432,240 V184 H424 V164 H434 V172 H442 V164 H452 V172 H460 V164 H470 V184 H462 V240 Z" fill="#2f2a22"/>
+      <use href="#sym-raven" x="462" y="156" width="66" height="66" style="color:#2f2a22"/>
+      <g font-family="Georgia,serif" font-style="italic" font-size="15" fill="#3a352c" text-anchor="middle" letter-spacing="2">
+        <text x="130" y="258">LVNA</text><text x="298" y="262">· · ·</text><text x="478" y="258">CORVVS</text>
+      </g>`};
+  },
+
+  h_chapelDoor(){
+    const H=G.hall, open=H.chapelOpen, sym=SYM[H.dial];
+    const inner='M196,400 L196,150 Q204,66 300,44 Q396,66 404,150 L404,400 Z';
+    const frame=`<rect width="600" height="400" fill="#4a463c"/>
+      <path d="M0,70H600M0,140H600M0,210H600M0,280H600M0,350H600M80,0V70M520,0V70M40,70V140M560,70V140M90,140V210M510,140V210M50,210V280M550,210V280M100,280V350M500,280V350" stroke="#3a372f" stroke-width="2"/>
+      <path d="M170,400 L170,140 Q178,40 300,16 Q422,40 430,140 L430,400 Z" fill="#6a6555" ${hk}/>
+      <path d="M170,200 L196,200 M170,290 L196,290 M404,200 L430,200 M404,290 L430,290 M196,70 L216,90 M404,70 L384,90 M300,16 L300,44" stroke="#3e3a31" stroke-width="2"/>`;
+    if(open) return { title:'Chapel Door',
+      cap:'门后是一段冷廊，尽头透出彩窗的微光。（点击进入礼拜堂）',
+      svg: frame + `<path d="${inner}" fill="#0b0908" ${hk}/>
+        <path d="M262,400 L280,196 L320,196 L338,400 Z" fill="#17120e"/>
+        <path d="M282,252 L282,204 Q284,182 300,176 Q316,182 318,204 L318,252 Z" fill="#2c3644"/>
+        <rect x="286" y="194" width="7" height="24" fill="#7a3a30" opacity=".85"/><rect x="296.5" y="188" width="7" height="30" fill="#3d5a7a"/><rect x="307" y="194" width="7" height="24" fill="#8a7a3a" opacity=".85"/>
+        <ellipse cx="300" cy="230" rx="90" ry="120" fill="url(#zDoorL)"/>
+        <path d="M282,252 L318,252 L364,400 L236,400 Z" fill="#9fb2c4" opacity=".07"/>
+        <defs><radialGradient id="zDoorL"><stop offset="0" stop-color="#9fb2c4" stop-opacity=".22"/><stop offset="1" stop-color="#9fb2c4" stop-opacity="0"/></radialGradient></defs>
+        <path d="M196,400 L196,150 Q200,112 228,84 L240,94 L240,382 Z" fill="#3f3226" ${hk}/>
+        <g id="z-enter" class="zhot"><path d="${inner}" fill="transparent"/>
+          <path d="M250,400 L250,200 Q254,150 300,136 Q346,150 350,200 L350,400" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/></g>`,
+      bind(){ on('z-enter', ()=>enterLevel('L2')); }
+    };
+    return { title:'Chapel Door',
+      cap:`门上刻着一个十字，下方嵌着一枚只能显示一个记号的铁转盘，现在指着「${SYM_CN[sym]}」。转好后拉门环。`,
+      svg: frame + `<defs><clipPath id="zchc"><path d="${inner}"/></clipPath></defs>
+        <path d="${inner}" fill="#3f3226" ${hk}/>
+        <g clip-path="url(#zchc)" stroke="#2a2119" stroke-width="2.5">
+          <path d="M236,30V400M270,30V400M330,30V400M364,30V400"/>
+          <path d="M190,150 L410,144 M190,352 L410,338" stroke="#1a1612" stroke-width="12"/>
+        </g>
+        <path d="M300,66 V176 M266,100 H334" stroke="#1d1712" stroke-width="16" stroke-linecap="round"/>
+        <path d="M300,66 V176 M266,100 H334" stroke="#5a4838" stroke-width="3"/>
+        <path d="M300,206 l-7,-11 h14 Z" fill="#c4b69a" stroke="#0f0c0a" stroke-width="1.5"/>
+        <g id="z-dial" class="zhot">
+          <circle cx="300" cy="256" r="46" fill="#2a2622" ${hk}/>
+          <circle cx="300" cy="256" r="34" fill="#4a443b" stroke="#0f0c0a" stroke-width="2"/>
+          <use href="#sym-${sym}" x="280" y="236" width="40" height="40" style="color:#c4b69a"/>
+        </g>
+        <g id="z-ring" class="zhot"><circle cx="366" cy="304" r="28" fill="transparent"/>
+          <circle cx="366" cy="284" r="5" fill="#120f0c"/>
+          <circle cx="366" cy="304" r="16" fill="none" stroke="#120f0c" stroke-width="6"/></g>`,
+      bind(){
+        on('z-dial', ()=>{ H.dial=(H.dial+1)%4; sfx.clack(); render(); });
+        on('z-ring', ()=>{
+          if(SYM[H.dial]==='cross'){
+            H.chapelOpen=true; sfx.clack(); setTimeout(sfx.creak,200);
+            act('转盘「咔」地卡在十字上。门轴呻吟着，向里打开了。');
+          }else{
+            H.dialTried=true; sfx.thud(); setTimeout(sfx.fail,120); shake();
+            setCap(H.inscriptionSeen ? '门纹丝不动。石刻上被凿掉的，是哪个记号？' : '门纹丝不动。这一格该是哪个记号？大厅里也许刻着提示。');
+          }
+        });
+      }
+    };
+  },
+
+  h_kitchenDoor(){
+    const H=G.hall, open=H.kitchenOpen;
+    const inner='M196,400 L196,160 Q204,90 300,76 Q396,90 404,160 L404,400 Z';
+    const frame=`<rect width="600" height="400" fill="#4a463c"/>
+      <path d="M0,80H600M0,160H600M0,240H600M0,320H600M70,0V80M530,0V80M120,80V160M480,80V160M60,160V240M540,160V240M110,240V320M490,240V320" stroke="#3a372f" stroke-width="2"/>
+      <path d="M170,400 L170,150 Q178,62 300,48 Q422,62 430,150 L430,400 Z" fill="#625d4e" ${hk}/>`;
+    if(open) return { title:'Kitchen Door',
+      cap:'门开了。几级石阶往下，通向厨房。灶台的余温还没散尽。（点击进入厨房）',
+      svg: frame + `<path d="${inner}" fill="#0b0908" ${hk}/>
+        <path d="M232,400 H368 M240,370 H360 M250,342 H350 M258,318 H342" stroke="#2a221b" stroke-width="10"/>
+        <ellipse cx="300" cy="250" rx="70" ry="90" fill="#ffb35a" opacity=".06"/>
+        <path d="M404,400 L404,160 Q400,124 376,100 L364,110 L364,384 Z" fill="#45382b" ${hk}/>
+        <g id="z-enter" class="zhot"><path d="${inner}" fill="transparent"/></g>`,
+      bind(){ on('z-enter', ()=>enterLevel('L3')); }
+    };
+    return { title:'Kitchen Door',
+      cap: has('snuffer') ? '门从里面闩着。门缝里能看见那根门闩——手里的灭烛钩也许够得着。'
+                          : '一扇低矮的小门，门上挂着一只陶罐。门从里面闩着，门缝太窄，伸不进手。',
+      svg: frame + `<defs><clipPath id="zkd"><path d="${inner}"/></clipPath></defs>
+        <path d="${inner}" fill="#45382b" ${hk}/>
+        <g clip-path="url(#zkd)">
+          <path d="M248,60V400M300,60V400M352,60V400" stroke="#2c2219" stroke-width="2.5"/>
+          <path d="M190,180 L410,170 M190,350 L410,332" stroke="#1a1612" stroke-width="11"/>
+        </g>
+        <g id="z-pot" class="zhot">
+          <circle cx="300" cy="112" r="4" fill="#16120e"/><path d="M300,116 V146" stroke="#16120e" stroke-width="3"/>
+          <path d="M284,146 H316 V154 Q313,158 313,161 Q336,174 333,204 Q330,232 300,232 Q270,232 267,204 Q264,174 287,161 Q287,158 284,154 Z" fill="#7b4c33" ${hk}/>
+          <path d="M272,190 Q300,200 328,190" stroke="#5a3624" stroke-width="2" fill="none"/>
+        </g>
+        <g id="z-gap" class="zhot"><rect x="374" y="200" width="36" height="150" fill="transparent"/>
+          <rect x="392" y="214" width="8" height="120" fill="#0c0907"/>
+          <rect x="388" y="268" width="16" height="6" fill="#6e604c"/></g>`,
+      bind(){
+        on('z-pot', ()=>{ sfx.tap(); setCap('陶罐里是空的，闻起来有股陈年麦酒的酸味。'); });
+        on('z-gap', ()=>{
+          if(!has('snuffer')){ sfx.fail(); return setCap('门缝太窄，伸不进手。要是有根细长、带钩的东西……'); }
+          H.kitchenOpen=true; take('snuffer'); sfx.clack(); setTimeout(sfx.creak,200);
+          act('你把灭烛钩探进门缝，钩住门闩往上一挑——「咔」，门开了。');
+        });
+      }
+    };
+  },
+
+  h_gate(){
+    const H=G.hall, P=G.progress;
+    let steps=''; for(let i=0;i<10;i++){ const y=372-i*30, x1=110+i*13, x2=490-i*13;
+      steps+=`<rect x="${x1}" y="${y}" width="${x2-x1}" height="30" fill="${i%2?'#33291f':'#3b3024'}" stroke="#1a1511" stroke-width="1.5"/><rect x="${x1}" y="${y}" width="${x2-x1}" height="4" fill="#54453a"/>`; }
+    let bars=''; for(let x=104;x<=496;x+=28) bars+=`<path d="M${x},44 V400" /><path d="M${x},26 l-6,18 h12 Z" fill="#120f0c" stroke="none"/>`;
+    if(H.gateOpen){   // 栅门已开：两扇栅栏向两侧敞开，楼梯可以直接走上去
+      let side=''; [[104,190],[410,496]].forEach(([a,b])=>{ for(let x=a;x<=b;x+=21) side+=`<path d="M${x},44 V400"/>`; });
+      const rooms = P.L7 ? [['L5','肖像长廊','你走上二楼的长廊。'],['L6','夫人寝室','你穿过长廊，走上通往寝室的窄楼梯。'],['L7','领主书房','你走上主楼梯，推开了书房的门。']] : null;
+      return { title:'Iron Gate',
+        cap: P.L7 ? '主楼梯通向楼上的几个房间。要去哪里？'
+           : P.L5 ? '主楼梯通向二楼的肖像长廊。（点击上楼）'
+                  : '铁栅门敞开着。主楼梯通向二楼，楼梯口飘下来一股陈年油画颜料的气味。（点击上楼）',
+        svg:`<rect width="600" height="400" fill="#1f1a15"/>
+          <path d="M220,0 L380,0 L384,40 Q350,52 322,44 Q300,56 278,44 Q250,52 216,40 Z" fill="#69645a" stroke="#1a1511" stroke-width="2"/>
+          <rect x="150" y="40" width="300" height="34" fill="#3e3228" stroke="#1a1511" stroke-width="2"/>
+          ${steps}
+          <polygon points="200,80 400,80 470,400 130,400" fill="#ffc56e" opacity=".07"/>
+          <g stroke="#120f0c" stroke-width="6" fill="none">${side}<path d="M90,62 H196 M404,62 H510 M90,226 H196 M404,226 H510 M90,384 H196 M404,384 H510" stroke-width="9"/></g>
+          ${rooms ? rooms.map(([,n],i)=>uiBtn('z-room'+i, 70+i*160, 340, 140, n)).join('')
+            : `<g id="z-enter" class="zhot"><rect x="200" y="74" width="200" height="326" fill="transparent"/>
+            <path d="M240,380 L270,110 H330 L360,380" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/></g>`}`,
+        bind(){
+          on('z-enter', ()=>{
+            if(!LEVELS.L5 || !LEVELS.L5.ready) return enterLevel('L5');
+            closeZoom(); goLevel('L5', '你踩着吱呀作响的主楼梯，走上了二楼。'); });
+          if(rooms) rooms.forEach(([id,,t],i)=> on('z-room'+i, ()=>{ closeZoom(); goLevel(id, t); }));
+        }
+      };
+    }
+    return { title:'Iron Gate',
+      cap: P.L4 ? '栅门上刻着一行字：「那一夜，唯一清醒的人为父亲提着灯。把灯还给他。」旁边多了一个提灯挂钩。'
+                : '主楼梯被一道铁栅门拦着。锁板上没有钥匙孔，只有一块被磨得发亮的空白。透过栅栏，能看见平台上那幅盖着布的大画。',
+      svg:`<rect width="600" height="400" fill="#1f1a15"/>
+        <path d="M220,0 L380,0 L384,40 Q350,52 322,44 Q300,56 278,44 Q250,52 216,40 Z" fill="#69645a" stroke="#1a1511" stroke-width="2"/>
+        <rect x="150" y="40" width="300" height="34" fill="#3e3228" stroke="#1a1511" stroke-width="2"/>
+        ${steps}
+        <g stroke="#120f0c" stroke-width="7" fill="none">${bars}
+          <path d="M90,62 H510 M90,226 H510 M90,384 H510" stroke-width="10"/></g>
+        <g id="z-lock" class="zhot">
+          <rect x="268" y="190" width="64" height="84" fill="#3a332b" ${hk}/>
+          <rect x="280" y="204" width="40" height="56" fill="#6d665a" opacity=".55"/>
+        </g>
+        ${P.L4 ? `<rect x="190" y="116" width="220" height="40" fill="#3a332b" ${hk}/>
+          <text x="300" y="141" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="13" fill="#b9ad92">Return the lamp to him.</text>
+          <path d="M150,250 h18 v16 q0,8 -8,8" stroke="#120f0c" stroke-width="5" fill="none"/>` : ''}`,
+      bind(){
+        on('z-lock', ()=>{
+          if(H.gateOpen) return enterLevel('L5');
+          sfx.thud(); shake();
+          setCap(P.L4 ? '把灯还给他……可是，哪个座位是“他”的？也许该去长餐桌那边看看。' : '推不动。锁板冰凉，上面什么都没有——好像还缺了什么。');
+        });
+      }
+    };
+  },
+
+  h_mainDoor(){
+    const H=G.hall;
+    const inner='M150,400 L150,150 Q160,54 300,36 Q440,54 450,150 L450,400 Z';
+    if(H.drawbridgeDown){   // 第 7 关后：鸦羽检查 + 进入鸦塔不可返回的确认（策划案 2.5.4）
+      const empty = Object.values(G.feathers).filter(f=>!f).length;
+      return { title:'Castle Gate',
+        cap: gateAsk ? (empty ? `窗外的乌鸦叫了一声。壁炉台上还空着 ${empty} 个位置。——走上吊桥之后，就再也回不来了。` : '七根鸦羽都插在壁炉台上了。——走上吊桥之后，就再也回不来了。')
+             : '门闩断成了两截，大门虚掩着。门外，吊桥已经放下，一直伸进雾里。湖心的鸦塔上，红光一闪一闪。',
+        svg:`<defs><linearGradient id="zmdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3440"/><stop offset="1" stop-color="#9aa4a6"/></linearGradient></defs>
+          <rect width="600" height="400" fill="#3b382f"/>
+          <path d="M0,70H600M0,140H600M0,210H600M0,280H600M0,350H600M60,0V70M540,0V70M30,140V210M570,140V210M70,280V350M530,280V350" stroke="#2f2c25" stroke-width="2"/>
+          <path d="M120,400 L120,140 Q130,30 300,10 Q470,30 480,140 L480,400 Z" fill="#67624f" ${hk}/>
+          <path d="${inner}" fill="url(#zmdSky)" ${hk}/>
+          <path d="M150,260 Q300,240 450,262 V400 H150 Z" fill="#56626a"/>
+          <path d="M296,262 V176 H310 V262 Z M292,176 L303,150 L314,176 Z" fill="#232b30"/><rect x="300" y="186" width="5" height="7" fill="#b23a2e"/>
+          <polygon points="262,400 338,400 312,262 296,262" fill="#4a3c2e" ${hk}/>
+          <path d="M270,370 H330 M278,330 H322 M286,296 H316" stroke="#2a2018" stroke-width="2"/>
+          <rect x="150" y="230" width="300" height="60" fill="#c8cecc" opacity=".25"/>
+          <path d="M150,400 L150,150 Q154,110 176,84 L214,104 L214,390 Z" fill="#3d3024" ${hk}/>
+          <path d="M450,400 L450,150 Q446,110 424,84 L386,104 L386,390 Z" fill="#3d3024" ${hk}/>
+          <path d="M96,232 L222,240 L218,262 L96,254 Z M384,244 L504,236 L504,258 L380,266 Z" fill="#26231f" ${hk}/>
+          ${gateAsk ? `${uiBtn('z-go', 150, 352, 140, '走上吊桥')}${uiBtn('z-wait', 310, 352, 140, '再等等')}` : uiBtn('z-ask', 220, 352, 160, '走出大门')}`,
+        bind(){
+          on('z-ask', ()=>{ gateAsk = true; if(empty) sfx.caw(); else sfx.tap(); render(); });
+          on('z-wait', ()=>{ gateAsk = false; sfx.tap(); closeZoom(); if(empty) say('壁炉台上的木架，空槽下面刻着房间的图案。点空槽，就能回那间屋子找找。', 6000); });
+          on('z-go', ()=>{ gateAsk = false; closeZoom();
+            if(LEVELS.L8 && LEVELS.L8.ready) return goLevel('L8', '你踏上吊桥。桥板在脚下吱呀作响，雾湖上的风冷得刺骨……');
+            toBeContinued(); });
+        }
+      };
+    }
+    return { title:'Castle Gate',
+      cap:'城堡大门。一根粗铁门闩横在门上，沉得抬不起来。门缝里渗进湖上的雾——外面的吊桥是收起的。',
+      svg:`<defs><clipPath id="zmd"><path d="${inner}"/></clipPath></defs>
+        <rect width="600" height="400" fill="#3b382f"/>
+        <path d="M0,70H600M0,140H600M0,210H600M0,280H600M0,350H600M60,0V70M540,0V70M30,140V210M570,140V210M70,280V350M530,280V350" stroke="#2f2c25" stroke-width="2"/>
+        <path d="M120,400 L120,140 Q130,30 300,10 Q470,30 480,140 L480,400 Z" fill="#67624f" ${hk}/>
+        <path d="${inner}" fill="#3d3024" ${hk}/>
+        <g clip-path="url(#zmd)">
+          <path d="M194,20V400M238,20V400M282,20V400M318,20V400M362,20V400M406,20V400" stroke="#271e16" stroke-width="2.5"/>
+          <path d="M140,120 L460,112 M140,334 L460,350" stroke="#16130f" stroke-width="10"/>
+          <rect x="297" y="36" width="6" height="364" fill="#a9b0ae" opacity=".45"/>
+        </g>
+        <circle cx="270" cy="290" r="14" fill="none" stroke="#120f0c" stroke-width="5"/>
+        <circle cx="330" cy="290" r="14" fill="none" stroke="#120f0c" stroke-width="5"/>
+        <g id="z-bar" class="zhot">
+          <path d="M104,196 L496,210 L496,246 L104,232 Z" fill="#26231f" ${hk}/>
+          <path d="M104,196 L496,210" stroke="#4e4a42" stroke-width="2"/>
+          <path d="M166,186 V246 M434,196 V258" stroke="#120f0c" stroke-width="9"/>
+          <path d="M152,186 H180 M420,196 H448" stroke="#120f0c" stroke-width="6"/>
+        </g>
+        <ellipse cx="300" cy="398" rx="220" ry="16" fill="#b9c0bf" opacity=".22"/>`,
+      bind(){
+        on('z-bar', ()=>{
+          sfx.thud(); shake(); setTimeout(sfx.caw, 700);
+          setCap('你用尽力气，门闩纹丝不动。门外很远的地方，传来一声乌鸦叫。');
+        });
+      }
+    };
+  },
+
+  h_table(){
+    const W={top:[60,46],bottom:[60,46],head:[50,66],foot:[44,56]};
+    const chairs = CHAIRS.map(c=>{
+      let [w,h]=W[c.side]; if(c.short){ w-=10; h-=8; }
+      const x0=c.x-w/2, y0=c.y-h/2;
+      const back = c.side==='top' ? `<rect x="${x0-4}" y="${y0-12}" width="${w+8}" height="12"/>`
+                 : c.side==='bottom' ? `<rect x="${x0-4}" y="${y0+h}" width="${w+8}" height="12"/>`
+                 : c.side==='head' ? `<rect x="${x0+w}" y="${y0-8}" width="16" height="${h+16}"/>`
+                 : `<rect x="${x0-12}" y="${y0-4}" width="12" height="${h+8}"/>`;
+      const es = c.short ? 24 : 30;
+      return `<g id="z-ch-${c.id}" class="zhot">
+        <g fill="#2c231b" ${hk}>${back}</g>
+        <rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="3" fill="#40322a" ${hk}/>
+        <rect x="${x0+5}" y="${y0+5}" width="${w-10}" height="${h-10}" fill="none" stroke="#56463a" stroke-width="1.2"/>
+        <use href="#${EMB[c.emb]}" x="${c.x-es/2}" y="${c.y-es/2}" width="${es}" height="${es}" style="color:#0c0907"/>
+        ${c.short ? `<path d="M${x0-3},${y0+h+14} l7,-4 M${x0+w-4},${y0+h+14} l7,-4" stroke="#8a7b62" stroke-width="1.6"/>` : ''}
+      </g>`;
+    }).join('');
+    const plates = CHAIRS.map(c=>{ const [x,y]=c.plate, clean=c.id==='raven';
+      return `<ellipse cx="${x}" cy="${y}" rx="17" ry="11" fill="${clean?'#8e8b80':'#5d5a51'}" stroke="#2a2621" stroke-width="1.5"/>
+        <ellipse cx="${x}" cy="${y}" rx="10" ry="6" fill="none" stroke="${clean?'#b6b3a8':'#6f6b61'}" stroke-width="1"/>`; }).join('');
+    let dust=''; for(let i=0;i<140;i++){ const x=146+(i*53)%308, y=155+(i*29)%90; if(Math.hypot(x-440,y-200)<22) continue;
+      dust+=`<circle cx="${x}" cy="${y}" r="${.6+(i%3)*.35}"/>`; }
+    const items = TABLE_ITEMS.filter(t=>t.when() && t.zart).map(t=>`<g id="z-it-${t.id}" class="zhot">${t.zart()}</g>`).join('');
+    let planks=''; for(let x=0;x<600;x+=40) planks+=`<path d="M${x},0 V400"/>`;
+    return { title:'Long Table',
+      cap:'长餐桌上积满了灰，八把高背椅原样摆着，每张椅背上都镂着一个图案。点击椅子仔细看看。',
+      svg:`<rect width="600" height="400" fill="#2a221c"/>
+        <g stroke="#1f1914" stroke-width="2">${planks}</g>
+        <rect x="40" y="48" width="520" height="304" fill="#4e2621" ${hk}/>
+        <rect x="54" y="62" width="492" height="276" fill="none" stroke="#7a4a35" stroke-width="2" stroke-dasharray="7 5"/>
+        <rect x="140" y="150" width="320" height="100" fill="#47392b" ${hk}/>
+        <path d="M140,175 H460 M140,200 H460 M140,225 H460" stroke="#33281e" stroke-width="1.4"/>
+        <rect x="150" y="186" width="300" height="28" fill="#5a2a24" opacity=".9"/>
+        <g fill="#8d877a" opacity=".55">${dust}</g>
+        ${plates}
+        <circle cx="300" cy="200" r="10" fill="#2a2622" stroke="#120f0c" stroke-width="1.5"/>
+        <circle cx="288" cy="200" r="3.5" fill="#c9bea3"/><circle cx="300" cy="193" r="3.5" fill="#c9bea3"/><circle cx="312" cy="200" r="3.5" fill="#c9bea3"/>
+        ${items}
+        ${chairs}
+        ${HALL_HOOKS.tableOverlay ? HALL_HOOKS.tableOverlay() : ''}`,
+      bind(){
+        CHAIRS.forEach(c=> on('z-ch-'+c.id, ()=>{ if(HALL_HOOKS.chair && HALL_HOOKS.chair(c)) return; sfx.tap(); setCap(c.cap); }));
+        TABLE_ITEMS.filter(t=>t.when() && t.zart).forEach(t=> on('z-it-'+t.id, ()=>{ sfx.tap(); setCap(t.cap); }));
+      }
+    };
+  },
+
+  h_tree(){
+    const sh=(x,y,f)=>`<g transform="translate(${x},${y})">
+      <path d="M-26,-22 h52 v18 q0,20 -26,27 q-26,-7 -26,-27 Z" fill="#b9a47e" stroke="#2e2219" stroke-width="2"/>
+      ${f.show() ? `<text y="2" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#3b2a1e">${f.name}</text>`
+                 : `<path d="M-14,-4 h28" stroke="#8a7656" stroke-width="1.2" opacity=".7"/>`}
+      ${f.year && f.showYear() ? `<text ${f.yo ? `x="${f.yo[0]}" y="${f.yo[1]}"` : 'y="40"'} text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#c9b48a">${f.year}</text>` : ''}
+    </g>`;
+    const shown = FAMILY.filter(f=>f.show()).length;
+    return { title:'Family Tree',
+      cap: !shown ? '壁炉上方的家族树挂毯。顶端绣着 RAVENHOLD，可盾形名牌上一个名字都没有——像是被人一针一针拆掉了。'
+         : G.progress.L6 ? '家族树上的名字，几乎都浮现出来了。只有那几个孩子——每隔三十三年一个——名字仍是被刮掉的。'
+         : '家族树挂毯上，有几个名字自己浮现了出来。被刮掉的那些，只剩一个首字母。',
+      svg:`<rect width="600" height="400" fill="#3a362e"/>
+        <line x1="70" y1="16" x2="530" y2="16" stroke="#16120e" stroke-width="7"/>
+        <circle cx="68" cy="16" r="8" fill="#16120e"/><circle cx="532" cy="16" r="8" fill="#16120e"/>
+        <path d="M86,20 H514 V378 L494,392 L474,378 L454,392 L434,378 L414,392 L394,378 L374,392 L354,378 L334,392 L314,378 L294,392 L274,378 L254,392 L234,378 L214,392 L194,378 L174,392 L154,378 L134,392 L114,378 L86,392 Z" fill="#5a2c25" ${hk}/>
+        <rect x="100" y="32" width="400" height="338" fill="none" stroke="#9c8562" stroke-width="2" opacity=".7"/>
+        <text x="300" y="30" text-anchor="middle" font-family="Georgia,serif" font-size="11" letter-spacing="6" fill="#c9b48a" dy="16">RAVENHOLD</text>
+        <g fill="none" stroke="#a48c66" stroke-width="3" stroke-linecap="round" opacity=".85">
+          <path d="M300,108 V360"/>
+          <path d="M300,110 Q236,112 170,118 M300,110 Q364,112 430,118"/>
+          <path d="M300,170 Q270,176 248,198 M300,170 Q330,176 352,198"/>
+          <path d="M248,232 Q240,256 220,276 M352,232 Q368,256 380,276 M300,212 H300"/>
+          <path d="M220,310 V332"/>
+        </g>
+        <path d="M262,210 H338 M262,216 H338" stroke="#a48c66" stroke-width="2" opacity=".8"/>
+        ${FAMILY.map(f=>sh(f.pos[0],f.pos[1],f)).join('')}
+        <use href="#deer" x="112" y="300" width="56" height="56" style="color:#a48c66" opacity=".75"/>
+        <use href="#sym-raven" x="436" y="300" width="52" height="52" style="color:#a48c66" opacity=".75"/>`};
+  },
+
+  h_rack(){
+    const icons = [
+      `<path d="M-9,12 V-1 Q-9,-12 0,-12 Q9,-12 9,-1 V12 Z" fill="none" stroke="currentColor" stroke-width="3"/>`,
+      `<use href="#sym-cross" x="-12" y="-12" width="24" height="24"/>`,
+      `<use href="#e-pot" x="-10" y="-12" width="20" height="24"/>`,
+      `<circle r="11" fill="none" stroke="currentColor" stroke-width="3"/><path d="M0,-11V11M-11,0H11M-8,-8L8,8M8,-8L-8,8" stroke="currentColor" stroke-width="2"/>`,
+      `<rect x="-11" y="-10" width="22" height="20" fill="none" stroke="currentColor" stroke-width="3"/><rect x="-5" y="-4" width="10" height="8" fill="currentColor"/>`,
+      `<path d="M-12,-2 Q0,12 12,-2 Z" fill="currentColor"/><path d="M-14,10 Q0,4 14,10" fill="none" stroke="currentColor" stroke-width="3"/>`,
+      `<path d="M-9,8 Q-9,-12 0,-12 Q9,-12 9,8 Z" fill="currentColor"/><circle cy="11" r="3" fill="currentColor"/>`
+    ];
+    const keys = Object.keys(G.feathers);
+    const empty = keys.filter(k=>!G.feathers[k]).length;
+    const slots = keys.map((k,i)=>{ const x=132+i*56;
+      return `<rect x="${x-7}" y="168" width="14" height="62" fill="#0f0c0a"/>
+        ${G.feathers[k] ? `<path d="M${x},216 Q${x+10},150 ${x+26},92" stroke="#0e0c0a" stroke-width="5" fill="none"/>
+          <path d="M${x+4},190 l-10,-8 M${x+8},170 l-10,-9 M${x+14},150 l-9,-10 M${x+20},128 l-8,-10 M${x+6},180 l10,-4 M${x+11},160 l10,-4 M${x+17},140 l10,-4" stroke="#1d1915" stroke-width="2.4"/>` : ''}
+        <g transform="translate(${x},300)" style="color:#2e2820">${icons[i]}</g>`; }).join('');
+    return { title:'Feather Rack',
+      cap: empty===7 ? '壁炉台上的木架开着七道细槽，槽下各刻着一个小图案：石屋、十字、陶罐、水车、画框、摇篮、钟。槽里都是空的。（点一道槽看看）'
+         : empty===0 ? '七道槽里，插满了乌黑的鸦羽。'
+                     : `木架上还空着 ${empty} 道槽。点一道空槽，看看槽下刻的是哪间屋子。`,
+      svg:`<rect width="600" height="400" fill="#615c4e"/>
+        <path d="M0,70H600M0,140H600M100,0V70M380,0V70M220,70V140M520,70V140" stroke="#4a463c" stroke-width="2"/>
+        <rect x="90" y="150" width="420" height="96" fill="#3e3127" ${hk}/>
+        <rect x="80" y="244" width="440" height="10" fill="#2e251d" ${hk}/>
+        <polygon points="40,254 560,254 572,270 28,270" fill="#827c6a" ${hk}/>
+        <rect x="28" y="270" width="544" height="70" fill="#6c6757" ${hk}/>
+        ${keys.map((_,i)=>`<rect x="${132+i*56-20}" y="280" width="40" height="40" fill="#5f5a4b" stroke="#4a463c" stroke-width="1.5"/>`).join('')}
+        ${slots}
+        ${keys.map((k,i)=>`<g id="z-slot${i}" class="zhot"><rect x="${132+i*56-26}" y="150" width="52" height="180" fill="transparent"/>
+          ${rackSel===k ? `<rect x="${132+i*56-24}" y="160" width="48" height="166" rx="5" fill="none" stroke="#efc463" stroke-width="2" class="pulse"/>` : ''}</g>`).join('')}
+        ${rackSel ? uiBtn('z-goRoom', 200, 352, 200, `回${FEATHER_ROOM[rackSel].cn}找找`) : ''}`,
+      bind(){
+        keys.forEach((k,i)=> on('z-slot'+i, ()=>{
+          const R = FEATHER_ROOM[k];
+          if(G.feathers[k]){ rackSel=null; sfx.tap(); render(); return setCap(`${R.cn}的那一根，已经插在槽里了。`); }
+          if(!G.progress[k]){ rackSel=null; sfx.tap(); render(); return setCap(`槽下刻着${R.cn}的图案。那间屋子，你还没去过。`); }
+          if(G.progress.L8){ rackSel=null; sfx.tap(); render(); return setCap('已经回不去了。'); }
+          rackSel = k; sfx.tap(); render(); setCap(`槽下刻着${R.cn}的图案。${R.hint}`);
+        }));
+        on('z-goRoom', ()=>{ const k=rackSel, R=FEATHER_ROOM[k]; closeZoom();
+          if(k==='L3') S3.sub='kitchen'; if(k==='L4') S4.sub='out'; if(k==='L7') S7.sub='tower';
+          goLevel(k, R.text); });
+      }};
+  },
+
+  h_clock(){
+    const n=nDone(), top=100+30*n;
+    let marks=''; for(let i=0;i<8;i++){ const y=100+30*i;
+      marks+=`<text x="342" y="${y+20}" font-family="Georgia,serif" font-size="13" fill="#a49b84" opacity="${i<n?.3:.9}">${['I','II','III','IV','V','VI','VII','VIII'][i]}</text>`;
+      if(i>=n && i>0) marks+=`<path d="M278,${y} H322" stroke="#6b5a40" stroke-width="2"/>`; }
+    return { title:'Candle Clock',
+      cap:`一支刻着八道刻度的长蜡烛，罩在木框里。已经烧掉了 ${n} 格。（1448 年的城堡里还没有机械钟）`,
+      svg:`<rect width="600" height="400" fill="#2a241d"/>
+        <rect x="210" y="330" width="180" height="26" fill="#3a2e23" ${hk}/>
+        <rect x="262" y="356" width="76" height="44" fill="#33281f" ${hk}/>
+        <rect x="236" y="66" width="128" height="264" fill="#1a1511" ${hk}/>
+        <path d="M220,70 L300,14 L380,70 Z" fill="#3a2e23" ${hk}/>
+        <rect x="228" y="66" width="12" height="264" fill="#3a2e23" ${hk}/><rect x="360" y="66" width="12" height="264" fill="#3a2e23" ${hk}/>
+        ${n<8 ? `<circle cx="300" cy="${top-24}" r="70" fill="url(#warm)" opacity=".5"/>
+          <rect x="278" y="${top}" width="44" height="${330-top}" fill="#d4c9ab" ${hk}/>
+          <path d="M282,${top+2} q-2,16 1,26 M316,${top+2} q3,10 0,18" stroke="#bdb196" stroke-width="3" fill="none"/>
+          <path d="M300,${top} v-10" stroke="#120e0b" stroke-width="2"/>
+          <path class="flame" d="M300,${top-44} Q312,${top-26} 308,${top-16} Q300,${top-6} 292,${top-16} Q288,${top-26} 300,${top-44} Z" fill="#efc463"/>`
+          : `<ellipse cx="300" cy="328" rx="26" ry="5" fill="#d4c9ab"/>`}
+        ${marks}`};
+  },
+
+  h_window(){
+    let lat=''; for(let k=-6;k<12;k++){ lat+=`<path d="M${200+k*28},20 L${200+k*28+380},400 M${400-k*28},20 L${400-k*28-380},400"/>`; }
+    // 收获月随进度从东方升起，第 7 关后过了中天（策划案 2.5.2）
+    const t = Math.min(nDone(),7)/7, a = Math.PI*(1-t*.6), mx = (300+82*Math.cos(a)).toFixed(1), my = (330-236*Math.sin(a)).toFixed(1);
+    const mcap = t<.3 ? '收获月刚从湖东边升起，还贴着水面。' : t<.6 ? '收获月升高了，挂在湖东边的天上。' : t<1 ? '收获月快要升到中天了。' : '收获月已经过了中天，开始往西边沉下去。';
+    return { title:'Window',
+      cap: mcap + '雾湖正中立着一座孤塔，塔顶的小窗里亮着一点暗红的光。' + (G.hall.drawbridgeDown ? '吊桥放下来了。' : ''),
+      svg:`<defs>
+          <clipPath id="zwin2"><path d="M222,390 L222,128 Q230,50 300,32 Q370,50 378,128 L378,390 Z"/></clipPath>
+          <linearGradient id="zsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b222b"/><stop offset=".65" stop-color="#3b4750"/><stop offset="1" stop-color="#6b767a"/></linearGradient>
+          <radialGradient id="zmoon"><stop offset="0" stop-color="#e9ecdf" stop-opacity=".7"/><stop offset="1" stop-color="#e9ecdf" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="600" height="400" fill="#4f4b40"/>
+        <path d="M0,80H600M0,160H600M0,240H600M0,320H600M80,0V80M520,0V80M140,80V160M460,80V160M60,160V240M540,160V240M120,240V320M480,240V320" stroke="#3e3a31" stroke-width="2"/>
+        <path d="M196,400 L196,118 Q206,24 300,0 Q394,24 404,118 L404,400 Z" fill="#6f6a59" ${hk}/>
+        <path d="M222,390 L222,128 Q230,50 300,32 Q370,50 378,128 L378,390 Z" fill="url(#zsky)"/>
+        <g clip-path="url(#zwin2)">
+          <circle cx="250" cy="90" r="1.4" fill="#d8dccf"/><circle cx="342" cy="130" r="1.2" fill="#d8dccf"/><circle cx="276" cy="190" r="1" fill="#d8dccf"/><circle cx="356" cy="236" r="1.3" fill="#d8dccf"/>
+          <circle cx="${mx}" cy="${my}" r="70" fill="url(#zmoon)"/>
+          <circle cx="${mx}" cy="${my}" r="22" fill="#e8e5d4"/>
+          <circle cx="${mx-8}" cy="${my-6}" r="5" fill="#cfcab5"/><circle cx="${+mx+8}" cy="${+my+8}" r="3.5" fill="#cfcab5"/>
+          <path d="M222,340 Q262,326 300,334 Q340,324 378,330 V390 H222 Z" fill="#3c464c"/>
+          <rect x="222" y="344" width="156" height="46" fill="#56626a"/>
+          <ellipse cx="336" cy="346" rx="26" ry="5" fill="#2a3237"/>
+          <path d="M328,346 V250 H344 V346 Z M324,250 L336,220 L348,250 Z" fill="#232b30"/>
+          <rect x="333.5" y="266" width="5" height="8" fill="#b23a2e" opacity=".9"/>
+          <rect x="222" y="352" width="156" height="14" fill="#c2c8c6" opacity=".22"/>
+          <rect x="222" y="372" width="156" height="10" fill="#c2c8c6" opacity=".18"/>
+          <g stroke="#1a1f24" stroke-width="1.2" opacity=".45">${lat}</g>
+        </g>
+        <path d="M300,32 V390 M222,180 H378 M222,290 H378" stroke="#1a1511" stroke-width="5" fill="none"/>
+        <rect x="186" y="388" width="228" height="12" fill="#7a7563" ${hk}/>`};
+  }
+};
+
+/* ---------- 大厅数据（随进度派生；依赖后续关卡的条目先留字段） ---------- */
+const hk = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
+
+/* ---------- 解谜特写通用 UI（让玩家一眼看懂：要做什么 / 现在怎样 / 能按什么） ---------- */
+const UI_FONT = `font-family="Georgia,'Songti SC',serif"`;
+// 顶部目标牌：一句话写清这个谜题要达成什么
+function uiGoal(text){
+  const w = Math.min(560, 40 + [...text].reduce((a,c)=>a+(c.charCodeAt(0)>255?14:7.6),0));
+  return `<g pointer-events="none"><rect x="${300-w/2}" y="8" width="${w}" height="28" rx="3" fill="#e9e0c6" opacity=".94" stroke="#2b251e" stroke-width="1.6"/>
+    <text x="300" y="27" text-anchor="middle" ${UI_FONT} font-size="14" fill="#2b251e">${text}</text></g>`;
+}
+// 按钮：可按时是浅羊皮纸 + 金色描边呼吸；不可按时灰掉
+function uiBtn(id, x, y, w, label, enabled=true){
+  return `<g id="${id}" class="zhot" ${enabled?'':'opacity=".5"'}>
+    <rect x="${x}" y="${y}" width="${w}" height="32" rx="4" fill="${enabled?'#e6dcc0':'#b9b19c'}" stroke="#2b251e" stroke-width="2"/>
+    ${enabled?`<rect x="${x-3}" y="${y-3}" width="${w+6}" height="38" rx="6" fill="none" stroke="#efc463" stroke-width="1.6" class="pulse"/>`:''}
+    <text x="${x+w/2}" y="${y+21}" text-anchor="middle" ${UI_FONT} font-size="14" fill="#2b251e">${label}</text></g>`;
+}
+// 小标签（读数 / 名称）
+function uiTag(x, y, text, opt={}){
+  const w = opt.w || (24 + [...String(text)].reduce((a,c)=>a+(c.charCodeAt(0)>255?13:7),0));
+  return `<g pointer-events="none"><rect x="${x-w/2}" y="${y-15}" width="${w}" height="22" rx="3" fill="${opt.fill||'#ddd3b8'}" stroke="#2b251e" stroke-width="1.4"/>
+    <text x="${x}" y="${y+1}" text-anchor="middle" ${UI_FONT} font-size="${opt.size||12.5}" fill="${opt.color||'#2b251e'}">${text}</text></g>`;
+}
+// 清单：[ [文字, 是否完成], ... ]
+function uiChecklist(x, y, title, rows){
+  const h = 30 + rows.length*24;
+  return `<g pointer-events="none"><rect x="${x}" y="${y}" width="150" height="${h}" rx="4" fill="#e6dcc0" opacity=".95" stroke="#2b251e" stroke-width="1.6"/>
+    <text x="${x+12}" y="${y+20}" ${UI_FONT} font-size="13" font-style="italic" fill="#5a4e3e">${title}</text>
+    ${rows.map(([t,ok],i)=>`<text x="${x+12}" y="${y+44+i*24}" ${UI_FONT} font-size="13.5" fill="${ok?'#2b251e':'#7d7461'}">${ok?'☑':'☐'} ${t}</text>`).join('')}</g>`;
+}
+const EMB = {raven:'sym-raven', cross:'sym-cross', stag:'deer', tower:'e-tower', shield:'e-shield', pot:'e-pot', wheat:'e-wheat', fawn:'e-fawn'};
+// 2.5.3 长餐桌与 8 把椅子（俯视特写中的位置 / 盘子位置）
+const CHAIRS = [
+  {id:'raven', emb:'raven', side:'head',   x:505, y:200, plate:[440,200], owner:'先祖之席',
+   cap:'主位。椅背镂着一只乌鸦，比别的椅子都高。整张桌子只有这个座位前的盘子一尘不染。'},
+  {id:'tower', emb:'tower', side:'top',    x:410, y:110, plate:[410,168], owner:'奥斯瓦尔德',
+   cap:'椅背镂着一座塔楼。在主位右手边——这是家主的座位。'},
+  {id:'shield',emb:'shield',side:'top',    x:300, y:110, plate:[300,168], owner:'埃德蒙',
+   cap:'椅背镂着一面盾牌。'},
+  {id:'cross', emb:'cross', side:'top',    x:190, y:110, plate:[190,168], owner:'安塞姆神父',
+   cap:'椅背镂着一个十字。'},
+  {id:'stag',  emb:'stag',  side:'bottom', x:410, y:290, plate:[410,232], owner:'伊莎贝拉',
+   cap:'椅背镂着一头雄鹿——和石屋挂毯上那只一模一样。'},
+  {id:'fawn',  emb:'fawn',  side:'bottom', x:300, y:290, plate:[300,232], owner:'玛格丽', short:true,
+   cap:'椅背镂着一只小鹿。这把椅子的腿被锯短了一截，是给小孩子坐的。'},
+  {id:'wheat', emb:'wheat', side:'bottom', x:190, y:290, plate:[190,232], owner:'磨坊主汤姆',
+   cap:'椅背镂着一束麦穗。'},
+  {id:'pot',   emb:'pot',   side:'foot',   x:95,  y:200, plate:[160,200], owner:'厨娘玛莎',
+   cap:'末位。椅背镂着一只陶罐。'}
+];
+// 2.5.4 每次回到大厅，餐桌上多出的东西
+const TABLE_ITEMS = [
+  {id:'bowl', seat:'fawn', when:()=>G.progress.L1,
+   cap:'短椅前多了一只空木碗。碗底用刀尖刻着一个歪歪扭扭的「M」。',
+   zart:()=>`<circle cx="300" cy="232" r="14" fill="#6b4a30" ${hk}/><circle cx="300" cy="232" r="9" fill="#2a1d14"/><path d="M296,235 l1.5,-6 l2.5,4 l2.5,-4 l1.5,6" stroke="#6b4a30" stroke-width="1.2" fill="none"/>`,
+   sceneArt:()=>`<path d="M340,574 Q341,584 352,585 Q363,584 364,574 Z" fill="#6b4a30" stroke="#120e0b" stroke-width="1.4"/><ellipse cx="352" cy="574" rx="12" ry="2.6" fill="#2a1d14" stroke="#120e0b" stroke-width="1.2"/>`},
+  // ↓ 依赖后续关卡（字段预留，美术待补）
+  {id:'prayerBook', seat:'cross',  when:()=>G.progress.L2,
+   cap:'神父的座位前多了一本合上的祈祷书。书签夹在终傅礼那一页。',
+   zart:()=>`<g transform="rotate(-8 190 168)"><rect x="172" y="154" width="36" height="28" rx="2" fill="#1d1915" ${hk}/>
+     <rect x="174" y="180" width="32" height="4" fill="#d6ccb0"/><path d="M190,160 V176 M184,166 H196" stroke="#a48c66" stroke-width="2"/>
+     <path d="M200,182 l2,12 l3,-4 l3,4 l-2,-12" fill="#7a2e26"/></g>`,
+   sceneArt:()=>`<path d="M288,551 L310,549 L314,555 L292,557 Z" fill="#1d1915" stroke="#0c0907" stroke-width="1.2"/><path d="M292,557 L314,555 L314,558 L292,560 Z" fill="#cfc4a6"/><path d="M301,550 v4 M299,552 h5" stroke="#a48c66" stroke-width="1"/>`},
+  {id:'aleCups',    seat:'*',      when:()=>G.progress.L4, cap:'每个座位前都多了一只麦酒杯，只有盾牌椅前那杯是满的。', zart:null, sceneArt:null},
+  {id:'flourSack',  seat:'wheat',  when:()=>G.progress.L4, cap:'麦穗椅上搭着一只空面粉袋。', zart:null, sceneArt:null},
+  {id:'hairpin',    seat:'stag',   when:()=>G.progress.L7, cap:'雄鹿椅上多了一支湿透的雄鹿发簪。', zart:null, sceneArt:null},
+  {id:'ancestorTurn',seat:'raven', when:()=>G.progress.L7, cap:'先祖之席的椅子转了过来，正对着城堡大门。', zart:null, sceneArt:null}
+];
+// 1.4 家族树：名字 / 年份的浮现条件（各关实现后补）
+const FAMILY = [
+  {id:'aldric',  pos:[300,80],  name:'Aldric',  year:'1316', show:()=>false, showYear:()=>false},
+  {id:'aldwin',  pos:[170,140], name:'A——',    year:'1309', show:()=>false, showYear:()=>G.progress.L2},
+  {id:'cecily',  pos:[300,140], name:'C——',    year:'1342', show:()=>false, showYear:()=>G.progress.L2},
+  {id:'hugh',    pos:[430,140], name:'H——',    year:'1375', show:()=>false, showYear:()=>G.progress.L2},
+  {id:'oswald',  pos:[238,212], name:'Oswald',  year:'',     show:()=>false, showYear:()=>false},
+  {id:'isabel',  pos:[362,212], name:'Isabel',  year:'',     show:()=>false, showYear:()=>false},
+  {id:'edmund',  pos:[220,294], name:'Edmund',  year:'1403', yo:[-48,4], show:()=>G.progress.L2, showYear:()=>G.progress.L2},
+  {id:'margery', pos:[380,294], name:'M——',    year:'1408', show:()=>G.progress.L2, showYear:()=>G.progress.L2},
+  {id:'agnes',   pos:[220,352], name:'Agnes',   year:'1441', show:()=>false, showYear:()=>false}
+];
+// 鸦羽架：每道空槽 → 回到对应房间补拿（策划案 2.5.5 规则 2）；hint 只给方向，不直接说位置
+const FEATHER_ROOM = {
+  L1:{cn:'石屋',   text:'你穿过西塔的短走廊，回到了那间石屋。',         hint:'吊灯点亮以后，铁环上方的阴影里……'},
+  L2:{cn:'礼拜堂', text:'你推开十字门，回到了礼拜堂。',                 hint:'钟楼上住着乌鸦。钟声能把它们惊起来。'},
+  L3:{cn:'厨房',   text:'你走下石阶，回到了厨房。',                     hint:'灶火熄灭之后，烟囱里也许落着什么。'},
+  L4:{cn:'磨坊',   text:'你穿过酒窖的地道，回到了雾中的磨坊。',         hint:'鸦群散去的麦田里。'},
+  L5:{cn:'长廊',   text:'你走上主楼梯，回到了肖像长廊。',               hint:'那两具盔甲，护面一直放着。'},
+  L6:{cn:'寝室',   text:'你走上窄楼梯，回到了母亲的寝室。',             hint:'镜子里的枕头是歪的。——镜子里的东西，是反的。'},
+  L7:{cn:'钟楼',   text:'你走上主楼梯，穿过书房，爬上了钟楼。',         hint:'大钟敲响之后，看看钟口里面。'}
+};
+const HALL_FLAVOR = {
+  cloth:'楼梯平台上挂着一幅大画，被一块灰布严严实实地盖着。它在铁栅门后面，够不着。',
+  hearth:'壁炉里只剩冷透的灰。很多年没人在这里生过火了。',
+  crest:'雷文霍尔德的家徽：盾牌上一只乌鸦。它的眼睛被人点成了暗红色。',
+  chandelier:'铁环吊灯上的蜡烛都燃着——可这座大厅里，一个人也没有。'
+};
+
+const FLAVOR = {
+  sconce:'墙上唯一燃着的蜡烛，火光很弱。',
+  shelf:'书脊上的字都被刮花了。旁边立着一只空药瓶，瓶底刻着一个 H。',
+  chair:'椅背上镂着一个十字。',
+  table:'粗糙的木桌，桌面上有几道指甲般的刻痕。',
+  rug:'地毯中央的花纹，像一只睁着的眼睛。它好像在看你。'
+};
+
+function on(id, fn){ const el = zsvg.querySelector('#'+id); if(el) el.addEventListener('click', e=>{ e.stopPropagation(); fn(); }); }
+function setCap(t){ zcap.textContent = t; }
+function render(){
+  if(!cur) return;
+  const v = VIEWS[cur]();
+  ztitle.textContent = v.title; zsvg.innerHTML = v.svg; zcap.textContent = v.cap;
+  v.bind && v.bind();
+}
+function act(msg){ render(); if(msg) (cur ? setCap(msg) : say(msg)); updateAll(); }
+function openZoom(o){ cur=o; zoomEl.classList.remove('hidden'); render(); updateAll(); }
+function closeZoom(){ zoomEl.classList.add('hidden'); cur=null; S.noteView=false; gateAsk=false; rackSel=null; updateAll(); }
+let gateAsk = false, rackSel = null;
+// 第 8 关尚未完成时，走上吊桥 → 章节结束卡，然后回到大厅（仍可补拿鸦羽）
+function toBeContinued(){
+  G.busy = true; sfx.creak(); setTimeout(sfx.caw, 1400);
+  fadeEl.querySelector('p').innerHTML = '你踏上吊桥。桥板在脚下吱呀作响，雾湖上的风冷得刺骨。<br>湖心的鸦塔，红光一闪一闪——像是在等你。<br><br>—— 第 8 关 · 雾湖鸦塔 · 未完待续 ——';
+  fadeEl.classList.add('show');
+  setTimeout(()=>{ fadeEl.classList.remove('show'); G.busy = false;
+    say('……你在吊桥头停住了脚。（终章尚在建造中。现在仍可以回各个房间补拿鸦羽。）', 7000); }, 6500);
+}
+function shake(){ zcard.classList.remove('shake'); void zcard.offsetWidth; zcard.classList.add('shake'); }
+document.getElementById('zclose').addEventListener('click', ()=>{ sfx.tap(); closeZoom(); });
+zoomEl.addEventListener('click', e=>{ if(e.target===zoomEl){ sfx.tap(); closeZoom(); } });
+addEventListener('keydown', e=>{ if(e.key==='Escape' && cur) closeZoom(); });
+
+/* 场景点击 */
+document.getElementById('objLayer').addEventListener('click', e=>{
+  const g = e.target.closest('[data-obj]'); if(!g || G.busy || G.level!=='L1') return;
+  const o = g.dataset.obj;
+  sfx.tap();
+  if(S.escaped){   // 通关后回访：只剩鸦羽和出口
+    if(o==='feather1') return pickFeather('L1');
+    if(o==='door') return goLevel('hall', '你穿过西塔的短走廊，回到了大厅。');
+    return say(FLAVOR[o] || '石屋里已经没有你需要的东西了。门开着，走廊通向大厅。');
+  }
+  if(FLAVOR[o]) return say(FLAVOR[o]);
+  if(o==='feather1') return pickFeather('L1');
+  if(o==='chalice' && S.chalice!=='table') return;
+  openZoom(o);
+});
+document.getElementById('hallObj').addEventListener('click', e=>{
+  const g = e.target.closest('[data-obj]'); if(!g || G.busy || G.level!=='hall') return;
+  const o = g.dataset.obj;
+  sfx.tap();
+  if(HALL_FLAVOR[o]) return say(HALL_FLAVOR[o]);
+  openZoom(o);
+});
+
+/* ======================= 物品栏面板 ======================= */
+// 只显示「已获取、且之后还用得到」的解谜物品
+const TH = {
+  chalice:()=>`<rect width="98" height="112" fill="#a39b87"/><g ${ink}>
+    <path d="M32,24 Q32,56 49,58 Q66,56 66,24 Z" fill="#8e8a7c"/><ellipse cx="49" cy="24" rx="17" ry="4" fill="#5f5b50"/>
+    ${S.filled?'<ellipse cx="49" cy="25" rx="14" ry="2.6" fill="#55646b" stroke="none"/>':''}
+    <rect x="47" y="58" width="4" height="22" fill="#8e8a7c"/><ellipse cx="49" cy="66" rx="5" ry="3" fill="#8e8a7c"/>
+    <path d="M34,92 Q36,80 47,79 L51,79 Q62,80 64,92 Z" fill="#8e8a7c"/><ellipse cx="49" cy="92" rx="15" ry="3" fill="#7a7668"/></g>`,
+  key:()=>`<rect width="98" height="112" fill="#a39b87"/><g transform="translate(30,34) rotate(48) scale(.82)">${keyArt()}</g>`,
+  scrap:()=>`<rect width="98" height="112" fill="#a39b87"/>
+    <g transform="rotate(-8 49 56)">
+      <path d="M16,40 L44,34 L56,38 L80,34 L86,52 L80,70 L84,82 L60,86 L40,82 L20,86 L12,66 Z" fill="#cfc4a6" stroke="#3a2a1c" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M16,40 L44,34 L56,38 L80,34 L86,52 L80,70 L84,82 L60,86 L40,82 L20,86 L12,66 Z" fill="none" stroke="#1d1914" stroke-width="1"/>
+      <path d="M24,54 H72 M24,62 H66 M24,70 H52" stroke="#5a4e3e" stroke-width="2"/>
+    </g>`,
+  fbook:()=>`<rect width="98" height="112" fill="#a39b87"/><g ${ink}>
+    <path d="M22,22 H74 Q80,22 80,28 V92 H28 Q22,92 22,86 Z" fill="#4a2a22"/>
+    <path d="M28,92 V98 H80 V92" fill="#ddd3b8"/>
+    <rect x="28" y="28" width="46" height="58" fill="none" stroke="#b39c6e" stroke-width="1.4"/></g>
+    <use href="#sym-raven" x="36" y="38" width="30" height="30" style="color:#b39c6e"/>
+    ${G.memories.length?`<text x="51" y="82" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#c9b48a">${G.memories.length} / 7</text>`:''}`,
+  _generic:()=>`<rect width="98" height="112" fill="#a39b87"/><text x="49" y="66" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#6b6252">?</text>`
+};
+const BADGES = { chalice:()=> S.filled ? '盛着雨水' : '' };
+const grid = document.getElementById('grid');
+function updatePanel(){
+  const n = G.inv.length;
+  grid.classList.toggle('compact', n > 8);
+  // 不足 8 格时用空格位补齐（至少两行），超过时补成偶数
+  const slots = Math.max(n <= 8 ? 8 : n + n%2, 2) - n;
+  grid.innerHTML = G.inv.map(k=>{
+    const badge = BADGES[k] ? BADGES[k]() : '', isNew = k===newItem;
+    return `<div class="cell${isNew?' new':''}" data-k="${k}" title="${ITEMS[k].name}">
+      <div class="box"><svg viewBox="0 0 98 112">${(TH[k]||TH._generic)()}</svg>
+        ${badge?`<span class="badge">${badge}</span>`:''}${isNew?'<i class="shine"></i>':''}</div>
+      <div class="lbl">${ITEMS[k].name}</div></div>`;
+  }).join('') + '<div class="cell slot"><div class="box"></div><div class="lbl"></div></div>'.repeat(slots);
+  newItem = null;
+}
+grid.addEventListener('click', e=>{
+  const c = e.target.closest('.cell'); if(!c || G.busy) return;
+  const k = c.dataset.k; sfx.tap();
+  if(VIEWS[k]) return openZoom(k);
+  say(ITEMS[k].name);
+});
+
+/* ---------- 物品特写：家族之书（记忆书页按收集顺序排列） ---------- */
+let bookSpread = 0;
+VIEWS.fbook = function(){
+  const ms = G.memories, n = ms.length, maxS = Math.max(0, Math.ceil(n/2)-1);
+  bookSpread = Math.min(bookSpread, maxS);
+  const pg = (i, x) => {
+    const id = ms[i];
+    if(!id) return `<text x="${x+110}" y="214" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="15" fill="#9a8e74">（空白）</text>`;
+    const m = MEMORIES[id];
+    return `<svg x="${x}" y="118" width="220" height="147" viewBox="0 0 600 400">${m.art()}</svg>
+      <text x="${x+110}" y="292" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="#3b3026">${m.no} ${m.title}</text>`;
+  };
+  return { title:'Family Book',
+    cap: n ? '《家族之书》。空白的书页上，自己浮现出了画。每一页的角落，都画着窗外的月亮。'
+           : '《家族之书》。书页都是空白的。',
+    svg:`<rect width="600" height="400" fill="#8f8875"/>
+      <path d="M40,74 Q170,52 300,84 Q430,52 560,74 L560,344 Q430,322 300,352 Q170,322 40,344 Z" fill="#4a2a22" ${ink}/>
+      <path d="M52,80 Q170,60 300,90 L300,340 Q170,312 52,332 Z" fill="#ddd3b8" ${ink}/>
+      <path d="M548,80 Q430,60 300,90 L300,340 Q430,312 548,332 Z" fill="#d6ccb0" ${ink}/>
+      <text x="300" y="44" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="18" fill="#2b251e">The Book of Ravenhold</text>
+      ${pg(bookSpread*2, 66)}${pg(bookSpread*2+1, 314)}
+      ${bookSpread>0?`<g id="z-prev" class="zhot"><circle cx="26" cy="210" r="18" fill="#6b6252"/><path d="M32,198 L18,210 L32,222" stroke="#ddd3b8" stroke-width="3" fill="none"/></g>`:''}
+      ${bookSpread<maxS?`<g id="z-next" class="zhot"><circle cx="574" cy="210" r="18" fill="#6b6252"/><path d="M568,198 L582,210 L568,222" stroke="#ddd3b8" stroke-width="3" fill="none"/></g>`:''}`,
+    bind(){
+      on('z-prev', ()=>{ bookSpread--; sfx.open(); render(); });
+      on('z-next', ()=>{ bookSpread++; sfx.open(); render(); });
+    }
+  };
+};
+
+/* ======================= 场景同步 ======================= */
+// 每个场景注册自己的渲染函数（关卡模块里追加）
+const SCENES = {
+  L1(){
+    document.getElementById('sceneChalice').style.display = S.chalice==='table' ? '' : 'none';
+    document.getElementById('winBars').style.display = S.winOpen ? 'none' : '';
+    document.getElementById('winPuddle').style.display = S.winOpen ? '' : 'none';
+    document.getElementById('ravenEye').setAttribute('fill', S.ravenFed ? '#b23a2e' : '#cbb894');
+    document.getElementById('ravenBeak').setAttribute('d', S.ravenFed ? 'M648,320 L635,321 L648,325 M648,327 L637,333 L649,329' : 'M648,322 L635,326 L648,328 Z');
+    document.getElementById('chestLidClosed').style.display = S.chestOpen ? 'none' : '';
+    document.getElementById('chestInside').style.display = S.chestOpen ? '' : 'none';
+    document.getElementById('chestOpenG').style.display = S.chestOpen ? '' : 'none';
+    document.getElementById('tapCorner').style.display = S.codeSeen ? '' : 'none';
+    document.getElementById('doorLeaf').style.display = S.escaped ? 'none' : '';
+    document.getElementById('doorOpen').style.display = S.escaped ? '' : 'none';
+    document.getElementById('feather1').style.display = S.lit && !G.feathers.L1 ? '' : 'none';
+    const n = S.candles.reduce((a,b)=>a+b,0);
+    S.candles.forEach((v,i)=>document.getElementById('sf'+i).setAttribute('opacity', v));
+    document.getElementById('dark').setAttribute('opacity', S.lit ? .06 : (.34 - n*.035).toFixed(3));
+    document.getElementById('glow').setAttribute('opacity', S.lit ? 1 : (n*.12).toFixed(2));
+  },
+  hall(){ renderHall(); }
+};
+function updateScene(){ SCENES[G.level] && SCENES[G.level](); }
+function updateAll(){ updateScene(); updatePanel(); }
+
+/* ======================= 大厅场景动态层 ======================= */
+const HALL_DOORS = {
+  chapel: {outer:'M78,572 L78,288 Q83,230 110,212 Q137,232 142,294 L142,526 Z',
+           inner:'M86,566 L86,292 Q90,242 110,226 Q130,244 134,297 L134,531 Z',
+           leaf:'M86,566 L86,292 Q88,262 98,240 L100,244 L100,556 Z'},
+  kitchen:{outer:'M10,621 L10,420 Q15,374 37,360 Q60,376 64,410 L64,582 Z',
+           inner:'M16,616 L16,424 Q20,384 37,371 Q54,384 58,414 L58,586 Z',
+           leaf:'M58,586 L58,414 Q56,396 50,382 L48,386 L48,592 Z'},
+  gate:   {outer:'M198,438 H362 V520 H198 Z'},
+  main:   {outer:'M687,527 L687,272 Q692,214 738,180 Q786,206 791,256 L791,601 Z'}
+};
+// 任何时候只有一扇“新”门在发光（2.5.5）
+function newDoor(){
+  const P=G.progress;
+  if(P.L1 && !P.L2) return 'chapel';
+  if(P.L2 && !P.L4) return 'kitchen';
+  if(P.L4 && !P.L7) return 'gate';
+  if(P.L7 && !P.L8) return 'main';
+  return null;
+}
+function renderHall(){
+  const H=G.hall;
+  let s='';
+  const openDoor = d => { const D=HALL_DOORS[d];
+    s+=`<path d="${D.inner}" fill="#0b0908" stroke="#120e0b" stroke-width="1.5"/>
+        <ellipse cx="${d==='chapel'?112:40}" cy="${d==='chapel'?400:500}" rx="16" ry="70" fill="url(#hDoorLight)"/>
+        <path d="${D.leaf}" fill="#3f3226" stroke="#120e0b" stroke-width="1.5"/>`; };
+  if(H.chapelOpen) openDoor('chapel');
+  if(H.kitchenOpen) openDoor('kitchen');
+  // TODO：H.drawbridgeDown（L7 后）的开门画面
+  if(HALL_HOOKS.scene) s += HALL_HOOKS.scene();
+
+  const nd = newDoor();
+  if(nd) s+=`<path d="${HALL_DOORS[nd].outer}" fill="none" stroke="#f0d9a0" stroke-width="2.5" class="pulse"/>`;
+
+  // 餐桌上随进度出现的物件
+  TABLE_ITEMS.forEach(t=>{ if(t.when() && t.sceneArt) s+=t.sceneArt(); });
+
+  // 鸦羽收集架
+  Object.keys(G.feathers).forEach((k,i)=>{ if(!G.feathers[k]) return;
+    const x=[460,468,476,485,494,502,510][i]+2;
+    s+=`<path d="M${x},284 Q${x+3},270 ${x+7},258" stroke="#0e0c0a" stroke-width="2.4" fill="none"/>
+        <path d="M${x+2},278 l-4,-2 M${x+3},272 l-4,-3 M${x+5},266 l-3,-3 M${x+3},276 l4,-1 M${x+5},270 l4,-2" stroke="#1d1915" stroke-width="1.4"/>`; });
+
+  // 刻度蜡烛钟：每通一关烧掉一格
+  const n=nDone();
+  if(n>0){
+    const top=494+7.5*n;
+    s+=`<rect x="795" y="472" width="27" height="${top-472}" fill="#1a1511"/>`;
+    if(n<8) s+=`<circle cx="809" cy="${top-9}" r="22" fill="url(#hWarm)" opacity=".7"/>
+      <path d="M804,${top+1} v6 M814,${top+1} v4" stroke="#d4c9ab" stroke-width="2"/>
+      <path d="M809,${top} v-4" stroke="#120e0b" stroke-width="1.1"/>
+      <path class="flame" d="M809,${top-17} Q813,${top-10} 812,${top-6} Q811,${top-3} 809,${top-3} Q807,${top-3} 806,${top-6} Q805,${top-10} 809,${top-17} Z" fill="#ffd27a"/>`;
+  }
+  // TODO：H.moonStage → 窗外月亮随进度升起 / 西沉；L7 后画布滑落
+  document.getElementById('hallDyn').innerHTML = s;
+}
+
+/* ======================= 关卡切换 ======================= */
+const fadeEl = document.getElementById('fade');
+function applyLevel(){
+  const isL1 = G.level==='L1';
+  document.getElementById('bgLayer').style.display = isL1 ? '' : 'none';
+  document.getElementById('objLayer').style.display = isL1 ? '' : 'none';
+  document.getElementById('vignette').style.display = isL1 ? '' : 'none';
+  document.querySelectorAll('.lvroot').forEach(el=>el.classList.toggle('hidden', el.dataset.level!==G.level));
+  const L = LEVELS[G.level];
+  document.getElementById('lvTitle').textContent = L.title;
+  document.getElementById('lvSub').textContent = L.sub;
+  hintKey=''; hintN=0;
+}
+const ON_ENTER = {};   // 关卡模块注册：进入该关时的回调
+function goLevel(id, text, onEnter){
+  G.busy = true;
+  fadeEl.querySelector('p').textContent = text || '';
+  fadeEl.classList.add('show');
+  setTimeout(()=>{
+    G.level = id; pruneInv(); applyLevel(); updateAll();
+    setTimeout(()=>{ fadeEl.classList.remove('show'); G.busy=false; (onEnter || ON_ENTER[id] || (()=>{}))(); }, text ? 2200 : 600);
+  }, 1000);
+}
+function enterLevel(id){
+  const L = LEVELS[id];
+  if(!L || !L.ready){
+    sfx.creak();
+    const msg = `（${L ? L.cn : id} · 第 ${id.slice(1)} 关尚在建造中）`;
+    return cur ? setCap(msg) : say(msg);
+  }
+  closeZoom(); goLevel(id);
+}
+
+/* ======================= 第 1 关通关 → 记忆页 ① → 灰烬大厅 ======================= */
+function escape(){
+  S.escaped = true; G.busy = true; sfx.clack(); setTimeout(sfx.creak, 200);
+  setCap('「咔哒」——三个铁轮同时卡住了。门环一沉，门缓缓向内打开……');
+  setTimeout(()=>{
+    closeZoom();
+    document.getElementById('doorLeaf').style.display='none';
+    document.getElementById('doorOpen').style.display='';
+    say('雾从门外涌了进来。门槛外，似乎有一个高大的背影刚刚落过锁……', 3200);
+    setTimeout(()=>{ sfx.caw(); }, 900);
+    setTimeout(()=>{
+      G.progress.L1 = true;
+      showMemory('m1', ()=>goLevel('hall', '门外是西塔的一段短走廊。你在桌上那本书里，看见了刚才那一幕。走廊尽头，有烛光。', enterHall));
+    }, 2600);
+  }, 1500);
+}
+function enterHall(){
+  sfx.chime();
+  say('你来到一间大厅。长餐桌上积满了灰，吊灯却亮着——是谁点的？', 6000);
+}
+ON_ENTER.hall = ()=>{};
+ON_ENTER.L1 = ()=>{ if(S.escaped) say('你又回到了石屋。吊灯还亮着，门敞开着。', 4500); };
+
+/* ======================= 开场 / 关卡调试 ======================= */
+// index.html?start=<起点 id>：从该关卡的初始状态开始（依次通关之前所有关卡）
+const INTRO = {
+  L1:   ()=>say('你在一间陌生的石屋里醒来，门被锁住了。点击房间里的东西仔细查看。', 5500),
+  hall: ()=> nDone()<=1 ? enterHall() : say('你回到了大厅。', 3000)
+};
+function startAt(id){
+  const sp = START_POINTS.find(p=>p.id===id) || START_POINTS[0];
+  sp.before.forEach(lv=> COMPLETE[lv] && COMPLETE[lv]());
+  sp.setup && sp.setup();
+  newItem = null; G.level = sp.level; pruneInv();
+  // 物品栏以起点清单为准（顺序也按清单）；与模拟通关的结果不一致时在控制台报出来，方便查漏
+  const got = [...G.inv].sort().join(), want = [...sp.inv].sort().join();
+  if(got!==want) console.warn(`[起点 ${sp.id}] 模拟通关得到的物品 [${got}] 与清单 [${want}] 不一致，已按清单修正`);
+  G.inv = sp.inv.filter(i=>ITEMS[i]);
+  applyLevel(); updateAll();
+  setTimeout(INTRO[sp.level] || ON_ENTER[sp.level] || (()=>{}), 400);
+  return sp;
+}
+// 从头再来：带上随机参数整页重载，所有关卡状态都回到初始值，再按起点重建
+const restartAt = id => location.replace(`${location.pathname}?start=${id}&t=${Date.now()}`);
+function buildDebugMenu(){
+  const m = document.getElementById('dbgMenu');
+  const draw = ()=>{ const cur = currentStartId();
+    m.innerHTML = `<a class="dbg-re" data-sp="L1">✦ 新游戏（清除存档，从石屋开始）</a><a class="dbg-re" data-sp="${cur}">↻ 从头再来当前这一关</a><div class="dbg-h">游戏会自动存档，刷新页面即可续玩。<br>点击某一关：从头开始，物品按进度配齐</div>` + START_POINTS.map(p=>{
+      const ready = p.level==='hall' || p.level==='L1' || (LEVELS[p.level] && LEVELS[p.level].ready);
+      const items = p.inv.length ? p.inv.map(i=>ITEMS[i] ? ITEMS[i].name : i).join(' · ') : '（空手）';
+      return `<a class="${p.id===cur?'on':''}${ready?'':' off'}" ${ready?`data-sp="${p.id}"`:''}>${p.label}${ready?'':'（未完成）'}<small>${items}</small></a>`;
+    }).join(''); };
+  m.onclick = e=>{ const a = e.target.closest('[data-sp]'); if(a){ e.stopPropagation(); restartAt(a.dataset.sp); } };
+  document.getElementById('dbgBtn').onclick = e=>{ e.stopPropagation(); draw(); m.classList.toggle('show'); };
+  addEventListener('click', e=>{ if(!m.contains(e.target)) m.classList.remove('show'); });
+}
+function boot(){
+  const q = new URLSearchParams(location.search).get('start');
+  // 没有指定起点 → 读自动存档续玩；指定了起点（调试 / 新游戏）→ 从该起点开始并覆盖存档
+  if(q || !(window.loadGame && loadGame())){
+    let st = q || 'L1';
+    if(st==='hall') st = 'hall1';
+    startAt(st);
+  }
+  if(q) history.replaceState(null, '', location.pathname);   // 去掉参数：之后刷新页面会续玩，而不是又回到起点
+  buildDebugMenu();
+}
+// 有入场 Loading 时，等玩家点击进入再开局（开场字幕不会被遮住）
+addEventListener('DOMContentLoaded', ()=> window.LOADER ? LOADER.ready(boot) : boot());
+</script>
+<script>
+// 关卡模块：按顺序同步加载；带时间戳避免浏览器缓存旧版本
+['chars','chars-body','L2-scene','L2','L3-scene','L3','L3-views','L4-scene','L4','L4-views','L5-scene','L5','L5-views','L6-scene','L6','L6-views','L7-scene','L7-bg','L7','L7-views','L7-tower','core-save','items-art']
+  .forEach(f=>document.write(`<script src="levels/${f}.js?v=${Date.now()}"><\/script>`));
+</script>
+</body>
+</html>
