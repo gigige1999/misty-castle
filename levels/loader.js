@@ -2,13 +2,19 @@
    入场 Loading：月下的渡鸦堡
    ·  满月 + 光晕 + 慢转的细环；城堡剪影压在月亮前，西塔窗里一点烛光
    ·  雾带左右漂移，渡鸦飞过；八枚月相代表八个房间，随加载依次点亮
-   ·  加载完成后「点击进入」→ 开局（boot）并淡出；?start=… 调试启动时自动进入
+   ·  加载完成后「点击进入」→ 开局（boot）并淡出
+   ·  只在进入第一关（石屋）时播放；调试跳关 / 续玩其他关卡直接开局，不再打扰
    ===================================================================== */
 (function(){
 const el = document.getElementById('loader');
 if(!el) return;
 const svg = el.querySelector('svg');
-const quick = new URLSearchParams(location.search).has('start');
+// 只在「进入第一关」时播放：新游戏 / ?start=L1 / 存档仍停在石屋。其余情况（调试跳关、续玩其他关）直接开局
+const startQ = new URLSearchParams(location.search).get('start');
+let startLv = startQ || 'L1';
+if(!startQ) try{ const d = JSON.parse(localStorage.getItem('ravenhold-save-v1')); if(d && d.G && d.G.level) startLv = d.G.level; }catch(e){}
+if(startLv !== 'L1'){ el.remove(); window.LOADER = { ready(fn){ fn(); } }; return; }
+const quick = false;
 const MX = 540, MY = 240, MR = 108;
 const f1 = v => (+v).toFixed(1);
 let seed = 7; const rnd = (a,b)=>{ seed = (seed*16807) % 2147483647; return a + (seed/2147483647)*(b-a); };

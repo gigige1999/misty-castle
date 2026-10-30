@@ -183,7 +183,7 @@ HINTS.L7 = function(){
   }
   if(S7.sub==='tower' && !S7.pactFront) return ['楼下传来过铁链的声音。','回书房看看那只铁匣。'];
   if(!S7.pactFront) return ['铁匣开了。','点开铁匣，读里面的羊皮纸。'];
-  if(!S7.pactBack) return ['契约背面有一片反写的小字。','手镜能把反写的字照正。','点开契约，翻到背面，再用手镜照着读。'];
+  if(!S7.pactBack) return ['契约背面有一片反写的小字。','手镜能把反写的字照正。','点物品栏里契约右上角的放大镜，翻到背面，再用手镜照着读。'];
   if(!S7.letterRead.every(Boolean)) return ['桌上埃德蒙的那封信，还没读完。','点开书桌上的信，翻到第二页。'];
   return ['书房的门开了。','从书房的门出去，回到大厅。'];
 };

@@ -117,6 +117,35 @@
   .cell.new .lbl{animation:lblIn 1.2s ease-out}
   @keyframes lblIn{0%{color:#a87a22;letter-spacing:2px}100%{color:#3a3127;letter-spacing:.4px}}
   #panel .empty{margin-top:16px;font-size:13px;font-style:italic;color:#8a826d}
+  /* 手持中的物品：金色描边 + 轻微抬起 */
+  .cell.held .box{transform:translateY(-3px);box-shadow:0 0 0 2px #c99a3a,0 0 14px rgba(239,196,99,.75),0 7px 14px rgba(30,22,14,.35)}
+  .cell.held .box::after{opacity:1}
+  .cell.held .lbl{color:#8a5a12}
+  .cell.held .lbl::before,.cell.held .lbl::after{opacity:1;color:#c99a3a}
+  /* 放大镜：查看详情（不阻塞解谜，可选） */
+  .peek{position:absolute;right:4px;top:4px;width:20px;height:20px;border-radius:50%;z-index:3;cursor:zoom-in;
+    background:rgba(43,37,30,.78);color:#efe2b8;display:flex;align-items:center;justify-content:center;
+    opacity:0;transform:scale(.7);transition:opacity .18s,transform .18s}
+  .peek svg{width:12px !important;height:12px !important}
+  .cell:hover .peek{opacity:.9;transform:scale(1)}
+  .peek:hover{opacity:1 !important;background:#2b251e}
+  /* 面板底部的说明条：悬停 / 手持时显示，不遮挡场景 */
+  #invInfo{position:absolute;right:246px;width:224px;padding:8px 12px 9px;font-size:12px;line-height:1.55;
+    background:rgba(226,218,196,.97);border:1.5px solid #2b251e;box-shadow:0 6px 18px rgba(0,0,0,.45);color:#3a3127;
+    opacity:0;transform:translateX(8px);transition:opacity .16s,transform .16s,top .12s;pointer-events:none;z-index:30}
+  #invInfo::after{content:'';position:absolute;right:-7px;top:16px;width:10px;height:10px;background:rgba(226,218,196,.97);
+    border-right:1.5px solid #2b251e;border-top:1.5px solid #2b251e;transform:rotate(45deg)}
+  #invInfo.show{opacity:1;transform:none}
+  #invInfo b{font-weight:normal;font-size:13.5px;letter-spacing:1px;color:#1a1511}
+  #invInfo em{float:right;font-size:10.5px;color:#a8741e;letter-spacing:1px;margin-top:2px}
+  #invInfo span{display:block;margin-top:2px;color:#5a4e3e}
+  /* 手持图标跟随鼠标 */
+  #held{position:absolute;left:0;top:0;width:52px;height:60px;pointer-events:none;z-index:60;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.55));transition:opacity .15s;opacity:0}
+  #app.holding #held{opacity:1}
+  #held svg{width:52px;height:60px;display:block;border:1.5px solid #2b251e;border-radius:3px;
+    box-shadow:0 0 0 1px rgba(239,196,99,.6)}
+  #app.holding #scene .hot,#app.holding #scene .hs,#app.holding #scene .zhot{cursor:crosshair}
   #dbgBtn{position:absolute;left:18px;bottom:8px;font:11px Georgia,"Songti SC",serif;background:none;border:1px dashed #9a917c;
     color:#7d7461;padding:1px 8px;cursor:pointer;opacity:.75}
   #dbgBtn:hover{opacity:1;background:#c2b9a1}
@@ -1157,6 +1186,7 @@
   </aside>
 
   <!-- ================= 入场 Loading ================= -->
+  <div id="held"></div><div id="invInfo"></div>
   <div id="loader"><svg viewBox="0 0 1080 717" preserveAspectRatio="xMidYMid slice"></svg><div class="vig"></div></div>
   <script>document.write(`<script src="levels/loader.js?v=${Date.now()}"><\/script>`)</script>
 
@@ -2474,19 +2504,101 @@ function updatePanel(){
   const slots = Math.max(n <= 8 ? 8 : n + n%2, 2) - n;
   grid.innerHTML = G.inv.map(k=>{
     const badge = BADGES[k] ? BADGES[k]() : '', isNew = k===newItem;
-    return `<div class="cell${isNew?' new':''}" data-k="${k}" title="${ITEMS[k].name}">
+    return `<div class="cell${isNew?' new':''}" data-k="${k}">
       <div class="box"><svg viewBox="0 0 98 112">${(TH[k]||TH._generic)()}</svg>
-        ${badge?`<span class="badge">${badge}</span>`:''}${isNew?'<i class="shine"></i>':''}</div>
+        ${badge?`<span class="badge">${badge}</span>`:''}${isNew?'<i class="shine"></i>':''}
+        ${VIEWS[k]?`<i class="peek" title="查看详情"><svg viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.4,12.4 L17,17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>`:''}</div>
       <div class="lbl">${ITEMS[k].name}</div></div>`;
   }).join('') + '<div class="cell slot"><div class="box"></div><div class="lbl"></div></div>'.repeat(slots);
   newItem = null;
 }
 grid.addEventListener('click', e=>{
-  const c = e.target.closest('.cell'); if(!c || G.busy) return;
-  const k = c.dataset.k; sfx.tap();
-  if(VIEWS[k]) return openZoom(k);
-  say(ITEMS[k].name);
+  const c = e.target.closest('.cell[data-k]'); if(!c || G.busy) return;
+  const k = c.dataset.k;
+  // 放大镜 / 双击：查看详情（可选，不影响解谜）
+  if(e.target.closest('.peek')){ sfx.tap(); return examine(k); }
+  // 单击：拿在手里 / 放下
+  hold(held===k ? null : k);
 });
+grid.addEventListener('dblclick', e=>{
+  const c = e.target.closest('.cell[data-k]'); if(!c || G.busy || e.target.closest('.peek')) return;
+  examine(c.dataset.k);
+});
+grid.addEventListener('mouseover', e=>{
+  const c = e.target.closest('.cell[data-k]'); if(c) showInfo(c.dataset.k);
+});
+grid.addEventListener('mouseleave', ()=> showInfo(null));
+
+/* ---------- 手持物品：单击即拿起，鼠标旁跟着一个小图标；说明写在面板底部，不弹窗 ---------- */
+let held = null;
+const ITEM_INFO = {
+  chalice: ['圣杯', ()=> S.filled ? '盛着雨水的锡圣杯。' : '一只锡圣杯，杯身镶着三颗石子。'],
+  key:     ['铁钥匙', '一把生锈的铁钥匙。'],
+  scrap:   ['烧焦的纸片', '壁炉冷灰里的半张纸：「……别相信那只乌鸦。」'],
+  fbook:   ['家族之书', ()=> `《家族之书》，已浮现 ${G.memories.length} / 7 页记忆。点放大镜翻阅。`],
+  snuffer: ['灭烛钩', '一头是熄烛的铜罩，另一头弯成细钩——能伸进窄缝。'],
+  bell:    ['圣铃', '礼拜堂的黄铜圣铃。摇响它，就是在说「有人来告解了」。'],
+  page:    ['受洗册残页', '被刮掉的名字：1309 A / 1342 C / 1375 H / 1403 Edmund / 1408 M——相隔 33 年。'],
+  tag:     ['铅牌', '一头雄鹿：「为她出生之年，酒窖里留着一桶。」'],
+  lamp:    ['提灯', '一盏亮着的铁皮提灯。地窖里一定很黑。'],
+  recipe:  ['配方', '「四勺月露；罂粟籽与圣铃同重；缬草九叶；火上数到第七声鸦啼。」点放大镜看图谱。'],
+  vial:    ['H 药瓶', '空药瓶，瓶底刻着 H——哈特维尔，母亲娘家的姓。'],
+  potion:  ['安眠药剂', '刻着 H 的小瓶里，装满了暗紫色的安眠药剂。'],
+  poppy:   ['罂粟', '一束干罂粟，一摇沙沙响，里面全是细小的黑籽。'],
+  valerian:['缬草', '一束干缬草，叶子成对，开着细碎的小白花。'],
+  seeds:   ['罂粟籽', '称好的罂粟籽，和圣铃一样重。'],
+  paste:   ['缬草泥', '九片缬草叶捣成的泥。'],
+  crank:   ['水闸摇柄', '一把铁摇柄，一头是方孔。'],
+  gears:   ['一包齿轮', '大、中、小三个齿轮，还有一个裂了缝的。'],
+  elamp:   ['E 提灯', ()=> (typeof S4!=='undefined' && S4.lampLit ? '亮着的' : '熄灭的') + '马车提灯，灯罩上刻着一个 E。'],
+  cgear:   ['铜齿轮', '十二个齿，背面刻着鸦戒纹章：「钟楼 · 第三轴」。'],
+  deer:    ['木鹿', '带四个小轮子的木鹿玩具，鹿角被摸得发亮。'],
+  wheat:   ['金麦穗', '1415 年那一季，灰麦村大丰收——用一个孩子换来的。'],
+  skey:    ['雄鹿钥匙', '柄上铸着雄鹿——母亲娘家哈特维尔的家徽。'],
+  hmirror: ['手镜', '镜背镶着一圈珍珠。照着它，反写的字就能读正。'],
+  ring:    ['鸦戒', '雷文霍尔德家主的鸦戒——契约里说的「立约之戒」。'],
+  pact:    ['契约', '一卷用血签名的契约。点放大镜阅读，背面还有反写的小字。']
+};
+const infoEl = document.getElementById('invInfo');
+function showInfo(k){
+  if(!k || !ITEMS[k]){ infoEl.classList.remove('show'); return; }
+  const [cn, d] = ITEM_INFO[k] || [ITEMS[k].name, ''];
+  infoEl.innerHTML = `<b>${cn}</b>${held===k?'<em>拿在手里</em>':''}<span>${typeof d==='function' ? d() : d}</span>`;
+  // 小浮签贴在该物品左侧（场景右边缘），只在鼠标停在物品栏上时出现，不挡格子
+  const c = grid.querySelector(`.cell[data-k="${k}"]`);
+  if(c){ const r = app.getBoundingClientRect(), s = r.width / app.offsetWidth, b = c.getBoundingClientRect();
+    infoEl.style.top = Math.max(8, Math.min(app.offsetHeight - 100, (b.top - r.top)/s + 6)) + 'px'; }
+  infoEl.classList.add('show');
+}
+function examine(k){
+  if(!VIEWS[k]) return showInfo(k);
+  openZoom(k);
+}
+const heldEl = document.getElementById('held');
+function hold(k){
+  held = k && has(k) ? k : null;
+  if(held){ sfx.pick(); heldEl.innerHTML = `<svg viewBox="0 0 98 112">${(TH[held]||TH._generic)()}</svg>`; }
+  else { if(k!==undefined) sfx.tap(); heldEl.innerHTML = ''; }
+  app.classList.toggle('holding', !!held);
+  grid.querySelectorAll('.cell[data-k]').forEach(c=> c.classList.toggle('held', c.dataset.k===held));
+  showInfo(held);
+}
+// 小图标跟随鼠标（#app 整体缩放过，按缩放比换算坐标）
+addEventListener('mousemove', e=>{
+  if(!held) return;
+  const r = app.getBoundingClientRect(), k = r.width / app.offsetWidth;
+  heldEl.style.transform = `translate(${(e.clientX - r.left)/k + 14}px, ${(e.clientY - r.top)/k + 10}px)`;
+});
+// 右键 / Esc：放下
+addEventListener('contextmenu', e=>{ if(held){ e.preventDefault(); hold(null); } });
+addEventListener('keydown', e=>{ if(e.key==='Escape' && held && !cur) hold(null); }, true);   // 捕获阶段：特写开着时 Esc 只关特写
+// 物品用掉了 → 自动放下；面板重绘后保持高亮
+const _updatePanel = updatePanel;
+updatePanel = function(){
+  _updatePanel();
+  if(held && !has(held)) hold(null);
+  else if(held) grid.querySelectorAll('.cell[data-k]').forEach(c=> c.classList.toggle('held', c.dataset.k===held));
+};
 
 /* ---------- 物品特写：家族之书（记忆书页按收集顺序排列） ---------- */
 let bookSpread = 0;
@@ -2707,7 +2819,7 @@ addEventListener('DOMContentLoaded', ()=> window.LOADER ? LOADER.ready(boot) : b
 </script>
 <script>
 // 关卡模块：按顺序同步加载；带时间戳避免浏览器缓存旧版本
-['chars','chars-body','L2-scene','L2','L3-scene','L3','L3-views','L4-scene','L4','L4-views','L5-scene','L5','L5-views','L6-scene','L6','L6-views','L7-scene','L7-bg','L7','L7-views','L7-tower','core-save','items-art']
+['chars','chars-body','L2-scene','L2','L3-scene','L3','L3-views','L4-scene','L4','L4-views','L5-scene','L5','L5-views','L6-scene','L6','L6-views','L7-scene','L7-bg','L7','L7-views','L7-tower','core-save','items-art','L8-scene','L8','L8-end']
   .forEach(f=>document.write(`<script src="levels/${f}.js?v=${Date.now()}"><\/script>`));
 </script>
 </body>

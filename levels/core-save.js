@@ -4,7 +4,7 @@
    ·  读档时修复“刚好在演出中途存下”的状态，保证不会卡关（记忆页、开门等）
    ===================================================================== */
 const SAVE_KEY = 'ravenhold-save-v1';
-const SAVE_STATES = ()=>({S, S2, S3, S4, S5, S6, S7});
+const SAVE_STATES = ()=>({S, S2, S3, S4, S5, S6, S7, S8});
 
 function saveGame(){
   if(G.busy) return;               // 演出中途不存，等演出结束后的下一次 updateAll
@@ -50,8 +50,13 @@ function repairSave(){
   S4.crowsFly = false;
   Object.assign(S6, {playing:false, rocking:false});
   Object.assign(S7, {spin:false, bellSwing:false}); if(!S7.struck) S7.wy = TW7.wTop;
+  // 第 8 关：演出态复位；接雨到一半 → 直接接满；俯冲到一半 → 重新演一遍（ON_ENTER 处理）
+  Object.assign(S8, {swoop:false, rising:false, revealing:false, shiver:false, hi:null, sel:null});
+  if(S8.filling){ S8.filling = false; S8.cup = 'water'; }
+  if(S8.cageOpen && !S8.ended) S8.ended = Object.values(G.feathers).every(Boolean) ? 'name' : 'break';
+  if(S8.ended && S8.ended!=='loop') G.progress.L8 = true;
   // 各关收尾
-  if(S.escaped){ G.progress.L1 = true; if(!has('fbook') && !G.progress.L8) give('fbook'); }
+  if(S.escaped){ G.progress.L1 = true; if(!has('fbook') && !G.progress.L8 && !S8.scattered) give('fbook'); }
   if(S2.confessRead){ G.progress.L2 = true; S2.doorOpen = true; }
   if(S3.potionDone){ G.progress.L3 = true; S3.tunnel = true; }
   if(S5.keyTaken) G.progress.L5 = true;

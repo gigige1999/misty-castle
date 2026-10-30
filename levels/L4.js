@@ -90,15 +90,17 @@ SCENES.L4 = function(){
   let s='';
   if(out){
     // 水闸
-    if(S4.crank==='set') s+=`<g ${m4k}><path d="M653,250 L653,232 L676,226" stroke="#3a2e22" stroke-width="5" fill="none"/><circle cx="676" cy="226" r="5" fill="#6a5440"/></g>`;
-    if(S4.sluiceOpen) s+=`<rect x="642" y="236" width="22" height="20" fill="#6a5440" ${m4s}/>
+    if(S4.crank==='set') s+=`<g ${m4s}><path d="M653,250 L653,232 L676,226" stroke="#15110d" stroke-width="6.4" fill="none" stroke-linecap="round"/>
+        <path d="M653,250 L653,232 L676,226" stroke="#6a645a" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M652,248 L652,234" stroke="#a8a090" stroke-width="1" opacity=".7"/>
+        <circle cx="653" cy="250" r="4.4" fill="url(#m4IrV)"/><circle cx="653" cy="250" r="1.4" fill="#15110d" stroke="none"/>
+        <rect x="671" y="218" width="10" height="14" rx="3.6" fill="url(#m4WdV)" transform="rotate(-14 676 225)"/></g>`;
+    if(S4.sluiceOpen) s+=`<g ${m4s}><rect x="642" y="236" width="22" height="20" fill="url(#m4WdV)"/><path d="M642,243 h22 M642,249.5 h22" stroke="#2a1e12" stroke-width=".8"/>
+        <path d="M642,238.6 h22 M642,253.6 h22" stroke="#2a2622" stroke-width="2.2"/><circle cx="645" cy="238.6" r=".9" fill="#a8a090" stroke="none"/><circle cx="661" cy="238.6" r=".9" fill="#a8a090" stroke="none"/></g>
         <path d="M604,296 Q594,316 572,${M4.wheel.y-M4.wheel.r+4}" stroke="#9fb6bc" stroke-width="10" fill="none" opacity=".8"/>
         <path d="M604,296 Q594,316 572,${M4.wheel.y-M4.wheel.r+4}" stroke="#e2ecec" stroke-width="2.4" fill="none" stroke-dasharray="6 6" class="m4water"/>
         <path d="M520,420 q14,-6 28,0 t28,0 M600,424 q14,-6 28,0" stroke="#e2ecec" stroke-width="1.6" fill="none" class="pulse"/>`;
     // 马车上的面粉袋与小鞋
-    s+=`<g ${m4k}><path d="M122,382 Q114,350 132,338 Q152,326 174,338 Q192,350 184,382 Z" fill="#cfc4a6"/>
-        <path d="M134,340 Q152,332 170,340" fill="none" stroke-width="1.4"/><path d="M146,334 l-6,-12 M160,334 l6,-12" stroke="#8a7a5c" stroke-width="2"/>
-        <path d="M142,356 Q152,350 162,356 M150,350 L148,366 M156,350 L158,366" stroke="#8a7f66" stroke-width="1.4" fill="none"/></g>${shoeArt(208,372,1.1)}`;
+    s+=`<g transform="translate(153,358)">${wagonSackArt()}</g>${shoeArt(208,372,1.1)}`;
     if(!S4.lampTaken) s+=`<g transform="translate(258,508) rotate(72)">${eLampArt(false)}</g>`;
     s+= scarecrowArt(S4.crows);
     if(S4.crowsFly){ s+=`<g class="m4fly">${crowArt(668,384,1.2)}${crowArt(774,378,1.2,true)}${crowArt(722,306,1.3)}${crowArt(700,388,1.05,true)}</g>`; S4.crowsFly=false; }
@@ -116,26 +118,17 @@ SCENES.L4 = function(){
       const g=S4.pegs[p]; if(g) s+=`<g transform="translate(${x},${gy})"><g class="${spin(p)}">${gearArt(GEARS[g].r*K4, GEARS[g].t, GEARS[g].fill, {crack:GEARS[g].crack})}</g></g>`; });
     if(S4.stoneDir) s+=`<path d="M${MI4.stone.x-90},${MI4.stone.y-4} q90,${S4.stoneDir*-18} 180,0" stroke="#f0e8d4" stroke-width="2" fill="none" opacity=".6" class="pulse"/>`;
     // 面粉袋（参考图：敞口卷边的粗麻袋，袋口露出面粉，袋身印着麦穗）+ 木箱
-    s+=`<g ${m4k}><path d="M196,604 L198,556 L282,550 L284,598 Z" fill="#5a4636"/><path d="M198,556 L282,550 L290,540 L206,546 Z" fill="#6a5440"/>
-        <path d="M198,572 L283,566 M240,553 V601" stroke="#3a2e22" stroke-width="2"/></g>`;
+    s+= crateArt();
     const SK=[[76,552,1.05],[150,568,1.12],[214,524,.9],[110,616,1]];
-    const sackBody = `M-36,36 Q-48,4 -38,-24 Q-34,-36 -24,-40 Q0,-33 24,-40 Q34,-36 38,-24 Q48,4 36,36 Q0,44 -36,36 Z`;
     SK.forEach(([x,y,k],i)=>{ s+= S4.sacks[i]
-      ? `<g transform="translate(${x},${y+10}) scale(${k})" ${m4k}><path d="M-40,30 Q-46,8 -30,-2 Q-14,-12 0,-6 Q16,-14 30,-2 Q46,8 40,30 Q0,38 -40,30 Z" fill="#cfc4a6"/>
-           <path d="M-22,-4 l-6,-12 l10,6 l4,-12 l6,10 l8,-10 l2,12" fill="none" stroke="#8a7a5c" stroke-width="1.6"/></g>
-         <ellipse cx="${x+34}" cy="${y+42}" rx="30" ry="7" fill="#ece5d2" stroke="none"/>`
-      : `<g transform="translate(${x},${y}) scale(${k})" ${m4k}><path d="${sackBody}" fill="#d4c9aa"/>
-           <path d="M-34,-24 Q-36,-34 -24,-40 Q0,-33 24,-40 Q36,-34 34,-24 Q0,-16 -34,-24 Z" fill="#bfb393"/>
-           <ellipse cx="0" cy="-30" rx="24" ry="6" fill="#efe9d8" stroke-width="1.2"/>
-           <path d="M-30,-14 Q0,-6 30,-14" stroke="#9a8e70" stroke-width="1.4" fill="none"/>
-           <path d="M0,-2 V24 M0,2 l-7,-6 M0,2 l7,-6 M0,10 l-7,-6 M0,10 l7,-6 M0,18 l-7,-6 M0,18 l7,-6" stroke="#8a7a52" stroke-width="1.8" fill="none"/>
-           <path d="M-36,36 Q0,44 36,36" stroke="#a89c80" stroke-width="1.2" fill="none"/></g>`; });
-    // 出料口
-    const c=S4.chute; if(S4.ground && !(c.deer&&c.cgear&&c.wheat)) s+=`<g ${m4s}>
-        ${c.wheat?'':`<path d="M${MI4.stone.x-26},${MI4.stone.y+104} l28,-22" stroke="#d8b84a" stroke-width="3"/>`}
-        ${c.cgear?'':`<circle cx="${MI4.stone.x+18}" cy="${MI4.stone.y+104}" r="9" fill="#b0703a"/>`}
-        ${c.deer?'':`<rect x="${MI4.stone.x-6}" y="${MI4.stone.y+96}" width="14" height="8" fill="#9a7a4e"/>`}
-        <circle cx="${MI4.stone.x}" cy="${MI4.stone.y+100}" r="36" fill="none" stroke="#efe6c8" stroke-width="1.4" class="pulse"/></g>`;
+      ? `<g transform="translate(${x},${y+10}) scale(${k})">${sackTornArt()}</g>${flourSpill4(x+34,y+42)}`
+      : `<g transform="translate(${x},${y}) scale(${k})">${sackArt()}</g>`; });
+    // 出料口：小木鹿、铜齿轮、麦穗（与特写同一套造型）
+    const c=S4.chute, X=MI4.stone.x, Y=MI4.stone.y; if(S4.ground && !(c.deer&&c.cgear&&c.wheat)) s+=`<g>
+        ${c.wheat?'':`<g transform="translate(${X-16},${Y+92}) rotate(-58) scale(.27)">${wheatArt}</g>`}
+        ${c.cgear?'':`<g transform="translate(${X+19},${Y+100}) rotate(12)">${gearArt(8,10,'#b0703a',{dark:'#7a4a22',hub:'#4a2a12'})}</g>`}
+        ${c.deer?'':`<g transform="translate(${X-4},${Y+95}) scale(.23)">${deerToyArt}</g>`}
+        <circle cx="${X}" cy="${Y+100}" r="36" fill="none" stroke="#efe6c8" stroke-width="1.4" class="pulse"/></g>`;
     if(has('elamp') && S4.lampLit) s+=`<circle cx="696" cy="300" r="40" fill="url(#l4-lamp)"/>`;
   }
   s+=`<rect width="828" height="709" fill="url(#l4-vig)"/>`;
