@@ -188,11 +188,25 @@ VIEWS.l6_bed = function(){
     cap: fea ? '枕头歪向这一边时，底下露出了一根乌黑的羽毛。'
       : S6.pillow===0 ? '四柱床上的被褥铺得整整齐齐，枕头摆得端端正正，落了一层灰。（点击枕头可以挪动它）'
       : '枕头歪着。',
-    svg:`<rect width="600" height="400" fill="#3a2a20"/>
-      <rect x="40" y="20" width="520" height="160" fill="#4a3424" ${ink}/><path d="M60,40 H540 V160 H60 Z" fill="none" stroke="#5e4634" stroke-width="2"/>
-      <polygon points="20,180 580,180 600,400 0,400" fill="#6b2f28" ${ink}/>
-      <path d="M20,180 H580" stroke="#b39a5a" stroke-width="3"/>
-      <path d="M0,330 Q300,300 600,330" stroke="#5a2622" stroke-width="3" fill="none"/>
+    svg:`<defs><linearGradient id="z6Quilt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a362e"/><stop offset="1" stop-color="#4a1e1a"/></linearGradient>
+        <linearGradient id="z6Wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a1c12"/><stop offset=".4" stop-color="#5a4028"/><stop offset="1" stop-color="#2a1c12"/></linearGradient></defs>
+      <rect width="600" height="400" fill="#2e221a"/>
+      <path d="M70,190 V60 Q70,30 110,28 H250 Q300,4 350,28 H490 Q530,30 530,60 V190 Z" fill="#4a3424" ${ink}/>
+      <path d="M90,180 V66 Q92,46 116,46 H250 Q300,24 350,46 H484 Q508,46 510,66 V180" fill="none" stroke="#6a4c34" stroke-width="2"/>
+      ${[110,206,394,490].map(x=>`<rect x="${x-34}" y="70" width="68" height="96" rx="4" fill="#3e2a1c" stroke="#2a1c12" stroke-width="1.6"/><path d="M${x-26},78 H${x+26} V158" stroke="#5e4634" stroke-width="1" fill="none"/>`).join('')}
+      <g transform="translate(300,104)"><path d="M-40,-34 H40 V10 Q40,40 0,52 Q-40,40 -40,10 Z" fill="#5a2622" ${ink}/>
+        <use href="#deer" x="-26" y="-28" width="52" height="52" style="color:#c8a868" stroke="none"/></g>
+      <rect x="28" y="0" width="34" height="400" fill="url(#z6Wood)" ${ink}/><rect x="538" y="0" width="34" height="400" fill="url(#z6Wood)" ${ink}/>
+      ${[60,120,300].map(y=>`<path d="M26,${y} H64 M536,${y} H574" stroke="#1a1511" stroke-width="4"/>`).join('')}
+      <path d="M62,0 H128 Q110,70 84,120 Q100,150 92,240 L62,250 Z" fill="#5a2622" ${ink}/><path d="M538,0 H472 Q490,70 516,120 Q500,150 508,240 L538,250 Z" fill="#5a2622" ${ink}/>
+      <path d="M78,10 Q90,60 74,112 M522,10 Q510,60 526,112" stroke="#3a1612" stroke-width="2" fill="none"/>
+      <path d="M66,118 Q86,126 102,116 M534,118 Q514,126 498,116" stroke="#b39a5a" stroke-width="4" fill="none"/>
+      <polygon points="20,186 580,186 600,400 0,400" fill="url(#z6Quilt)" ${ink}/>
+      <path d="M22,186 H578 L582,232 Q300,246 18,232 Z" fill="#d8cfb8" ${ink}/>
+      <path d="M24,226 Q300,240 576,226" stroke="#b39a5a" stroke-width="3" fill="none"/>
+      <path d="M0,330 Q300,300 600,330 M8,290 Q300,268 592,290" stroke="#3a1612" stroke-width="2.4" fill="none"/>
+      <path d="M120,250 Q140,300 110,380 M470,252 Q450,310 490,390 M300,256 Q296,300 306,360" stroke="#3a1612" stroke-width="1.6" fill="none" opacity=".7"/>
+      ${[[150,276],[260,300],[420,286],[520,320],[80,340],[360,350]].map(([x,y])=>`<path d="M${x},${y} l6,0 M${x+3},${y-3} v6" stroke="#b39a5a" stroke-width="1.6" opacity=".7"/>`).join('')}
       ${fea ? `<g id="z-fea" class="zhot"><rect x="400" y="170" width="150" height="90" fill="transparent"/>
           <path d="M410,246 Q460,232 530,180" stroke="#0e0c0a" stroke-width="5" fill="none"/>
           <path d="M432,240 l-8,-8 M446,235 l-8,-9 M460,229 l-7,-9 M474,221 l-6,-10 M488,212 l-6,-10 M502,202 l-5,-10 M438,238 l10,2 M452,233 l10,1 M466,226 l10,0 M480,218 l10,-1 M494,209 l9,-2 M508,198 l9,-2" stroke="#1d1915" stroke-width="2.6"/>
@@ -242,12 +256,26 @@ VIEWS.l6_dress = function(){
   return { title:'Damp Gown',
     cap: S6.dressSeen ? '口袋里那张纸被湖水泡皱了：「春天了。我去湖里找她。」'
       : '一条暗红的长裙，挂在门边的木钉上。下摆是湿的，还在往下滴水，散发着湖水的气味。……可这间屋子，已经三十三年没人进来过了。',
-    svg:`${b6ZWall}
-      <circle cx="300" cy="24" r="7" fill="#2a2018"/><path d="M300,28 L250,70 M300,28 L350,70" stroke="#2a2018" stroke-width="4"/>
-      <path d="M250,70 Q236,110 256,150 Q206,280 216,380 L384,380 Q394,280 344,150 Q364,110 350,70 Z" fill="#5a2c26" ${ink}/>
-      <path d="M256,150 Q300,162 344,150" stroke="#b39a5a" stroke-width="3" fill="none"/>
-      <path d="M210,320 Q300,336 390,320 L384,380 L216,380 Z" fill="#2e1c1a"/>
-      <path d="M232,384 q3,8 0,14 M290,386 q3,8 0,12 M352,384 q3,8 0,14" stroke="#7a8a90" stroke-width="2.4" fill="none"/>
+    svg:`${b6ZWall}<defs>
+        <linearGradient id="z6Gown" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a1a16"/><stop offset=".35" stop-color="#6a3028"/><stop offset=".55" stop-color="#5a2822"/><stop offset="1" stop-color="#2e1412"/></linearGradient>
+        <linearGradient id="z6Wet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1412" stop-opacity="0"/><stop offset=".35" stop-color="#22100e" stop-opacity=".85"/><stop offset="1" stop-color="#160a09"/></linearGradient></defs>
+      <ellipse cx="300" cy="392" rx="120" ry="7" fill="#1e2a2e" opacity=".55"/><ellipse cx="290" cy="391" rx="60" ry="3" fill="#7a8a90" opacity=".25"/>
+      <circle cx="300" cy="22" r="7" fill="#3a2a1c" ${ink}/><path d="M300,28 V44" stroke="#2a2018" stroke-width="3"/>
+      <path d="M238,64 Q300,40 362,64" stroke="#2a2018" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M238,64 Q300,40 362,64" stroke="#6a4c30" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M244,70 Q214,90 206,150 Q198,214 214,262 L236,256 Q236,190 258,108 Z" fill="url(#z6Gown)" ${ink}/>
+      <path d="M356,70 Q386,90 394,150 Q402,214 386,262 L364,256 Q364,190 342,108 Z" fill="url(#z6Gown)" ${ink}/>
+      <path d="M210,246 Q224,256 238,250 M390,246 Q376,256 362,250" stroke="#b39a5a" stroke-width="3" fill="none"/>
+      <path d="M260,158 Q232,250 206,380 L394,380 Q368,250 340,158 Q300,170 260,158 Z" fill="url(#z6Gown)" ${ink}/>
+      <path d="M276,170 Q262,280 248,378 M300,172 Q298,280 296,380 M324,170 Q338,280 352,378 M288,171 Q280,280 272,379 M312,171 Q320,280 326,379" stroke="#2a1210" stroke-width="1.6" fill="none" opacity=".75"/>
+      <path d="M282,176 Q272,260 264,340" stroke="#8a4a3e" stroke-width="2" fill="none" opacity=".45"/>
+      <path d="M244,70 Q300,84 356,70 L346,104 Q338,132 340,160 Q300,170 260,160 Q262,132 254,104 Z" fill="url(#z6Gown)" ${ink}/>
+      <path d="M268,72 Q300,110 332,72" fill="#d8cfb8" stroke="#2b251e" stroke-width="1.6"/><path d="M276,74 Q300,100 324,74" fill="#2a1412" stroke="none"/>
+      <path d="M292,106 L308,118 M308,106 L292,118 M292,118 L308,130 M308,118 L292,130 M292,130 L308,142 M308,130 L292,142 M293,142 L307,154 M307,142 L293,154" stroke="#c8b07a" stroke-width="1.4"/>
+      <path d="M256,160 Q300,172 344,160" stroke="#2b251e" stroke-width="6" fill="none"/><path d="M256,160 Q300,172 344,160" stroke="#b39a5a" stroke-width="3" fill="none"/>
+      <path d="M300,168 Q296,210 302,262" stroke="#b39a5a" stroke-width="2.6" fill="none"/><circle cx="302" cy="266" r="4" fill="#b39a5a" stroke="#2b251e" stroke-width="1"/>
+      <path d="M208,330 Q232,320 256,332 Q282,342 306,330 Q334,318 360,332 Q378,340 392,328 L394,380 L206,380 Z" fill="url(#z6Wet)"/>
+      <path d="M214,372 Q300,382 386,372" stroke="#7a8a90" stroke-width="1.2" fill="none" opacity=".4"/>
+      ${[[226,384,1],[262,386,.8],[290,388,1.1],[330,386,.9],[364,384,1]].map(([x,y,s])=>`<path d="M${x},${y} q${-3*s},${7*s} 0,${10*s} q${3*s},${-3*s} 0,${-10*s} Z" fill="#8a9aa0" stroke="#3a4448" stroke-width=".8" class="pulse"/>`).join('')}
       <g id="z-pocket" class="zhot"><path d="M318,220 Q340,218 344,252 Q332,262 318,256 Z" fill="#4a2420" ${ink}/>
         ${S6.dressSeen ? '' : `<path d="M324,226 l10,-10 l8,6 l-8,10 Z" fill="#cfc4a6" stroke="#2b251e" stroke-width="1"/><circle cx="332" cy="236" r="26" fill="none" stroke="#efe6c8" stroke-width="1.6" class="pulse"/>`}</g>`,
     bind(){ on('z-pocket', ()=>{

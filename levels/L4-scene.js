@@ -566,6 +566,7 @@ document.getElementById('l3').insertAdjacentHTML('afterend', `
     </defs>
     <g id="l4Dyn" pointer-events="none"></g>
     <g id="m4OutHot">
+      <polygon class="hs" data-obj="o_mill" points="278,414 278,342 326,302 326,266 416,196 468,238 468,150 497,128 528,150 528,300 516,300 516,414"/>
       <rect class="hs" data-obj="o_scarecrow" x="650" y="296" width="146" height="316"/>
       <rect class="hs" data-obj="o_sluice" x="628" y="236" width="52" height="66"/>
       <circle class="hs" data-obj="o_wheel" cx="${M4.wheel.x}" cy="${M4.wheel.y}" r="74"/>
@@ -573,7 +574,6 @@ document.getElementById('l3').insertAdjacentHTML('afterend', `
       <rect class="hs" data-obj="o_cart" x="40" y="336" width="210" height="180"/>
       <rect class="hs" data-obj="o_elamp" x="232" y="476" width="52" height="52"/>
       <path class="hs" data-obj="o_tunnel" d="${M4.tunnel}"/>
-      <rect class="hs" data-obj="o_mill" x="286" y="140" width="190" height="196"/>
       <rect class="hs" data-obj="o_feather" x="596" y="560" width="70" height="50" style="display:none" id="m4FeatherHot"/>
       <g class="hs-arrow" data-obj="go_in"><rect x="772" y="640" width="48" height="48" rx="6" fill="#2b251e" opacity=".55"/><path d="M788,652 L806,664 L788,676" stroke="#e6dfcc" stroke-width="3" fill="none"/></g>
     </g>

@@ -146,26 +146,59 @@ function sconceArt5(lit){
 }
 
 /* ---------------- 盔甲（局部：原点在底座正中） ---------------- */
+document.body.insertAdjacentHTML('beforeend', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="a5St" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3c3f3c"/><stop offset=".28" stop-color="#7e827c"/><stop offset=".42" stop-color="#a9ada4"/><stop offset=".6" stop-color="#6c706a"/><stop offset="1" stop-color="#363836"/></linearGradient>
+  <linearGradient id="a5Dk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2c2e2c"/><stop offset=".4" stop-color="#5c605a"/><stop offset="1" stop-color="#262826"/></linearGradient>
+  <linearGradient id="a5Stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a665a"/><stop offset="1" stop-color="#4a463e"/></linearGradient>
+</defs></svg>`);
 function armorArt5(visorUp){
-  const st='#6f736f', dk='#4c4f4c';
+  const st='url(#a5St)', dk='url(#a5Dk)', hl='stroke="#c4c8be" stroke-width="1.6" fill="none" opacity=".55"', rv=(x,y)=>`<circle cx="${x}" cy="${y}" r="1.8" fill="#2a2c2a" stroke="none"/>`;
+  const lame=(y,w,h)=>`<path d="M${-w},${y} Q0,${y+5} ${w},${y} L${w-2},${y+h} Q0,${y+h+5} ${-w+2},${y+h} Z" fill="${st}"/>`;
+  const leg=s=>`<g transform="scale(${s},1)">
+      <path d="M8,-182 L30,-182 L28,-156 L10,-156 Z" fill="${st}"/>
+      <path d="M8,-158 Q19,-166 30,-158 L30,-140 Q19,-132 8,-140 Z" fill="${dk}"/><circle cx="19" cy="-149" r="5" fill="${st}"/>
+      <path d="M31,-154 l9,6 l-9,6 Z" fill="${dk}" stroke-width="1.2"/>
+      <path d="M10,-140 L28,-140 Q31,-122 26,-104 L12,-104 Q7,-122 10,-140 Z" fill="${st}"/><path d="M14,-136 Q12,-122 15,-108" ${hl}/>
+      <path d="M6,-104 L30,-104 L34,-96 L44,-92 L4,-92 Z" fill="${dk}"/><path d="M12,-100 H34" stroke-width="1"/></g>`;
+  const arm=s=>`<g transform="scale(${s},1)">
+      <path d="M40,-286 L56,-286 L57,-248 L41,-248 Z" fill="${st}"/>
+      <ellipse cx="49" cy="-244" rx="10" ry="8" fill="${dk}"/><path d="M57,-250 l8,6 l-8,6 Z" fill="${dk}" stroke-width="1.2"/>
+      <path d="M41,-240 L57,-240 L58,-210 L42,-210 Z" fill="${st}"/><path d="M45,-236 V-214" ${hl}/></g>`;
   return `<g ${g5k}>
-    <path d="M58,-30 V-560" stroke="#3a2e22" stroke-width="7"/>
-    <path d="M58,-600 L48,-560 L68,-560 Z" fill="#8a8c86"/><path d="M50,-556 H66" stroke-width="4"/>
-    <rect x="-70" y="-92" width="140" height="14" fill="#6a665a"/>
-    <rect x="-62" y="-78" width="124" height="78" fill="#5e5a50"/><path d="M-62,-40 H62 M-20,-78 V-40 M24,-40 V0" stroke="#4a463e" stroke-width="1.5"/>
-    <path d="M-36,-92 L-36,-102 L-6,-102 L-6,-92 Z M6,-92 L6,-102 L36,-102 L36,-92 Z" fill="${dk}"/>
-    <rect x="-28" y="-192" width="20" height="92" fill="${st}"/><rect x="8" y="-192" width="20" height="92" fill="${st}"/>
-    <circle cx="-18" cy="-150" r="8" fill="${dk}"/><circle cx="18" cy="-150" r="8" fill="${dk}"/>
-    <path d="M-40,-206 L40,-206 L36,-180 L-36,-180 Z" fill="${dk}"/><path d="M-38,-194 H38" stroke-width="1.2"/>
-    <path d="M-36,-302 Q-46,-252 -34,-204 L34,-204 Q46,-252 36,-302 Q0,-314 -36,-302 Z" fill="${st}"/>
-    <path d="M0,-306 V-206 M-22,-290 Q-26,-250 -20,-214" stroke="#9a9e98" stroke-width="2" fill="none"/>
-    <rect x="-56" y="-290" width="15" height="84" fill="${st}"/><rect x="41" y="-290" width="15" height="84" fill="${st}"/>
-    <rect x="-58" y="-208" width="19" height="20" rx="4" fill="${dk}"/><rect x="40" y="-204" width="22" height="18" rx="4" fill="${dk}"/>
-    <ellipse cx="-44" cy="-294" rx="18" ry="13" fill="${dk}"/><ellipse cx="44" cy="-294" rx="18" ry="13" fill="${dk}"/>
-    <path d="M-22,-306 L-22,-352 Q-22,-374 0,-376 Q22,-374 22,-352 L22,-306 Z" fill="${st}"/>
-    ${visorUp ? `<path d="M-20,-352 L20,-352 L18,-332 L-18,-332 Z" fill="#0d0b09"/><path d="M-22,-384 L22,-384 L20,-360 L-20,-360 Z" fill="${dk}"/>`
-              : `<rect x="-18" y="-342" width="36" height="6" fill="#0d0b09"/><path d="M6,-326 h2 M12,-326 h2 M6,-320 h2 M12,-320 h2" stroke-width="2"/>`}
-    <path d="M0,-376 V-306" stroke="#9a9e98" stroke-width="1.4"/></g>`;
+    <path d="M58,-30 V-560" stroke="#2a2018" stroke-width="8"/><path d="M58,-30 V-560" stroke="#5a4632" stroke-width="4"/>
+    <path d="M58,-612 Q50,-586 48,-560 L68,-560 Q66,-586 58,-612 Z" fill="${st}"/><path d="M58,-604 V-566" stroke="#c4c8be" stroke-width="1" opacity=".6"/>
+    <path d="M48,-558 H68 M50,-550 H66" stroke-width="4"/>
+    <path d="M58,-548 q-14,10 -10,34 q4,-14 10,-18 q6,4 10,18 q4,-24 -10,-34 Z" fill="#6a2420" stroke-width="1.2"/>
+    <rect x="-72" y="-94" width="144" height="16" fill="url(#a5Stone)"/><path d="M-72,-90 H72" stroke="#8a8676" stroke-width="1" opacity=".6"/>
+    <rect x="-62" y="-78" width="124" height="78" fill="url(#a5Stone)"/><path d="M-62,-40 H62 M-20,-78 V-40 M24,-40 V0" stroke="#3a372f" stroke-width="1.5"/>
+    <path d="M-52,-68 h20 M30,-30 h18" stroke="#7a766a" stroke-width="1" opacity=".5"/>
+    ${leg(-1)}${leg(1)}
+    ${lame(-208,42,10)}${lame(-198,40,10)}${lame(-188,38,9)}
+    <path d="M-38,-186 L-30,-160 L-8,-160 L-8,-186 Z M38,-186 L30,-160 L8,-160 L8,-186 Z" fill="${dk}"/>
+    ${arm(-1)}${arm(1)}
+    <path d="M-60,-212 Q-62,-196 -52,-190 Q-40,-192 -40,-210 Z" fill="${dk}"/><path d="M-58,-204 h14 M-58,-198 h14" stroke-width="1"/>
+    <path d="M44,-212 L64,-212 Q68,-200 62,-188 L46,-188 Q40,-200 44,-212 Z" fill="${dk}"/><path d="M48,-206 H64 M48,-198 H64" stroke-width="1"/>
+    <path d="M-36,-300 Q-48,-252 -34,-212 L34,-212 Q48,-252 36,-300 Q0,-314 -36,-300 Z" fill="${st}"/>
+    <path d="M0,-306 V-214" stroke="#2a2c2a" stroke-width="1.4"/><path d="M-2,-304 V-216" stroke="#c4c8be" stroke-width="1" opacity=".5"/>
+    <path d="M-34,-246 Q0,-232 34,-246" stroke-width="1.6" fill="none"/>
+    <path d="M-26,-294 Q-34,-262 -24,-224" ${hl}/>
+    ${rv(-30,-290)}${rv(30,-290)}${rv(-28,-220)}${rv(28,-220)}
+    <path d="M-38,-216 H38 V-208 H-38 Z" fill="#3a2a1e"/><rect x="-6" y="-218" width="12" height="12" fill="none" stroke="#a88a4e" stroke-width="2"/>
+    <path d="M-62,-284 Q-64,-310 -36,-312 Q-22,-306 -24,-290 Q-40,-282 -62,-284 Z" fill="${st}"/>
+    <path d="M-64,-276 Q-50,-270 -36,-280 M-66,-268 Q-52,-262 -40,-270" stroke-width="1.4" fill="none"/>
+    <path d="M62,-284 Q64,-310 36,-312 Q22,-306 24,-290 Q40,-282 62,-284 Z" fill="${st}"/>
+    <path d="M64,-276 Q50,-270 36,-280 M66,-268 Q52,-262 40,-270" stroke-width="1.4" fill="none"/>
+    <path d="M-24,-302 L24,-302 L22,-312 L-22,-312 Z" fill="${dk}"/><path d="M-22,-307 H22" stroke-width="1"/>
+    <path d="M-22,-310 L-23,-350 Q-22,-376 0,-378 Q22,-376 23,-350 L22,-310 Q0,-302 -22,-310 Z" fill="${st}"/>
+    <path d="M0,-378 V-354" stroke-width="2"/><path d="M-12,-370 Q-18,-358 -17,-346" ${hl}/>
+    ${visorUp
+      ? `<path d="M-19,-352 L19,-352 L17,-318 Q0,-312 -17,-318 Z" fill="#0d0b09"/>
+         <path d="M-23,-392 Q0,-400 23,-392 L21,-362 Q0,-356 -21,-362 Z" fill="${st}"/><path d="M-20,-376 H20" stroke="#0d0b09" stroke-width="3"/>`
+      : `<path d="M-21,-354 Q0,-360 21,-354 L19,-318 Q0,-310 -19,-318 Z" fill="${st}"/>
+         <path d="M-18,-341 H18" stroke="#0d0b09" stroke-width="5"/><path d="M-16,-347 Q0,-350 16,-347" stroke="#c4c8be" stroke-width="1" fill="none" opacity=".5"/>
+         <path d="M5,-330 h2 M11,-330 h2 M5,-324 h2 M11,-324 h2 M-7,-330 h2 M-13,-330 h2" stroke-width="2"/>`}
+    ${rv(-20,-336)}${rv(20,-336)}
+    <path d="M2,-380 Q-14,-404 -34,-398 Q-20,-394 -12,-384" fill="#7a2a22" stroke-width="1.3"/></g>`;
 }
 
 /* ---------------- 画架 + 空白画布（局部：原点在地面正中） ---------------- */
@@ -324,7 +357,7 @@ document.getElementById('l4').insertAdjacentHTML('afterend', `
       <polygon class="hs" data-obj="banner" points="${pts5([p5(414,-340,2.3),p5(414,-340,2.64),p5(414,-30,2.64),p5(414,-30,2.3)])}"/>
       <circle class="hs" data-obj="oculus" cx="414" cy="206" r="28"/>
       <rect class="hs" data-obj="chand" x="356" y="150" width="116" height="40"/>
-      <polygon class="hs" data-obj="bench" points="${f5(-414,150,1.12)} ${f5(-414,150,1.62)} ${f5(-310,400,1.62)} ${f5(-310,400,1.12)}"/>
+      <polygon class="hs" data-obj="bench" points="${f5(-410,134,1.1)} ${f5(-410,134,1.64)} ${f5(-306,268,1.64)} ${f5(-314,400,1.6)} ${f5(-314,400,1.14)} ${f5(-412,330,1.1)}"/>
       <rect class="hs" data-obj="armor" x="${(A5.x-62).toFixed(0)}" y="${(A5.y-392*A5.k).toFixed(0)}" width="124" height="${(392*A5.k).toFixed(0)}"/>
       <rect class="hs" data-obj="armor" x="${(A5.x+44).toFixed(0)}" y="${(A5.y-604*A5.k).toFixed(0)}" width="24" height="${(214*A5.k).toFixed(0)}"/>
       <circle class="hs" data-obj="sconce" id="g5SconceHot" cx="0" cy="0" r="30"/>

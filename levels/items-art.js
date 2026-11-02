@@ -545,4 +545,63 @@ const big = (title, cap, art) => ({ title, cap, svg:`<rect width="600" height="4
   <g transform="translate(${300-49*3.4},${200-58*3.4}) scale(3.4)">${art}</g>` });
 VIEWS.seeds = ()=> big('Poppy Seeds', '称好的罂粟籽，和圣铃一样重。', ART.seeds());
 VIEWS.paste = ()=> big('Valerian Paste', '九片缬草叶捣成的泥。', ART.paste());
+
+/* ---------------- 物品特写：统一「陈列台」+ 精绘版（锈湖式：暗底、单一顶光、物件居中、厚描边） ---------------- */
+document.body.insertAdjacentHTML('beforeend', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  ${rad('itShowBg',[[0,'#b9b098'],[.45,'#8f8772'],[1,'#4e4838']],.5,.42,.75)}
+  ${rad('itShowVig',[[.55,'#000',0],[1,'#000',.45]],.5,.5,.72)}
+  ${lin('itShowTop',[[0,'#5a4c3a'],[1,'#3a3026']],0,1)}
+  <filter id="itShowNoise" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 .2  0 0 0 0 .17  0 0 0 0 .12  0 0 0 -1.4 .62"/></filter>
+</defs></svg>`);
+const show = (art, s=3.2, dy=0) => `<rect width="600" height="400" fill="url(#itShowBg)"/>
+  <path d="M0,318 Q300,300 600,318 V400 H0 Z" fill="url(#itShowTop)" opacity=".55"/>
+  <path d="M0,318 Q300,300 600,318" stroke="#2b251e" stroke-width="1.6" fill="none" opacity=".6"/>
+  <g transform="translate(${f1(300-49*s)},${f1(206-58*s+dy)}) scale(${s})">${art}</g>
+  <rect width="600" height="400" filter="url(#itShowNoise)" opacity=".5" pointer-events="none"/>
+  <rect width="600" height="400" fill="url(#itShowVig)" pointer-events="none"/>`;
+const reskin = (k, artFn, s, dy) => { const base = VIEWS[k]; if(!base) return;
+  VIEWS[k] = function(){ const v = base.apply(this, arguments); return Object.assign({}, v, {svg: show(artFn(), s, dy)}); }; };
+reskin('bell',     ART.bell);
+reskin('snuffer',  ART.snuffer, 3.3);
+reskin('lamp',     ()=>ART.lantern(true, false));
+reskin('vial',     ()=>ART.vial(false));
+reskin('potion',   ()=>ART.vial(true));
+reskin('poppy',    ART.poppy);
+reskin('valerian', ART.valerian);
+reskin('crank',    ART.crank);
+reskin('gears',    ART.gears, 3.1);
+reskin('elamp',    ()=>ART.lantern(typeof S4!=='undefined' && !!S4.lampLit, true));
+reskin('deer',     ART.deer, 3.1);
+reskin('wheat',    ART.wheat);
+reskin('skey',     ART.skey);
+reskin('hmirror',  ART.hmirror, 3.1);
+reskin('ring',     ART.ring);
+reskin('key',      ART.key);
+// 铜齿轮：正面精绘 + 背面纹章
+if(VIEWS.cgear){ const base = VIEWS.cgear;
+  VIEWS.cgear = ()=>{ const v = base(); return Object.assign({}, v, { svg: `<rect width="600" height="400" fill="url(#itShowBg)"/>
+    <path d="M0,318 Q300,300 600,318 V400 H0 Z" fill="url(#itShowTop)" opacity=".55"/>
+    <g transform="translate(${f1(190-49*2.9)},${f1(200-58*2.9)}) scale(2.9)">${ART.cgear()}</g>
+    <g transform="translate(440,196)"><ellipse cx="4" cy="112" rx="86" ry="10" fill="url(#itShadow)"/>
+      <circle r="100" fill="url(#itCopper)" stroke="#2b251e" stroke-width="3"/><circle r="84" fill="#9a5a2c" stroke="#5a2e10" stroke-width="1.6"/>
+      <circle r="78" fill="none" stroke="#c88a54" stroke-width="1" opacity=".6" stroke-dasharray="3 4"/>
+      <use href="#sym-raven" x="-38" y="-60" width="76" height="76" style="color:#4a240c"/>
+      <text y="44" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="15" fill="#3a1a06">Turris · III</text>
+      <path d="M-70,-40 A80,80 0 0 1 -30,-74" stroke="#f0c090" stroke-width="2.4" fill="none" opacity=".45"/></g>
+    <rect width="600" height="400" filter="url(#itShowNoise)" opacity=".5" pointer-events="none"/>
+    <rect width="600" height="400" fill="url(#itShowVig)" pointer-events="none"/>` }); };
+}
+// 圣杯（拿在手里时）
+if(VIEWS.chalice){ const base = VIEWS.chalice;
+  VIEWS.chalice = function(){ const v = base.apply(this, arguments);
+    if(typeof S!=='undefined' && S.chalice==='table') return Object.assign({}, v, {svg: `<rect width="600" height="400" fill="url(#itShowBg)"/>
+      <rect y="296" width="600" height="104" fill="#6a5643"/><path d="M0,296 H600" stroke="#2b251e" stroke-width="2"/>
+      <path d="M0,312 H600 M0,344 H600" stroke="#4e3e30" stroke-width="1.2" opacity=".7"/>
+      <g id="z-chal" class="zhot"><rect x="210" y="40" width="180" height="270" fill="transparent"/>
+        <g transform="translate(${f1(300-49*3.2)},${f1(300-92*3.2)}) scale(3.2)">${ART.chalice(false)}</g></g>
+      <rect width="600" height="400" filter="url(#itShowNoise)" opacity=".5" pointer-events="none"/>
+      <rect width="600" height="400" fill="url(#itShowVig)" pointer-events="none"/>`});
+    return Object.assign({}, v, {svg: show(ART.chalice(S.filled), 3.2)}); };
+}
 })();

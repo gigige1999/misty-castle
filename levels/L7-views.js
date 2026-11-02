@@ -89,15 +89,38 @@ VIEWS.l7_chest = function(){
   return { title:'Iron Casket',
     cap: !open ? '一只铁匣，没有锁孔。盖子正中焊着一根铁链，笔直地穿过天花板，通向楼上的钟楼。'
       : S7.pactTaken ? '铁匣空了。' : '铁链把盖子拉开了。匣底躺着一卷羊皮纸，用黑蜡封着，蜡上压着一个鸦爪印。',
-    svg:`<rect width="600" height="400" fill="#3a332b"/><rect y="300" width="600" height="100" fill="#2e2822"/>
-      <path d="M300,0 V${open?96:150}" stroke="#15110d" stroke-width="5" stroke-dasharray="10 4"/>
-      <rect x="150" y="190" width="300" height="140" fill="#2e2a26" ${ink}/>
-      ${[176,300,424].map(x=>`<path d="M${x},190 V330" stroke="#15110d" stroke-width="8"/>`).join('')}
-      ${open ? `<polygon points="150,190 450,190 432,96 168,96" fill="#3a3430" ${ink}/><rect x="160" y="186" width="280" height="12" fill="#0c0a08"/>`
-             : `<path d="M150,190 Q300,120 450,190 Z" fill="#3a3430" ${ink}/>`}
-      <circle cx="300" cy="${open?96:156}" r="9" fill="none" stroke="#15110d" stroke-width="4"/>
+    svg:`<defs><linearGradient id="z7Iron" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1e1c1a"/><stop offset=".3" stop-color="#4a4640"/><stop offset=".46" stop-color="#5e5850"/><stop offset=".7" stop-color="#3a3632"/><stop offset="1" stop-color="#1a1816"/></linearGradient>
+        <linearGradient id="z7Lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a544c"/><stop offset="1" stop-color="#2e2a26"/></linearGradient>
+        <radialGradient id="z7Glow" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#5a4c3a"/><stop offset="1" stop-color="#2a241e"/></radialGradient></defs>
+      <rect width="600" height="400" fill="url(#z7Glow)"/>
+      <path d="M0,300 H600 V400 H0 Z" fill="#3a2e24"/><path d="M0,300 H600" stroke="#15110d" stroke-width="2"/>
+      ${[40,130,250,370,490].map(x=>`<path d="M${x},300 L${x-30},400" stroke="#2a2018" stroke-width="1.4"/>`).join('')}
+      <ellipse cx="300" cy="336" rx="190" ry="14" fill="#120e0b" opacity=".55"/>
+      ${[...Array(open?5:10)].map((_,i)=>`<ellipse cx="300" cy="${4+i*12}" rx="4" ry="6.4" fill="none" stroke="#15110d" stroke-width="3.4"/><ellipse cx="300" cy="${10+i*12}" rx="1.6" ry="6.4" fill="none" stroke="#3a3632" stroke-width="2.4"/>`).join('')}
+      <rect x="150" y="190" width="300" height="140" rx="4" fill="url(#z7Iron)" ${ink}/>
+      <path d="M154,196 H446" stroke="#7a746a" stroke-width="1.2" opacity=".5"/>
+      ${[176,300,424].map(x=>`<rect x="${x-9}" y="190" width="18" height="140" fill="#1e1c1a" stroke="#0d0b09" stroke-width="1.6"/>${[206,240,274,308].map(y=>`<circle cx="${x}" cy="${y}" r="2.6" fill="#6a645a"/>`).join('')}`).join('')}
+      ${[[150,190,1,1],[450,190,-1,1],[150,330,1,-1],[450,330,-1,-1]].map(([x,y,sx,sy])=>`<path d="M${x},${y} h${24*sx} l${-8*sx},${8*sy} h${-8*sx} v${8*sy} l${-8*sx},${8*sy} Z" fill="#14120f"/>`).join('')}
+      <rect x="140" y="318" width="320" height="16" rx="3" fill="#24201c" ${ink}/>
+      ${open ? `<polygon points="166,156 434,156 446,64 154,64" fill="url(#z7Lid)" ${ink}/>
+          <path d="M160,72 H440" stroke="#7a746a" stroke-width="1.2" opacity=".5"/>
+          ${[178,300,422].map(x=>`<path d="M${x+(x-300)*.04},66 L${x},154" stroke="#14120f" stroke-width="14"/>`).join('')}
+          <polygon points="150,192 450,192 434,156 166,156" fill="#0c0a08" ${ink}/>
+          <polygon points="160,188 440,188 428,162 172,162" fill="#1a1612"/>
+          <ellipse cx="300" cy="178" rx="120" ry="10" fill="#ffc56e" opacity=".07"/>`
+             : `<path d="M150,192 Q150,124 300,122 Q450,124 450,192 Z" fill="url(#z7Lid)" ${ink}/>
+          <path d="M162,180 Q170,134 300,132" stroke="#8a847a" stroke-width="1.6" fill="none" opacity=".5"/>
+          ${[176,300,424].map(x=>`<path d="M${x},${x===300?124:156} Q${x+(x-300)*.02},172 ${x},192" stroke="#14120f" stroke-width="14" fill="none"/>`).join('')}
+          <path d="M146,192 H454" stroke="#0d0b09" stroke-width="5"/>`}
+      <circle cx="300" cy="${open?68:126}" r="11" fill="none" stroke="#15110d" stroke-width="5"/><circle cx="300" cy="${open?68:126}" r="11" fill="none" stroke="#5a544c" stroke-width="2"/>
+      <rect x="282" y="${open?60:116}" width="36" height="10" rx="2" fill="#14120f"/>
       ${open && !S7.pactTaken ? `<g id="z-pact" class="zhot"><rect x="230" y="150" width="140" height="60" fill="transparent"/>
-          <rect x="236" y="168" width="128" height="26" rx="12" fill="#d4c8a4" ${ink}/><circle cx="300" cy="181" r="9" fill="#2a1a14"/>
+          <ellipse cx="300" cy="186" rx="70" ry="5" fill="#000" opacity=".5"/>
+          <rect x="236" y="164" width="128" height="22" rx="11" fill="#d8cca8" ${ink}/>
+          <path d="M244,168 H356" stroke="#f0e8d0" stroke-width="2" opacity=".7"/><path d="M244,182 H356" stroke="#a89a74" stroke-width="2"/>
+          <ellipse cx="364" cy="175" rx="5" ry="11" fill="#bfb08a" ${ink}/><path d="M364,170 q-2,5 0,10" stroke="#7a6a4a" stroke-width="1" fill="none"/>
+          <path d="M292,164 V186 M308,164 V186" stroke="#3a1a14" stroke-width="2"/>
+          <circle cx="300" cy="176" r="10" fill="#1a1210" ${ink}/><path d="M296,172 l4,6 l4,-6 M300,178 v4" stroke="#4a3a34" stroke-width="1.4" fill="none"/>
           <rect x="226" y="150" width="148" height="62" rx="10" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/></g>` : ''}`,
     bind(){
       on('z-pact', ()=>{ S7.pactTaken = true; give('pact'); sfx.open(); updateAll(); openZoom('l7_pact'); });

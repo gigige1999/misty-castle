@@ -1918,26 +1918,39 @@ const VIEWS = {
     const open=S.chestOpen;
     return { title:'Chest',
       cap: open ? '箱子里压着一张发黄的字条。' : (S.key==='hand' ? '一口上锁的橡木箱。手里的钥匙看起来正合适。' : '一口上锁的橡木箱，锁孔里满是铁锈。'),
-      svg:`<rect width="600" height="400" fill="#a29b87"/>
+      svg:`<defs><linearGradient id="z1Oak" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a3a2c"/><stop offset=".45" stop-color="#6e5842"/><stop offset="1" stop-color="#46372a"/></linearGradient>
+        <linearGradient id="z1OakTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a6450"/><stop offset="1" stop-color="#5e4a38"/></linearGradient>
+        <linearGradient id="z1Iron" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a342c"/><stop offset=".5" stop-color="#6a6052"/><stop offset="1" stop-color="#3a342c"/></linearGradient>
+        <radialGradient id="z1Bg" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="#b3ab95"/><stop offset="1" stop-color="#7a7262"/></radialGradient></defs>
+      <rect width="600" height="400" fill="url(#z1Bg)"/>
       <rect y="330" width="600" height="70" fill="#5a4d40"/><line x1="0" y1="330" x2="600" y2="330" stroke="#2b251e" stroke-width="2"/>
+      ${[60,180,300,420,540].map(x=>`<path d="M${x},330 L${x-24},400" stroke="#4a3e32" stroke-width="1.4"/>`).join('')}
+      <ellipse cx="310" cy="374" rx="230" ry="12" fill="#1a140e" opacity=".35"/>
       <g ${ink}>
-        ${open?`<polygon points="150,120 510,120 518,14 158,26" fill="#5b4a3a"/>
-                <path d="M196,120 L202,24 M462,120 L468,18" stroke="#7a6d55" stroke-width="20"/>`:''}
-        <polygon points="110,180 470,180 470,372 110,372" fill="#5b4a3a"/>
-        <polygon points="470,180 510,120 510,312 470,372" fill="#46392d"/>
+        ${open?`<polygon points="150,120 510,120 518,14 158,26" fill="url(#z1OakTop)"/>
+                <path d="M166,60 L512,52 M164,92 L514,86" stroke="#4a3a2c" stroke-width="1.4"/>
+                <path d="M196,120 L202,24 M462,120 L468,18" stroke="url(#z1Iron)" stroke-width="20"/>`:''}
+        <polygon points="110,180 470,180 470,372 110,372" fill="url(#z1Oak)"/>
+        <g stroke="#3a2e22" stroke-width="1.2" fill="none" opacity=".8"><path d="M110,262 H470 M110,340 H470"/>
+          <path d="M190,196 q30,6 60,0 t60,2 M200,284 q40,-6 80,0 t70,-2 M180,354 q50,5 100,0 t90,2" opacity=".6"/></g>
+        <polygon points="470,180 510,120 510,312 470,372" fill="#3e3226"/>
+        <path d="M470,262 L510,202 M470,340 L510,280" stroke="#2a2018" stroke-width="1.2"/>
+        ${[[110,180,1,1],[470,180,-1,1],[110,372,1,-1],[470,372,-1,-1]].map(([x,y,sx,sy])=>`<path d="M${x},${y} h${30*sx} l${-10*sx},${10*sy} h${-10*sx} v${10*sy} l${-10*sx},${10*sy} Z" fill="url(#z1Iron)"/>`).join('')}
         ${open?`<polygon points="110,180 150,120 510,120 470,180" fill="#17130f"/>
                 <g id="z-note" class="zhot"><polygon points="214,168 372,164 396,134 240,138" fill="#ddd3b8"/>
                   <path d="M246,150 L370,147 M240,158 L362,155" stroke="#7a6f5c" stroke-width="2"/>
                   <polygon points="214,168 372,164 396,134 240,138" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/></g>`
-              :`<polygon points="110,180 150,120 510,120 470,180" fill="#6a5643"/>`}
+              :`<polygon points="110,180 150,120 510,120 470,180" fill="url(#z1OakTop)"/><path d="M130,150 L490,150" stroke="#4a3a2c" stroke-width="1.2"/>`}
         <line x1="110" y1="232" x2="470" y2="232"/><line x1="470" y1="232" x2="510" y2="172"/>
-        <path d="M110,300 L470,300" stroke="#3a2f25" stroke-width="1.5"/>
-        <rect x="146" y="180" width="26" height="192" fill="#7a6d55"/>
-        <rect x="408" y="180" width="26" height="192" fill="#7a6d55"/>
-        ${[200,260,330].map(y=>`<circle cx="159" cy="${y}" r="3" fill="#4a3c2f"/><circle cx="421" cy="${y}" r="3" fill="#4a3c2f"/>`).join('')}
+        <path d="M112,182 H468" stroke="#9a8468" stroke-width="1.4" opacity=".6"/>
+        <rect x="146" y="180" width="26" height="192" fill="url(#z1Iron)"/>
+        <rect x="408" y="180" width="26" height="192" fill="url(#z1Iron)"/>
+        ${[200,232,264,300,340].map(y=>`<circle cx="159" cy="${y}" r="3.4" fill="#2a241e"/><circle cx="421" cy="${y}" r="3.4" fill="#2a241e"/><circle cx="158" cy="${y-1}" r="1" fill="#a89a80" stroke="none"/><circle cx="420" cy="${y-1}" r="1" fill="#a89a80" stroke="none"/>`).join('')}
         <g id="z-lock" class="${open?'':'zhot'}">
-          <rect x="270" y="212" width="40" height="54" fill="#8a7b5e"/>
-          <circle cx="290" cy="233" r="6" fill="#2a2622"/><rect x="287" y="237" width="6" height="16" fill="#2a2622"/>
+          <path d="M266,208 H314 V252 Q314,272 290,276 Q266,272 266,252 Z" fill="url(#z1Iron)"/>
+          <path d="M272,214 H308 V250 Q308,266 290,270 Q272,266 272,250 Z" fill="none" stroke="#2a241e" stroke-width="1.2"/>
+          <circle cx="290" cy="235" r="6.4" fill="#120f0c"/><path d="M287,239 L285,256 H295 L293,239 Z" fill="#120f0c"/>
+          <path d="M276,262 q6,4 4,10 M300,262 q4,6 2,10" stroke="#8a4a22" stroke-width="2" fill="none" opacity=".6"/>
         </g>
       </g>`,
       bind(){

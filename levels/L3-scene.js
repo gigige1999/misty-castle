@@ -381,14 +381,20 @@ document.getElementById('l2').insertAdjacentHTML('afterend', `
       <rect class="hs" data-obj="k_mortar" x="156" y="348" width="138" height="126"/>
       <rect class="hs" data-obj="k_stove" x="486" y="96" width="196" height="424"/>
       <rect class="hs" data-obj="k_martha" x="600" y="390" width="96" height="182"/>
-      <rect class="hs" data-obj="k_scale" x="218" y="380" width="276" height="110"/>
+      <rect class="hs" data-obj="k_scale" x="262" y="404" width="232" height="86"/>
       <rect class="hs" data-obj="k_water" x="704" y="480" width="110" height="146"/>
       <polygon class="hs" data-obj="k_trap" points="${K3.trap}"/>
       <rect class="hs" data-obj="k_shelf" x="716" y="${wy(828-790,330)-60}" width="100" height="70"/>
     </g>
     <g id="w3Hot" style="display:none">
       <path class="hs" data-obj="w_stairs" d="M114,520 L114,268 Q116,184 186,180 Q256,184 258,268 L258,520 Z"/>
-      <polygon class="hs" data-obj="w_barrels" points="460,410 560,350 828,420 828,690 700,690 470,500"/>
+      <polygon class="hs" data-obj="w_barrels" points="${(()=>{ const B=W3.barrels, a=B[0], z=B[B.length-1];
+        const P=B.flatMap(b=>[[b.hx-b.R*.66, b.hy], [b.hx-b.R*.3, b.hy-b.R-4], [b.hx-b.R*.3, b.hy+b.R+6], [Math.min(828,b.hx+b.R*1.7), b.hy-b.R*.9-4], [Math.min(828,b.hx+b.R*1.7), b.hy+b.R*.9+8]])
+          .concat([[828, z.hy-z.R*.9-4], [828, z.hy+z.R*.9+8]]).sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
+        const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]), lo=[], up=[];
+        P.forEach(p=>{ while(lo.length>1 && cr(lo[lo.length-2],lo[lo.length-1],p)<=0) lo.pop(); lo.push(p); });
+        [...P].reverse().forEach(p=>{ while(up.length>1 && cr(up[up.length-2],up[up.length-1],p)<=0) up.pop(); up.push(p); });
+        return lo.slice(0,-1).concat(up.slice(0,-1)).map(p=>p[0].toFixed(0)+','+p[1].toFixed(0)).join(' '); })()}"/>
       <polygon class="hs" data-obj="w_wall" points="${W3.wallPts}"/>
       <rect class="hs" data-obj="w_niche" x="398" y="228" width="68" height="112"/>
       <rect class="hs" data-obj="w_crate" x="40" y="512" width="104" height="128"/>
