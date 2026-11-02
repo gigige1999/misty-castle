@@ -10,8 +10,56 @@ const ST7 = {
   chest:{x0:604, x1:690, y0:474, y1:534, chainX:647},
   door:'M500,520 L500,410 Q503,380 530,368 Q557,380 560,410 L560,520 Z',
   panel:'M18,594 L18,404 Q30,372 62,366 L76,370 L76,556 Z',
-  stairs:'M712,330 L828,280 L828,709 L640,709 Z'
+  stairs:''
 };
+/* 书房右侧楼梯：靠右墙、从画面外近处向里爬升，穿过天花板的楼梯口通往钟楼。
+   一点透视：消失点 (414,330)，屏幕 = VP + (X,Y)/z；右墙 X=284，地面 Y=190，天花板 Y=-212 */
+const stairs7 = (()=>{
+  const VX=414, VY=330, Xi=214, Xw=284, FL=190, CE=-212, N=12, z0=.54, zt=.84;
+  const h=(FL-CE)/N, dz=(zt-z0)/N, k=h/dz;
+  const P=(X,Y,z)=>`${(VX+X/z).toFixed(1)},${(VY+Y/z).toFixed(1)}`;
+  const Yc=z=>FL-k*(z-z0);                       // 内角线（踏步与踢面交线）
+  const Yl=z=>Math.min(FL, Yc(z)+30);            // 梯梁下沿
+  const zz=i=>z0+i*dz, Yb=i=>FL-h*i, Yt=i=>FL-h*(i+1);
+  const zh0=.68, zh1=zt;                         // 天花板楼梯口
+  let a='';
+  // 楼梯口（天花板开洞）+ 上层透下的微光
+  a+=`<polygon points="${P(Xi,CE,zh1)} ${P(Xw,CE,zh1)} ${P(Xw,CE,zh0)} ${P(Xi,CE,zh0)}" fill="#120e0b"/>`;
+  a+=`<polygon points="${P(Xi+8,CE,zh1)} ${P(Xw,CE,zh1)} ${P(Xw,CE,zh0+.04)} ${P(Xi+8,CE,zh0+.04)}" fill="#ffc56e" opacity=".07" stroke="none"/>`;
+  a+=`<path d="M${P(Xi,CE,zh0)} L${P(Xw,CE,zh0)}" stroke="#4a3a2a" stroke-width="4"/>`;
+  // 地面阴影
+  a+=`<polygon points="${P(Xi-6,FL,z0)} ${P(Xw,FL,z0)} ${P(Xw,FL,.8)} ${P(Xi+10,FL,.8)}" fill="#120e0b" opacity=".35" stroke="none"/>`;
+  // 贴墙梯梁
+  let wt=[], wb=[]; for(let z=.6; z<=zt+1e-6; z+=.02){ wt.push(P(Xw,Yc(z)-h-12,z)); wb.unshift(P(Xw,Yc(z)+30,z)); }
+  a+=`<polygon points="${wt.concat(wb).join(' ')}" fill="#2e241b"/>`;
+  // 支撑立柱
+  [.64,.74].forEach(z=>{ a+=`<polygon points="${P(Xi+4,Yl(z),z)} ${P(Xi+18,Yl(z),z)} ${P(Xi+18,FL,z)} ${P(Xi+4,FL,z)}" fill="#2a2018"/>`; });
+  // 踏步：由远及近
+  for(let i=N-1;i>=0;i--){
+    const za=zz(i), zb=zz(i+1);
+    if(Yt(i)>0) a+=`<polygon points="${P(Xi,Yt(i),za)} ${P(Xw,Yt(i),za)} ${P(Xw,Yt(i),zb)} ${P(Xi,Yt(i),zb)}" fill="#5e4c38"/>`;
+    a+=`<polygon points="${P(Xi,Yb(i),za)} ${P(Xw,Yb(i),za)} ${P(Xw,Yt(i),za)} ${P(Xi,Yt(i),za)}" fill="${i%2?'#3c3024':'#41352a'}"/>`;
+    a+=`<path d="M${P(Xi,Yt(i),za)} L${P(Xw,Yt(i),za)}" stroke="#7a6448" stroke-width="1.4" opacity=".8"/>`;
+  }
+  // 内侧锯齿梯梁（侧面）
+  let saw=[P(Xi,FL,z0)]; for(let i=0;i<N;i++){ saw.push(P(Xi,Yt(i),zz(i)), P(Xi,Yt(i),zz(i+1))); }
+  let low=[]; for(let z=zt; z>=z0-1e-6; z-=.015) low.push(P(Xi,Yl(z),z));
+  a+=`<polygon points="${saw.concat(low).join(' ')}" fill="#4a3c2e"/>`;
+  let grain=''; [10,20].forEach(o=>{ grain+=`M${P(Xi,Yc(z0+.05)+o,z0+.05)} L${P(Xi,Yc(zt-.02)+o,zt-.02)} `; });
+  a+=`<path d="${grain}" stroke="#3a2e22" stroke-width="1.2" fill="none"/>`;
+  // 扶手 + 栏杆（扶手止于楼梯口）
+  const Xr=Xi+6, R=z=>Yc(z)-h-96, zr0=z0+.01, zr1=z0+(FL-h-96-CE)/k;
+  for(let i=0;i<N;i++){ const z=zz(i)+dz*.5; if(z>zr1) break;
+    a+=`<path d="M${P(Xr,Yt(i),z)} L${P(Xr,R(z),z)}" stroke="#2a2018" stroke-width="${i%3?2:4}"/>`; }
+  a+=`<path d="M${P(Xr,Yt(0),zr0)} L${P(Xr,R(zr0)-10,zr0)}" stroke="#2a2018" stroke-width="7"/>`;
+  a+=`<path d="M${P(Xr,R(zr0),zr0)} L${P(Xr,R(zr1),zr1)}" stroke="#3e3024" stroke-width="6" stroke-linecap="round"/>`;
+  a+=`<path d="M${P(Xr,R(zr0)-2,zr0)} L${P(Xr,R(zr1)-2,zr1)}" stroke="#6a5440" stroke-width="1.4"/>`;
+  // 热区：梯梁下沿 + 楼梯口 + 右侧画框
+  let hot=[]; for(let z=z0; z<=zt+1e-6; z+=.03) hot.push(P(Xi-4,Yl(z),z));
+  hot.push(P(Xi-4,CE,zt), P(Xw,CE,zh0), '836,0', '836,709', `${(VX+(Xi-4)/z0).toFixed(1)},709`);
+  return {art:a, hot:'M'+hot.join(' L')+' Z'};
+})();
+ST7.stairs = stairs7.hot;
 const TW7 = {
   dial:{x:372, y:214, r:46}, moon:{x:372, y:302, r:24},
   bell:{x:614, top:130, lip:300},

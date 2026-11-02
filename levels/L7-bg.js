@@ -5,7 +5,6 @@ function s7StudyBackground(){
   let moons=''; for(let i=0;i<8;i++){ const a=i*Math.PI/4-Math.PI/2, x=(357+46*Math.cos(a)).toFixed(1), y=(232+46*Math.sin(a)).toFixed(1);
     moons+=`<circle cx="${x}" cy="${y}" r="7" fill="${i===4?'#d8c890':'#1e1c1a'}" stroke="#9a8450" stroke-width="1"/>`;
     if(i!==0 && i!==4) moons+=`<path d="M${x},${(y-7)} A7,7 0 0 ${i<4?1:0} ${x},${(+y+7)} Z" fill="#d8c890" stroke="none" transform="translate(0,0)"/>`; }
-  let steps=''; for(let i=0;i<9;i++){ const y=690-i*44, x0=648+i*8.6; steps+=`<path d="M${x0+8},${y} L828,${y-14}" stroke="#55453a" stroke-width="3"/><path d="M${x0+8},${y+4} L828,${y-10}" stroke="#2a2018" stroke-width="1.4"/>`; }
   return `<defs>${defs7('s7','#55503f','#4a463a',91)}</defs>
   <rect width="828" height="709" fill="#221c16"/>
   <g filter="url(#s7-rough)" ${s7s}>
@@ -38,9 +37,7 @@ function s7StudyBackground(){
     <path d="${ST7.door}" fill="#3e3024"/>
     <path d="M500,450 H560 M500,490 H560" stroke="#15110d" stroke-width="4"/><circle cx="550" cy="470" r="3.4" fill="#8a7448"/>
     <path d="${ST7.panel}" fill="#423c32"/><path d="M28,420 L66,412 M28,500 L66,496" stroke="#36312a" stroke-width="2"/>
-    <path d="${ST7.stairs}" fill="#3a3024"/>${steps}
-    <path d="M712,330 L640,709 M740,326 L672,700" stroke="#2a2018" stroke-width="5"/>
-    <path d="M740,326 V246 M706,500 V420 M688,600 V520" stroke="#2a2018" stroke-width="4"/>
+    ${stairs7.art}
     <path d="M86,288 h-12 v-16" stroke="#221e1a" stroke-width="3" fill="none"/><rect x="80" y="258" width="10" height="28" fill="#e3dac0"/>
   </g>
   <rect width="828" height="709" filter="url(#s7-stain)" opacity=".42" pointer-events="none"/>
@@ -125,7 +122,8 @@ document.getElementById('l6').insertAdjacentHTML('afterend', `
       <rect class="hs" data-obj="clock" x="318" y="152" width="108" height="190"/>
       <rect class="hs" data-obj="mech" x="500" y="400" width="226" height="130"/>
       <rect class="hs" data-obj="bell" x="520" y="110" width="190" height="240"/>
-      <rect class="hs" data-obj="lever" x="410" y="250" width="70" height="270"/>
+      <rect class="hs" data-obj="weight" id="t7WeightHot" x="434" y="${TW7.wTop+2}" width="72" height="${TW7.wH+16}" rx="8"/>
+      <rect class="hs" data-obj="lever" x="374" y="398" width="58" height="126" rx="8"/>
       <rect class="hs" data-obj="plan" x="222" y="148" width="90" height="124"/>
       <path class="hs" data-obj="twin" d="${TW7.win}"/>
       <rect class="hs" data-obj="tools" x="140" y="404" width="44" height="114"/>

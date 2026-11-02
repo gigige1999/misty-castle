@@ -277,13 +277,14 @@ document.getElementById('l5').insertAdjacentHTML('afterend', `
       <polygon class="hs" data-obj="emb" points="${q6(EMB6)}"/>
       <rect class="hs" data-obj="emb" x="24" y="530" width="140" height="160"/>
       <rect class="hs" data-obj="table" x="160" y="426" width="164" height="100"/>
+      <polygon class="hs" data-obj="cradle" id="b6HoleHot" style="display:none" points="${CR6.x-60},${CR6.y-26} ${CR6.x+60},${CR6.y-26} ${CR6.x+78},${CR6.y+16} ${CR6.x-78},${CR6.y+16}"/>
+      <g id="b6CrHot" transform="translate(${CR6.x},${CR6.y})"><path class="hs" data-obj="cradle" d="M-70,12 V-64 Q-72,-156 -20,-182 Q-2,-168 2,-120 L64,-100 L68,12 Z"/></g>
       <rect class="hs" data-obj="diary" x="164" y="406" width="48" height="24"/>
       <rect class="hs" data-obj="mbox" x="278" y="396" width="44" height="32"/>
       <ellipse class="hs" data-obj="mirror" cx="${MR6.x}" cy="${MR6.y}" rx="${MR6.rx+8}" ry="${MR6.ry+8}"/>
       <rect class="hs" data-obj="tapestry" x="312" y="194" width="64" height="118"/>
       <path class="hs" data-obj="window" d="M386,398 L386,224 Q390,186 418,174 Q446,186 450,224 L450,398 Z"/>
       <rect class="hs" data-obj="bed" x="452" y="166" width="262" height="440"/>
-      <rect class="hs" data-obj="cradle" x="${CR6.x-80}" y="${CR6.y-184}" width="160" height="196"/>
       <path class="hs" data-obj="door" d="${DOOR6.path}"/>
       <rect class="hs" data-obj="dress" x="${DRESS6.x-32}" y="${DRESS6.top-8}" width="62" height="320"/>
       <rect class="hs" data-obj="chand" x="346" y="40" width="136" height="70"/>

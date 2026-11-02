@@ -108,6 +108,7 @@ SCENES.L7 = function(){
     if(S7.struck && !G.feathers.L7) s+=`<circle cx="${TW7.bell.x+56}" cy="${TW7.bell.lip-12}" r="26" fill="none" stroke="#efe6c8" stroke-width="1.4" class="pulse"/>`;
     // 重锤 + 拉杆
     s+=weightArt7(S7.wy);
+    const wh = document.getElementById('t7WeightHot'); if(wh) wh.setAttribute('y', S7.wy+2);
     s+=`<g ${s7k}><path d="M404,520 V478" stroke="#2a2420" stroke-width="7"/>
       <g transform="rotate(${S7.struck?62:-18} 404 478)"><path d="M404,478 V420" stroke="#3a2e22" stroke-width="6"/><circle cx="404" cy="414" r="8" fill="#8a6a44"/></g></g>`;
     if(!S7.struck && S7.gearSet && S7.hour===12 && S7.phase===2) s+=`<circle cx="404" cy="440" r="26" fill="none" stroke="#efe6c8" stroke-width="1.4" class="pulse"/>`;
@@ -143,7 +144,7 @@ document.getElementById('l7Obj').addEventListener('click', e=>{
     case 'sdoor':
       if(!S7.doorOpen) return say(S7.struck ? '书房的门从外面闩着。门板在刚才的钟声里震得嗡嗡响，门闩松动了——但还没掉下来。' : '书房的门从外面闩着，推不开。', 5000);
       return leave7();
-    case 'lever': return pull7();
+    case 'lever': case 'weight': return pull7();
     case 'bell':
       if(S7.struck && !G.feathers.L7) return pickFeather('L7');
       return say(S7.struck ? '大钟还在微微颤着。' : '一口青铜大钟。钟锤垂着，一动不动。', 4000);

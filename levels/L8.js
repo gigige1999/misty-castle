@@ -348,12 +348,14 @@ for(let i=0;i<4;i++) VIEWS['l8_st'+i] = ()=>{
 VIEWS.l8_pillar = ()=>({ title:'The Pillar',
   cap:'石柱上刻着一圈字：「四个孩子在此等候。窗外的橡树一年年长高，他们却永远七岁。把他们最后握着的东西，还给他们。」',
   svg:`<rect width="600" height="400" fill="#3a362e"/><rect x="170" y="0" width="260" height="400" fill="url(#b8Pil)" ${b8k}/>
-    <rect x="156" y="150" width="288" height="100" fill="#5e5a4c" ${b8k}/>
+    <rect x="80" y="144" width="440" height="112" rx="3" fill="#5e5a4c" ${b8k}/>
+    <rect x="90" y="152" width="420" height="96" rx="2" fill="none" stroke="#3e3a30" stroke-width="1.4"/>
+    <path d="M92,154 H508" stroke="#7a7464" stroke-width="1" opacity=".6"/>
     <text x="300" y="190" text-anchor="middle" font-family="Georgia,serif" font-size="17" letter-spacing="3" fill="#24201a">QVATTVOR · PVERI · HIC · MANENT</text>
     <text x="300" y="226" text-anchor="middle" ${UI_FONT} font-size="15" fill="#24201a">把他们最后握着的东西，还给他们</text>
     ${[0,1,2,3].map(i=>oakLeaf8(206+i*62, 296, [.5,.74,.98,1.24][i]*.9)).join('')}
     <path d="M206,330 H392" stroke="#24201a" stroke-width="1.4" marker-end="url(#none)"/><path d="M384,325 L394,330 L384,335" stroke="#24201a" stroke-width="1.4" fill="none"/>
-    ${[0,1,2,3,4,5].map(k=>`<rect x="${k%2?352:236}" y="${40+k*20}" width="12" height="10" fill="#0c0a08"/>`).join('')}` });
+    ${[0,1,2,3,4,5].map(k=>`<rect x="${k%2?352:236}" y="${28+k*20}" width="12" height="10" fill="#0c0a08"/>`).join('')}` });
 VIEWS.l8_altar = ()=>{
   if(S8.sorted) return { title:'The Altar', cap:'《家族之书》合上了，静静躺在祭坛上。封面上的渡鸦，眼睛是白的。',
     svg:`<rect width="600" height="400" fill="#3a362e"/><rect x="60" y="250" width="480" height="150" fill="url(#t8Stone)" ${b8k}/>

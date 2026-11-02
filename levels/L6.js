@@ -133,6 +133,8 @@ SCENES.L6 = function(){
       <path d="M${CR6.x-50},${CR6.y-12} H${CR6.x+50} M${CR6.x-58},${CR6.y-1} H${CR6.x+58} M${CR6.x-64},${CR6.y+8} H${CR6.x+64}" stroke="#2a221a" stroke-width="3"/>
       <ellipse cx="${CR6.x}" cy="${CR6.y-4}" rx="70" ry="22" fill="#ffc56e" opacity=".1"/>
       <polygon points="${hp}" fill="none" stroke="#efe6c8" stroke-width="2" class="pulse"/>`; }
+  document.getElementById('b6CrHot').setAttribute('transform', `translate(${CR6.x-(S6.stairOpen?92:0)},${CR6.y})`);
+  document.getElementById('b6HoleHot').style.display = S6.stairOpen ? '' : 'none';
   s+=`<g class="b6slide" style="transform:translateX(${S6.stairOpen?-92:0}px)"><g transform="translate(${CR6.x},${CR6.y})"><g class="${S6.rocking?'b6rock':''}">${cradleArt6({deer:false})}</g></g></g>`;
   s+=`<rect width="828" height="709" fill="url(#b6-vig)"/>`;
   document.getElementById('l6Dyn').innerHTML = s;
