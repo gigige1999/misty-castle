@@ -408,19 +408,19 @@ ART.deer = ()=>`${shadow(48,96,32,3.6)}
     ${[30.4,38.8,55.2,62].map((x,i)=>`<rect x="${x}" y="57" width="4" height="22" rx="1.2" fill="url(#itWood)" stroke-width=".9" transform="rotate(${[4,-2,2,-4][i]} ${x+2} 68)"/>`).join('')}
     <rect x="20" y="77.6" width="56" height="7" rx="1.6" fill="url(#itWoodV)"/>
     <path d="M26,52 Q26,44 36,44 H58 Q66,44 67,50 Q68,58.6 60,60 H34 Q26,60 26,52 Z" fill="url(#itWoodV)"/>
-    <path d="M57,47 L64,30 L72.4,32 L66,52 Z" fill="url(#itWood)"/>
-    <path d="M62,30 Q62,24 70,23.6 Q78,23 81,28 Q82,31.4 78,32.2 L68,34 Q62,34 62,30 Z" fill="url(#itWoodV)"/>
-    <path d="M66,25 Q60.6,19.4 63.6,18 Q68,19.6 68,24 Z" fill="#8a6438" stroke-width=".9"/>
-    <path d="M26.6,48 Q21,45 21.6,50 Q23,52.4 26.2,51" fill="#8a6438" stroke-width=".9"/>
+    <path d="M56,48 C58,40 61,33 65,28 L72,30 C69,36 67,44 66,53 Z" fill="url(#itWood)"/>
+    <path d="M63,29 C64,24 69,21.6 74,22.6 L83,27.6 C85,29 84.4,31.8 82,31.8 L73,32.4 C68,32.6 64,32 63,29 Z" fill="url(#itWoodV)"/>
+    <path d="M66,25 C62,22.6 59.6,19.6 60.6,17.8 C64.4,18 67,20.6 68,23.6 Z" fill="#8a6438" stroke-width=".9"/>
+    <path d="M26.6,48 Q22,43 20.4,45.6 Q21,50.4 26.2,51" fill="#8a6438" stroke-width=".9"/>
     <path d="M38,44.4 Q47,43 55,44.4 L54,56.4 Q46.4,58.4 39,56.4 Z" fill="#8a2f24" stroke-width=".8"/>
   </g>
   ${[[41.6,48],[46.6,47.4],[51.4,48],[44,52.6],[49,52.8]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r=".8" fill="#e2c068"/>`).join('')}
   <path d="M39.4,55 Q46.6,56.8 53.8,55" stroke="#e2c068" stroke-width=".5" fill="none"/>
-  <path d="M68,23.6 L66,14 L61,9 M66,14 L68,8 M66.6,17 L62.4,15.4 M71,23.6 L73,14 L78,9 M73,14 L71,8 M72.6,17 L77,15.4" stroke="#2b251e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-  <path d="M68,23.6 L66,14 L61,9 M66,14 L68,8 M66.6,17 L62.4,15.4 M71,23.6 L73,14 L78,9 M73,14 L71,8 M72.6,17 L77,15.4" stroke="#6a4a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-  <path d="M66.4,15 L62,10 M72.4,15 L76.6,10" stroke="#f0d8a8" stroke-width=".55" opacity=".9"/>
-  <circle cx="72.6" cy="27.4" r="1.15" fill="#1a1511"/><circle cx="72.9" cy="27" r=".35" fill="#fff"/>
-  <circle cx="80.6" cy="29" r=".9" fill="#1a1511"/>
+  <path d="M68.4,22.8 C66,17 63.6,12.6 59.6,8 M66.2,17.4 L69.4,12 M63.2,12.6 L64.2,6.4 M67.8,20.6 L63.4,19.4 M71.2,22.4 C71.6,16.4 73.4,11.4 71.4,5.6 M71.8,15.4 L76.6,12.6 M72.6,10.4 L77,7" stroke="#2b251e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M68.4,22.8 C66,17 63.6,12.6 59.6,8 M66.2,17.4 L69.4,12 M63.2,12.6 L64.2,6.4 M67.8,20.6 L63.4,19.4 M71.2,22.4 C71.6,16.4 73.4,11.4 71.4,5.6 M71.8,15.4 L76.6,12.6 M72.6,10.4 L77,7" stroke="#6a4a2a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M65,15 L61.6,10.4 M72.4,13.6 L72.2,8.6" stroke="#f0d8a8" stroke-width=".55" opacity=".9"/>
+  <circle cx="72.6" cy="26.6" r="1.15" fill="#1a1511"/><circle cx="72.9" cy="26.2" r=".35" fill="#fff"/>
+  <circle cx="83.2" cy="29.2" r=".9" fill="#1a1511"/>
   <path d="M30,46.6 Q45,45 58,46" stroke="#e8cc98" stroke-width=".8" fill="none" opacity=".7"/>
   <path d="M30,55 Q36,53.6 37,57 M59,54 Q63,52 64,55" stroke="#6a4a2a" stroke-width=".45" fill="none"/>
   ${[28,68].map(x=>`<g transform="translate(${x},88)"><circle r="6" fill="#5a3c20" ${K}/><circle r="4.2" fill="none" stroke="#2e1e10" stroke-width=".6"/>

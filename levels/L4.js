@@ -134,6 +134,7 @@ SCENES.L4 = function(){
   s+=`<rect width="828" height="709" fill="url(#l4-vig)"/>`;
   document.getElementById('l4Dyn').innerHTML = s;
   document.getElementById('m4FeatherHot').style.display = (!S4.crows && !G.feathers.L4 && out) ? '' : 'none';
+  { const c=S4.chute; document.getElementById('m4PickHot').style.display = (S4.ground && !(c.deer&&c.cgear&&c.wheat)) ? '' : 'none'; }
 };
 
 /* ---------------- 场景点击 ---------------- */
@@ -148,6 +149,15 @@ const M4_FLAVOR = {
 document.getElementById('l4Obj').addEventListener('click', e=>{
   const g = e.target.closest('[data-obj]'); if(!g || G.busy || G.level!=='L4') return;
   const o = g.dataset.obj; sfx.tap();
+  // 出料口落下的三样东西：在场景里直接拾取（点哪样拿哪样）
+  if(S4.sub==='in' && S4.ground){ const c=S4.chute, X=MI4.stone.x, Y=MI4.stone.y, p=svgPt(document.getElementById('l4Obj'), e);
+    const left = [['wheat',X-20,Y+86],['cgear',X+19,Y+100],['deer',X-2,Y+94]].filter(([k])=>!c[k]);
+    if(left.length && nearPt(p, X, Y+96, 44)){
+      const [k] = left.sort((a,b)=>Math.hypot(p.x-a[1],p.y-a[2]) - Math.hypot(p.x-b[1],p.y-b[2]))[0];
+      c[k]=true; give(k); sfx.pick(); updateAll();
+      return say({deer:'一只木头雕的小鹿，四个轮子还能转。鹿角被摸得发亮——是玛格丽的玩具。',
+        cgear:'一个铜齿轮，十二个齿。背面刻着鸦戒纹章，还有一行小字：「钟楼 · 第三轴」。',
+        wheat:'一束金色的麦穗，沉甸甸的。1415 年那一季，灰麦村是大丰收。'}[k], 5500); } }
   if(M4_FLAVOR[o]){ const t = M4_FLAVOR[o](); if(t) return say(t); }
   switch(o){
     case 'go_in': case 'o_door': return switchSub4('in');

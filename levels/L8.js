@@ -291,15 +291,22 @@ SCENES.L8 = function(){
 
 /* ---------------- 场景点击 ---------------- */
 const L8_FLAVOR = {
-  bdoor:()=>'你进来的那扇门。门外的吊桥，在你身后升了起来——已经回不去了。',
   bwin:()=>'窄窗外全是雾。湖水拍着塔基，声音闷闷的。',
   beye:()=>'地面嵌着一只睁开的石眼——和石屋地毯上的花纹一模一样。',
   downstairs:()=>null
 };
+// 回城堡找线索：吊桥一直放着；离开鸦塔期间月亮不会继续下沉（计时只在 L8 里走）
+function leave8(){
+  if(G.busy) return;
+  closeZoom(); amb8.stop();
+  goLevel('hall', '你推开塔门，沿着吊桥走回城堡。身后的鸦塔亮着一点红光——吊桥没有收起。', ()=>
+    say('你回到了大厅。想找什么线索，就去那几间屋子里看看；从大门走上吊桥，就能回到鸦塔。', 6500));
+}
 document.getElementById('l8Obj').addEventListener('click', e=>{
   const g = e.target.closest('[data-obj]'); if(!g || G.busy || G.level!=='L8' || S8.ended) return;
   const o = g.dataset.obj; sfx.tap();
   if(L8_FLAVOR[o]){ const t=L8_FLAVOR[o](); if(t) return say(t, 4800); }
+  if(o==='bdoor' || o==='leave8') return leave8();
   if(/^st\d$/.test(o)){ const i=+o[2];
     if(held && OFFER8.includes(held) && !S8.stairs){ const k=held; hold(null); return placeStatue8(i, k); }
     return openZoom('l8_st'+i); }

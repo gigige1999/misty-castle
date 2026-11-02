@@ -39,18 +39,36 @@
     line-height:1.6;text-align:center;opacity:0;transition:opacity .35s;pointer-events:none;z-index:6}
   #subtitle.show{opacity:1}
 
-  /* ---------- 特写 ---------- */
-  #zoom{position:absolute;inset:0;background:rgba(14,11,8,.78);display:flex;align-items:center;
-    justify-content:center;z-index:10}
+  /* ---------- 特写（沉浸式：铺满场景区，物品栏仍在右侧；四周压暗，边缘融进模糊的同景底图） ---------- */
+  #zoom{position:absolute;inset:0;background:#0b0907;z-index:10;overflow:hidden;
+    opacity:1;transition:opacity .32s ease}
   #zoom.hidden{display:none}
-  #zcard{position:relative;width:640px;background:#c8c0aa;border:3px solid #2b251e;
-    box-shadow:0 0 50px rgba(0,0,0,.8);padding:14px 20px 16px}
-  #ztitle{font-size:22px;border-bottom:1.5px solid #2b251e;display:inline-block;padding-bottom:2px;margin-bottom:10px}
-  #zclose{position:absolute;right:12px;top:10px;width:30px;height:30px;border:1.5px solid #2b251e;
-    background:#b8af97;font:18px Georgia,serif;cursor:pointer;color:#2b251e;line-height:1}
-  #zclose:hover{background:#a69d84}
-  #zsvg{display:block;width:600px;height:400px;border:2px solid #2b251e;background:#a39b87}
-  #zcap{margin-top:10px;min-height:48px;font-size:15px;line-height:1.65}
+  #zoom.zopen{animation:zFade .38s ease both}
+  #zoom.out{opacity:0;pointer-events:none}
+  @keyframes zFade{from{opacity:0}to{opacity:1}}
+  #zbg{position:absolute;left:-40px;top:-40px;width:908px;height:789px;pointer-events:none;
+    filter:blur(14px) brightness(.42) saturate(.8);transform:scale(1.04)}
+  #zbg *{animation:none!important;transition:none!important}
+  #zcard{position:absolute;inset:0;background:none;border:0;box-shadow:none;padding:0}
+  #zsvg{position:absolute;left:0;top:54px;display:block;width:828px;height:552px;border:0;background:#a39b87;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 5%,#000 93%,transparent 100%),linear-gradient(to right,transparent 0,#000 3.5%,#000 96.5%,transparent 100%);
+    -webkit-mask-composite:source-in;mask-image:linear-gradient(to bottom,transparent 0,#000 5%,#000 93%,transparent 100%),linear-gradient(to right,transparent 0,#000 3.5%,#000 96.5%,transparent 100%);
+    mask-composite:intersect;transform-origin:50% 50%}
+  #zoom.zopen #zsvg,#zsvg.zin{animation:zIn .42s cubic-bezier(.2,.7,.25,1) both}
+  @keyframes zIn{from{opacity:0;transform:scale(1.07);filter:blur(3px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+  #zvig{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 78% 70% at 50% 46%,transparent 50%,rgba(6,4,3,.55) 78%,rgba(4,3,2,.9) 100%);
+    box-shadow:inset 0 0 90px 30px rgba(0,0,0,.7)}
+  #ztitle{position:absolute;left:26px;top:14px;font-size:21px;color:#e2d8bf;letter-spacing:.6px;margin:0;
+    border-bottom:1px solid rgba(226,216,191,.45);padding-bottom:2px;text-shadow:0 2px 8px #000;z-index:2;pointer-events:none}
+  #zclose{position:absolute;left:14px;top:auto;bottom:14px;right:auto;width:48px;height:48px;border:0;border-radius:6px;
+    background:rgba(43,37,30,.62);color:#e6dfcc;font-size:0;cursor:pointer;z-index:3;transition:background .2s,transform .2s}
+  #zclose::before{content:'';position:absolute;left:19px;top:15px;width:14px;height:14px;border-left:3px solid #e6dfcc;border-bottom:3px solid #e6dfcc;transform:rotate(45deg)}
+  #zclose:hover{background:rgba(43,37,30,.88);transform:translateX(-2px)}
+  #zcap{position:absolute;left:84px;right:84px;bottom:14px;margin:0;min-height:0;font-size:15px;line-height:1.6;
+    color:#ece3cc;text-align:center;text-shadow:0 1px 3px #000,0 0 14px rgba(0,0,0,.9);z-index:2;transition:opacity .25s}
+  #zcap:empty{opacity:0}
+  #zcard .zmoon{display:none}
   .zhot{cursor:pointer}
   .zhot:hover{filter:brightness(1.18)}
   .zrain{animation:rain .45s linear infinite}
@@ -110,6 +128,13 @@
   @keyframes newPop{0%{transform:scale(.55);opacity:0}100%{transform:scale(1);opacity:1}}
   .cell.new .box{animation:newItem 1.9s ease-out}
   @keyframes newItem{0%{box-shadow:0 0 0 0 rgba(239,196,99,.95),0 0 24px rgba(255,214,120,.9)}100%{box-shadow:0 0 0 14px rgba(239,196,99,0),0 0 0 rgba(255,214,120,0)}}
+  /* 拾取：物品卡片从点击处飞进物品栏，落位时弹一下 */
+  .cell.flying .box{visibility:hidden}
+  .cell.land .box{animation:landPop .42s cubic-bezier(.2,.8,.3,1.5),newItem 1.6s ease-out}
+  @keyframes landPop{0%{transform:scale(.82)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .flyItem{position:fixed;z-index:99999;pointer-events:none;border-radius:5px;overflow:hidden;
+    box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 0 1.5px rgba(239,196,99,.8);will-change:transform,opacity}
+  .flyItem svg{display:block;width:100%;height:100%}
   .shine{position:absolute;inset:-20%;pointer-events:none;z-index:1;
     background:linear-gradient(115deg,transparent 38%,rgba(255,244,205,.85) 50%,transparent 62%);
     transform:translateX(-120%);animation:shine 1.3s .25s ease-out forwards}
@@ -150,7 +175,7 @@
     color:#7d7461;padding:1px 8px;cursor:pointer;opacity:.75}
   #dbgBtn:hover{opacity:1;background:#c2b9a1}
   #dbgMenu{position:absolute;left:14px;bottom:32px;width:212px;background:#e2dac4;border:1.5px solid #2b251e;box-shadow:0 6px 24px rgba(0,0,0,.45);
-    padding:6px 0;display:none;z-index:40;max-height:640px;overflow-y:auto}
+    padding:6px 0;display:none;z-index:40;max-height:600px;overflow-y:auto}
   #dbgMenu.show{display:block}
   #dbgMenu .dbg-h{font-size:11px;color:#7d7461;padding:2px 12px 6px;border-bottom:1px solid #b9af97;margin-bottom:4px}
   #dbgMenu a{display:block;padding:5px 12px;font-size:13px;color:#2b251e;text-decoration:none;cursor:pointer}
@@ -161,14 +186,24 @@
   #dbgMenu a small{display:block;font-size:10.5px;line-height:1.35;color:#7d7461;margin-top:1px}
   #dbgMenu a.dbg-re{font-weight:bold;border-bottom:1px solid #b9af97;margin-bottom:4px;padding-bottom:7px}
   #dbgMenu a.off:hover{background:none}
-  /* 物品栏始终两列：多于 8 件时压矮格子；多于 12 件时滚动 */
-  #grid{max-height:606px;overflow-y:auto;overflow-x:hidden;padding:4px 4px 8px 0;margin-top:12px;scrollbar-width:thin;scrollbar-color:#8a826d transparent}
+  /* 物品栏：固定两列、格子尺寸永远不变；面板高度固定，物品多于 8 件时在栏内平滑滚动
+     （上下边缘渐隐提示还有更多；滚轮只滚物品栏、不带动页面） */
+  #grid{height:600px;overflow-y:auto;overflow-x:hidden;padding:4px 6px 10px 0;margin-top:12px;align-content:start;
+    scroll-behavior:smooth;overscroll-behavior:contain;scroll-snap-type:y proximity;scroll-padding:4px 0;
+    scrollbar-width:thin;scrollbar-color:transparent transparent;transition:scrollbar-color .3s;
+    --fadeT:0px;--fadeB:0px;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--fadeT),#000 calc(100% - var(--fadeB)),transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0,#000 var(--fadeT),#000 calc(100% - var(--fadeB)),transparent 100%)}
+  #grid:hover,#grid.scrolling{scrollbar-color:#8a826d transparent}
+  #grid.can-up{--fadeT:26px} #grid.can-down{--fadeB:34px}
   #grid::-webkit-scrollbar{width:5px}
-  #grid::-webkit-scrollbar-thumb{background:#8a826d;border-radius:3px}
-  #grid.compact{row-gap:4px}
-  #grid.compact .box{height:76px}
-  #grid.compact .box svg{height:73px}
-  #grid.compact .lbl{font-size:12px;padding:3px 0 0;height:20px}
+  #grid::-webkit-scrollbar-thumb{background:transparent;border-radius:3px}
+  #grid:hover::-webkit-scrollbar-thumb,#grid.scrolling::-webkit-scrollbar-thumb{background:#8a826d}
+  #grid .cell{scroll-snap-align:start}
+  #invMore{position:absolute;left:18px;width:206px;bottom:30px;text-align:center;font:11px Georgia,"Songti SC",serif;letter-spacing:2px;color:#7d7461;
+    opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s;pointer-events:none}
+  #invMore.show{opacity:.85;transform:none}
+  #invMore i{display:inline-block;font-style:normal;animation:invBob 1.6s ease-in-out infinite}
+  @keyframes invBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
 
   /* ---------- 入场 Loading ---------- */
   #loader{position:absolute;inset:0;z-index:100;overflow:hidden;cursor:default;
@@ -205,6 +240,107 @@
   .ld-prompt{animation:ldPulse 2.2s ease-in-out infinite}
   @keyframes ldPulse{0%,100%{opacity:.35}50%{opacity:1}}
   #loader.out .ld-winbig{opacity:1 !important;transition:opacity .4s}
+  .ld-draw{stroke-dasharray:1;stroke-dashoffset:1;animation:ldDraw 2.6s .15s cubic-bezier(.45,.1,.25,1) forwards}
+  @keyframes ldDraw{to{stroke-dashoffset:0}}
+  .ld-shim{transform-box:fill-box;transform-origin:50% 50%;animation:ldShim 2.4s ease-in-out infinite alternate}
+  @keyframes ldShim{from{opacity:.06;transform:scaleX(.5)}to{opacity:.5;transform:scaleX(1.1)}}
+  .ld-orbit{transform-origin:540px 262px;animation:ldSpin 260s linear infinite}
+
+  /* ---------- 胶片质感：颗粒 / 曝光闪烁 / 划痕 / 灰尘 / 暗角（入场 Loading 与开始菜单共用） ---------- */
+  .fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .fx > div{position:absolute;inset:0}
+  .fx .fx-grain{inset:-40px;opacity:.2;mix-blend-mode:overlay;will-change:transform;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px;animation:fxGrain .72s steps(1) infinite}
+  @keyframes fxGrain{0%{transform:translate(0,0)}17%{transform:translate(-23px,14px)}33%{transform:translate(31px,-9px)}50%{transform:translate(-12px,-27px)}67%{transform:translate(19px,22px)}83%{transform:translate(-30px,6px)}}
+  .fx .fx-flick{background:#000;opacity:0;animation:fxFlick 4.6s steps(1) infinite}
+  @keyframes fxFlick{0%{opacity:0}7%{opacity:.06}9%{opacity:0}31%{opacity:.035}33%{opacity:0}58%{opacity:.08}59%{opacity:.02}61%{opacity:0}83%{opacity:.045}85%{opacity:0}}
+  .fx-scratch i{position:absolute;top:-5%;bottom:-5%;width:1px;background:linear-gradient(transparent,rgba(232,222,196,.5) 20%,rgba(232,222,196,.3) 70%,transparent);
+    opacity:0;animation:fxScratch 6s steps(1) infinite}
+  @keyframes fxScratch{0%{opacity:0}11%{opacity:.55;transform:translateX(0)}12.5%{opacity:.3;transform:translateX(4px)}14%{opacity:.5;transform:translateX(-3px)}15.5%{opacity:0}62%{opacity:.35;transform:translateX(9px)}63.5%{opacity:0}}
+  .fx-dust i{position:absolute;border-radius:50%;background:#1a1612;opacity:0;animation:fxDust 5s steps(1) infinite}
+  .fx-dust i:nth-child(3n){background:#e6dcc0}
+  @keyframes fxDust{0%{opacity:0}94%{opacity:.7}96%{opacity:0}}
+  .fx .fx-vig{background:radial-gradient(ellipse 75% 78% at 50% 46%,transparent 52%,rgba(8,6,4,.5) 82%,rgba(4,3,2,.85) 100%)}
+
+  /* ---------- 开始菜单 ---------- */
+  #menu{position:absolute;inset:0;z-index:90;overflow:hidden;background:#0b0a09;color:#e2d8bc;transition:opacity 1.7s ease}
+  #menu.hidden{display:none}
+  #menu.out{opacity:0;pointer-events:none}
+  #menu > svg.mn-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .mn-scene{opacity:0;transform-origin:540px 358px}
+  #menu.live .mn-scene{animation:mnIn 3s cubic-bezier(.2,.6,.2,1) forwards,mnZoom 46s ease-in-out 3s infinite alternate}
+  @keyframes mnIn{from{opacity:0;transform:scale(1.09)}to{opacity:1;transform:scale(1)}}
+  @keyframes mnZoom{from{transform:scale(1)}to{transform:scale(1.05) translate(-6px,4px)}}
+  .mn-halo{animation:mnHalo 6s ease-in-out infinite alternate}
+  .mn-halo.h2{animation-duration:3.8s}
+  @keyframes mnHalo{from{opacity:.55}to{opacity:1}}
+  .mn-shim{transform-box:fill-box;transform-origin:50% 50%;animation:mnShim 2.6s ease-in-out infinite alternate}
+  @keyframes mnShim{from{opacity:.05;transform:scaleX(.5)}to{opacity:.5;transform:scaleX(1.15)}}
+  .mn-fog{animation:mnFog 28s ease-in-out infinite alternate}
+  .mn-fog.f2{animation-duration:37s;animation-direction:alternate-reverse}
+  .mn-fog.f3{animation-duration:45s}
+  @keyframes mnFog{from{transform:translateX(-90px)}to{transform:translateX(90px)}}
+  .mn-lamp{animation:mnLamp 3.4s steps(1) infinite;mix-blend-mode:screen}
+  .mn-lamp.l2{opacity:.55;animation-duration:2.3s}
+  @keyframes mnLamp{0%{opacity:.85}11%{opacity:.62}14%{opacity:.9}37%{opacity:.75}41%{opacity:.95}66%{opacity:.58}69%{opacity:.82}88%{opacity:.7}}
+  .mn-twin{animation:ldFlick 3.1s steps(1) infinite;opacity:.85}
+  .mn-bird{animation:mnFly 40s linear infinite}
+  @keyframes mnFly{0%{transform:translate(-60px,0)}50%{transform:translate(540px,-16px)}100%{transform:translate(1160px,6px)}}
+  .mn-leaf{opacity:0;animation:mnLeaf 18s linear infinite}
+  @keyframes mnLeaf{0%{opacity:0;transform:translate(0,0)}7%{opacity:.95}80%{opacity:.85}100%{opacity:0;transform:translate(var(--dx),430px)}}
+  .mn-leaf-r{transform-box:fill-box;transform-origin:50% 50%;animation:mnSway 3s ease-in-out infinite alternate}
+  @keyframes mnSway{from{transform:translateX(-10px) rotate(-55deg)}to{transform:translateX(12px) rotate(75deg)}}
+
+  .mn-ui{position:absolute;inset:0;transition:opacity .6s ease}
+  #menu.leave .mn-ui{opacity:0}
+  .mn-title{position:absolute;left:0;right:0;top:30px;text-align:center;opacity:0}
+  #menu.live .mn-title{animation:ldIn 2s .9s ease forwards}
+  .mn-title small{display:block;font-size:10.5px;letter-spacing:7px;color:#a69c84;text-shadow:0 1px 3px #000}
+  .mn-title h1{margin:8px 0 0;font-weight:normal;font-size:38px;line-height:1;letter-spacing:22px;padding-left:22px;color:#efe5c8;
+    font-family:Georgia,'Times New Roman',serif;text-shadow:2px 3px 0 rgba(0,0,0,.55),0 0 18px rgba(0,0,0,.85),0 0 40px rgba(0,0,0,.5)}
+  #menu.live .mn-title h1{animation:mnTitle 2.6s .9s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes mnTitle{from{letter-spacing:34px;padding-left:34px;opacity:0}to{letter-spacing:11px;padding-left:11px;opacity:1}}
+  .mn-rule{display:flex;align-items:center;justify-content:center;gap:10px;margin:9px 0 0}
+  .mn-rule span{width:120px;height:1px;background:linear-gradient(90deg,transparent,#a69c84)}
+  .mn-rule span:last-child{background:linear-gradient(90deg,#a69c84,transparent)}
+  .mn-rule svg{width:15px;height:15px;color:#e2d8bc;filter:drop-shadow(0 0 4px rgba(240,230,200,.6))}
+  .mn-title h2{margin:8px 0 0;font-weight:normal;font-size:17px;letter-spacing:12px;padding-left:12px;color:#cbc1a4;
+    font-family:'Songti SC','STSong',Georgia,serif;text-shadow:0 1px 4px #000,0 0 14px rgba(0,0,0,.8)}
+
+  .mn-list{position:absolute;left:50%;top:392px;width:420px;margin-left:-210px;text-align:center;z-index:0}
+  .mn-list::before{content:'';position:absolute;left:-70px;right:-70px;top:-46px;bottom:-46px;z-index:-1;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(10,9,7,.72),rgba(10,9,7,.5) 52%,rgba(10,9,7,0))}
+  .mn-item{display:block;width:100%;background:none;border:0;padding:8px 0 9px;margin:0;cursor:pointer;color:#d6cbad;
+    font:inherit;position:relative;outline:none;opacity:0;-webkit-tap-highlight-color:transparent}
+  #menu.live .mn-item{animation:mnItem .9s cubic-bezier(.2,.7,.2,1) forwards}
+  #menu.live .mn-item:nth-child(1){animation-delay:1.7s}
+  #menu.live .mn-item:nth-child(2){animation-delay:1.85s}
+  #menu.live .mn-item:nth-child(3){animation-delay:2s}
+  #menu.live .mn-item:nth-child(4){animation-delay:2.15s}
+  #menu.live .mn-list.confirm .mn-item,#menu.live .mn-list.again .mn-item,#menu.live .mn-list.confirm .mn-warn{animation-delay:0s}
+  @keyframes mnItem{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .mn-item b{display:inline-flex;align-items:center;font-weight:normal;font-size:21px;letter-spacing:8px;padding-left:8px;
+    font-family:'Songti SC','STSong',Georgia,serif;text-shadow:0 2px 6px rgba(0,0,0,.95),0 0 16px rgba(0,0,0,.7);transition:color .25s,text-shadow .25s,letter-spacing .35s}
+  .mn-item b::before,.mn-item b::after{content:'';width:0;height:1px;background:currentColor;opacity:0;transition:width .35s,margin .35s,opacity .35s}
+  .mn-item:hover b,.mn-item:focus-visible b{color:#f3dc9e;letter-spacing:10px;text-shadow:0 2px 6px rgba(0,0,0,.95),0 0 16px rgba(242,196,106,.45)}
+  .mn-item:hover b::before,.mn-item:focus-visible b::before{width:28px;margin-right:14px;opacity:.75}
+  .mn-item:hover b::after,.mn-item:focus-visible b::after{width:28px;margin-left:4px;opacity:.75}
+  .mn-item:active b{transform:translateY(1px)}
+  .mn-item small{display:block;margin-top:5px;font-size:11.5px;letter-spacing:1.5px;font-style:italic;color:#a2977d;text-shadow:0 1px 3px #000}
+  .mn-item.primary b{font-size:24px}
+  .mn-item.minor b{font-size:15px;letter-spacing:5px;padding-left:5px;color:#a89e84}
+  .mn-item.minor:hover b,.mn-item.minor:focus-visible b{letter-spacing:6px;color:#e6d6a8}
+  .mn-item.danger b{color:#d9a48a}
+  .mn-item.danger:hover b,.mn-item.danger:focus-visible b{color:#f0b896}
+  .mn-warn{margin:0 0 8px;font-size:15px;letter-spacing:2px;line-height:1.7;color:#d6cbad;text-shadow:0 1px 4px #000;opacity:0}
+  #menu.live .mn-warn{animation:mnItem .6s forwards}
+  .mn-warn span{font-size:12px;font-style:italic;color:#9a8f76;letter-spacing:1.5px}
+  .mn-foot{position:absolute;bottom:22px;font-size:11px;font-style:italic;letter-spacing:3px;color:#8f866f;text-shadow:0 1px 3px #000;opacity:0}
+  .mn-foot.l{left:44px}
+  .mn-foot.r{right:44px}
+  .mn-tip{position:absolute;left:0;right:0;bottom:22px;text-align:center;font-size:11px;letter-spacing:2px;color:#7f7762;text-shadow:0 1px 3px #000;opacity:0}
+  #menu.live .mn-foot,#menu.live .mn-tip{animation:ldIn 1.6s 2.4s ease forwards}
 
   /* ---------- 灰烬大厅 ---------- */
   .lvroot{position:absolute;inset:0}
@@ -245,15 +381,18 @@
     <radialGradient id="warmBig"><stop offset="0" stop-color="#ffc56e" stop-opacity=".38"/><stop offset=".6" stop-color="#ffb35a" stop-opacity=".12"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient>
     <radialGradient id="fogEnd"><stop offset="0" stop-color="#d9dcd8"/><stop offset="1" stop-color="#6d767b"/></radialGradient>
 
+    <!-- 雄鹿剪影（哈特维尔家徽）：昂首侧立，弯曲的主角干 + 分叉，细长的腿与小蹄，短尾上翘 -->
     <symbol id="deer" viewBox="0 0 100 100">
       <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <ellipse cx="58" cy="55" rx="26" ry="13" stroke="none"/>
-        <polygon points="36,52 46,46 34,26 25,30" stroke="none"/>
-        <ellipse cx="25" cy="29" rx="8.5" ry="5.5" stroke="none"/>
-        <polygon points="30,23 37,18 34,26" stroke="none"/>
-        <path d="M27,24 L21,9 L13,3 M21,9 L24,1 M22,15 L15,13 M31,23 L36,9 L44,3 M36,9 L34,1 M35,15 L42,14" fill="none" stroke-width="2.4"/>
-        <path d="M38,62 L36,95 M47,65 L49,95 M70,64 L68,95 M80,59 L85,93" fill="none" stroke-width="4.5"/>
-        <path d="M83,48 L91,45 L87,54 Z" stroke="none"/>
+        <path stroke="none" d="M15,31 C16,27 20,23 26,21 L32,20 C35,21 37,24 38,28 C40,36 43,42 47,45 C56,44 70,44 80,46 C85,47 88,50 88,54 L92,50 L90,57 C88,62 85,64 82,65 C74,66 60,66 50,65 C45,65 40,63 38,59 C35,52 31,43 27,36 C24,35 20,35 17,34 Z"/>
+        <path stroke="none" d="M35,25 L45,20 L40,28 Z"/>
+        <path stroke="none" d="M39,59 L45,62 L43.6,80 L42.4,92 L43.6,96 L38.4,96 L39.2,91 L39.4,80 Z
+                               M47,63 L52,64 L50.2,80 L50.8,92 L52,96 L46.8,96 L46.8,92 L46,80 Z
+                               M73,57 L85,59 L83.4,70 L84,80 L82.2,92 L83.4,96 L78.2,96 L79,92 L79.6,80 L77,70 Z
+                               M67,61 L76,62 L74.2,72 L75.6,82 L72.8,92 L74,96 L68.8,96 L69.6,92 L70.8,82 L68.8,72 Z"/>
+        <path fill="none" stroke-width="2.4" d="M28.5,21 C24,15 22,9 24,2 M25.4,14 L18,10 M23.4,8 L17,4.5 M27.6,19.6 L21.6,18.6
+                                              M32,20 C36,13 40,8 47,3 M35.6,15 L35.2,7.6 M39.6,10 L40.6,2.6 M43.4,6.2 L50.6,6.6"/>
+        <circle cx="22" cy="26.4" r="1.3" fill="#000" fill-opacity=".35" stroke="none"/>
       </g>
     </symbol>
     <symbol id="sym-sun" viewBox="0 0 60 60">
@@ -658,21 +797,25 @@
         </symbol>
         <symbol id="hb-e-stag" viewBox="0 0 100 100">
           <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <ellipse cx="58" cy="55" rx="26" ry="13" stroke="none"/>
-            <polygon points="36,52 46,46 34,26 25,30" stroke="none"/>
-            <ellipse cx="25" cy="29" rx="8.5" ry="5.5" stroke="none"/>
-            <polygon points="30,23 37,18 34,26" stroke="none"/>
-            <path d="M27,24 L21,9 L13,3 M21,9 L24,1 M22,15 L15,13 M31,23 L36,9 L44,3 M36,9 L34,1 M35,15 L42,14" fill="none" stroke-width="5"/>
-            <path d="M38,62 L36,95 M47,65 L49,95 M70,64 L68,95 M80,59 L85,93" fill="none" stroke-width="6"/>
+            <path stroke="none" d="M15,31 C16,27 20,23 26,21 L32,20 C35,21 37,24 38,28 C40,36 43,42 47,45 C56,44 70,44 80,46 C85,47 88,50 88,54 L92,50 L90,57 C88,62 85,64 82,65 C74,66 60,66 50,65 C45,65 40,63 38,59 C35,52 31,43 27,36 C24,35 20,35 17,34 Z"/>
+            <path stroke="none" d="M35,25 L45,20 L40,28 Z"/>
+            <path stroke="none" d="M38.6,59 L45.6,62 L44.2,80 L43,92 L44.4,96 L37.8,96 L38.6,91 L38.8,80 Z
+                                   M46.6,63 L52.6,64 L50.8,80 L51.4,92 L52.6,96 L46.2,96 L46.2,92 L45.4,80 Z
+                                   M73,57 L85.6,59 L84,70 L84.6,80 L82.8,92 L84,96 L77.6,96 L78.4,92 L79,80 L76.4,70 Z
+                                   M66.6,61 L76.6,62 L74.8,72 L76.2,82 L73.4,92 L74.6,96 L68.2,96 L69,92 L70.2,82 L68.2,72 Z"/>
+            <path fill="none" stroke-width="4.4" d="M28.5,21 C24,15 22,9 24,3 M25.4,14 L18.5,10.5 M23.4,8 L18,5.5
+                                                  M32,20 C36,13 40,8 46,4 M35.6,15 L35.2,8.4 M40,9.6 L41,4 M43.4,6.6 L49.6,7"/>
           </g>
         </symbol>
         <symbol id="hb-e-fawn" viewBox="0 0 100 100">
           <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <ellipse cx="58" cy="58" rx="22" ry="11" stroke="none"/>
-            <polygon points="40,56 48,50 38,32 30,36" stroke="none"/>
-            <ellipse cx="31" cy="34" rx="8" ry="5.5" stroke="none"/>
-            <polygon points="33,30 40,20 38,32" stroke="none"/>
-            <path d="M42,64 L41,93 M50,66 L51,93 M68,66 L67,93 M76,62 L79,91" fill="none" stroke-width="6"/>
+            <path stroke="none" d="M18,40 C19,36 23,32 28,31 L33,31 C36,32 38,35 39,38 C41,45 44,49 48,51 C56,50 67,50 76,52 C80,53 83,56 83,59 L86,57 L85,62 C83,66 80,68 77,68 C70,69 60,69 51,68 C47,68 43,66 41,63 C38,57 34,50 30,45 C27,45 23,45 20,44 Z"/>
+            <path stroke="none" d="M33,32 L40,21 L41,26 L38,34 Z M29,31.6 L32,21 L35,25 L33.6,31.6 Z"/>
+            <path stroke="none" d="M41.4,63 L48,65 L46.4,80 L45.6,92 L46.8,96 L40.6,96 L41.4,91 L41.6,80 Z
+                                   M49.4,66 L55,67 L53.2,80 L53.8,92 L55,96 L49,96 L49,92 L48.4,80 Z
+                                   M70,61 L81,63 L79.6,72 L80.2,81 L78.6,92 L79.8,96 L73.8,96 L74.6,92 L75.2,81 L72.8,72 Z
+                                   M64,65 L72.4,66 L70.8,74 L72,83 L69.6,92 L70.8,96 L64.8,96 L65.6,92 L66.6,83 L64.8,74 Z"/>
+            <g fill="#000" fill-opacity=".28" stroke="none"><circle cx="56" cy="56" r="1.8"/><circle cx="63" cy="54.6" r="1.6"/><circle cx="70" cy="56" r="1.7"/><circle cx="59.6" cy="60.4" r="1.4"/><circle cx="66.6" cy="60" r="1.5"/></g>
           </g>
         </symbol>
         <symbol id="hb-sym-moon" viewBox="0 0 60 60">
@@ -1165,11 +1308,13 @@
     <div id="memory" class="hidden"><svg viewBox="0 0 600 400"></svg><h4></h4><p>— 已收入《家族之书》 · 点击继续 —</p></div>
 
     <div id="zoom" class="hidden">
+      <svg id="zbg" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
       <div id="zcard">
         <div id="ztitle"></div>
-        <button id="zclose" title="返回">✕</button>
+        <button id="zclose" title="返回（Esc）">✕</button>
         <svg class="zmoon" viewBox="0 0 60 60"><use href="#sym-moon"/></svg>
         <svg id="zsvg" viewBox="0 0 600 400"></svg>
+        <div id="zvig" style="z-index:1"></div>
         <div id="zcap"></div>
       </div>
     </div>
@@ -1181,14 +1326,21 @@
   <aside id="panel">
     <h2>Items <small>随身之物</small></h2>
     <div id="grid"></div>
+    <div id="invMore">还有 <span></span> 件 <i>▾</i></div>
     <button id="dbgBtn" title="关卡调试">关卡调试 ▾</button>
     <div id="dbgMenu"></div>
   </aside>
 
-  <!-- ================= 入场 Loading ================= -->
+  <!-- ================= 开始菜单 / 入场 Loading ================= -->
   <div id="held"></div><div id="invInfo"></div>
-  <div id="loader"><svg viewBox="0 0 1080 717" preserveAspectRatio="xMidYMid slice"></svg><div class="vig"></div></div>
-  <script>document.write(`<script src="levels/loader.js?v=${Date.now()}"><\/script>`)</script>
+  <div id="menu" class="hidden"></div>
+  <div id="loader"><svg viewBox="0 0 1080 717" preserveAspectRatio="xMidYMid slice"></svg><div class="vig"></div>
+    <div class="fx"><div class="fx-grain"></div><div class="fx-flick"></div>
+      <div class="fx-scratch"><i style="left:27%;animation-duration:6.4s"></i><i style="left:66%;animation-duration:8.2s;animation-delay:-3.1s"></i><i style="left:9%;animation-duration:10.5s;animation-delay:-7s"></i></div>
+      <div class="fx-dust"><i style="left:12%;top:22%;width:2px;height:2px;animation-duration:4.2s"></i><i style="left:71%;top:63%;width:3px;height:2px;animation-duration:6.1s;animation-delay:-2s"></i><i style="left:38%;top:81%;width:2px;height:3px;animation-duration:5.3s;animation-delay:-4s"></i><i style="left:88%;top:17%;width:2.5px;height:2.5px;animation-duration:7.4s;animation-delay:-1s"></i><i style="left:55%;top:40%;width:1.5px;height:1.5px;animation-duration:3.7s;animation-delay:-3s"></i><i style="left:24%;top:55%;width:3px;height:3px;animation-duration:8.8s;animation-delay:-6s"></i></div>
+      <div class="fx-vig"></div></div>
+  </div>
+  <script>document.write(`<script src="levels/loader.js?v=${Date.now()}"><\/script><script src="levels/menu.js?v=${Date.now()}"><\/script>`)</script>
 
 </div></div>
 
@@ -1234,10 +1386,17 @@ addEventListener('resize', fit); fit();
 
 /* ======================= 音效 ======================= */
 let AC, master, rainOn=false;
+// 声音开关（开始菜单里切换，记在本地）
+let soundOn = (()=>{ try{ return localStorage.getItem('ravenhold-sound')!=='0'; }catch(e){ return true; } })();
+function setSound(on){
+  soundOn = !!on;
+  try{ localStorage.setItem('ravenhold-sound', soundOn ? '1' : '0'); }catch(e){}
+  if(master) master.gain.value = soundOn ? .9 : 0;
+}
 function ac(){
   if(!AC){
     AC = new (window.AudioContext||window.webkitAudioContext)();
-    master = AC.createGain(); master.gain.value = .9; master.connect(AC.destination);
+    master = AC.createGain(); master.gain.value = soundOn ? .9 : 0; master.connect(AC.destination);
     [55, 82.4].forEach((f,i)=>{ const o=AC.createOscillator(), g=AC.createGain();
       o.frequency.value=f; g.gain.value=i?.006:.012; o.connect(g); g.connect(master); o.start(); });
   }
@@ -1343,7 +1502,44 @@ const ITEMS = {
 };
 let newItem = null;
 const has  = id => G.inv.includes(id);
-function give(id){ if(!has(id)) G.inv.push(id); newItem = id; }
+function give(id){ if(!has(id)) G.inv.push(id); newItem = id; flyQueue(id); }
+/* ---------- 拾取动效：记下最近一次按下的位置，物品从那里飞进物品栏 ---------- */
+let lastPt = null, flyN = 0, flyT = 0;
+const flying = new Set();
+addEventListener('pointerdown', e=>{ lastPt = {x:e.clientX, y:e.clientY, t:performance.now()}; }, true);
+function flyQueue(id){
+  if(!lastPt || performance.now()-lastPt.t > 1600 || flying.has(id)) return;   // 开局 / 读档 / 模拟通关时不飞
+  const from = {x:lastPt.x, y:lastPt.y}, now = performance.now();
+  flyN = now-flyT < 60 ? flyN+1 : 0; flyT = now;
+  flying.add(id);
+  const delay = flyN*140;
+  requestAnimationFrame(()=>{ const c = grid.querySelector(`.cell[data-k="${id}"]`); if(c) c.classList.add('flying');
+    setTimeout(()=>flyToInv(id, from), delay); });
+}
+function flyToInv(id, from){
+  const cellQ = ()=> grid.querySelector(`.cell[data-k="${id}"]`);
+  const c = cellQ(), box = c && c.querySelector('.box');
+  if(!box){ flying.delete(id); return; }
+  const r = cellRestRect(box), w = r.width, h = r.height;   // 物品栏可能正在滚向新格子：按停稳后的位置落点
+  const el = document.createElement('div'); el.className = 'flyItem';
+  el.style.cssText = `left:${r.left}px;top:${r.top}px;width:${w}px;height:${h}px`;
+  el.innerHTML = `<svg viewBox="0 0 98 112">${(TH[id]||TH._generic)()}</svg>`;
+  document.body.appendChild(el);
+  const dx = from.x - (r.left + w/2), dy = from.y - (r.top + h/2);
+  const mx = dx*.45, my = dy*.45 - 70;   // 走一道向上的弧线
+  const done = ()=>{ el.remove(); flying.delete(id); const cc = cellQ(); if(cc){ cc.classList.remove('flying','land'); void cc.offsetWidth; cc.classList.add('land'); } if(sfx.tick) sfx.tick(); };
+  if(!el.animate){ done(); return; }
+  el.animate([
+    {transform:`translate(${dx}px,${dy}px) scale(.35)`, opacity:0},
+    {transform:`translate(${dx}px,${dy-14}px) scale(.9)`, opacity:1, offset:.18},
+    {transform:`translate(${mx}px,${my}px) scale(.8)`, opacity:1, offset:.55},
+    {transform:'translate(0,0) scale(1)', opacity:1}
+  ], {duration:760, easing:'cubic-bezier(.45,.05,.3,1)'}).onfinish = done;
+}
+// 场景里直接拾取：把点击位置换算成场景 SVG 坐标
+function svgPt(svg, e){ const m = svg.getScreenCTM(); if(!m) return {x:-1e4, y:-1e4};
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(m.inverse()); }
+const nearPt = (p, x, y, r=24)=> Math.hypot(p.x-x, p.y-y) <= r;
 function take(id){ G.inv = G.inv.filter(x=>x!==id); }
 function pruneInv(){ const s=stage(G.level); G.inv = G.inv.filter(id=>Math.max(...ITEMS[id].usedIn) >= s); }
 
@@ -2081,7 +2277,7 @@ const VIEWS = {
     if(H.drawbridgeDown){   // 第 7 关后：鸦羽检查 + 进入鸦塔不可返回的确认（策划案 2.5.4）
       const empty = Object.values(G.feathers).filter(f=>!f).length;
       return { title:'Castle Gate',
-        cap: gateAsk ? (empty ? `窗外的乌鸦叫了一声。壁炉台上还空着 ${empty} 个位置。——走上吊桥之后，就再也回不来了。` : '七根鸦羽都插在壁炉台上了。——走上吊桥之后，就再也回不来了。')
+        cap: gateAsk ? (empty ? `窗外的乌鸦叫了一声。壁炉台上还空着 ${empty} 个位置。——吊桥会一直放着，塔里找不到头绪时，随时可以回来。` : '七根鸦羽都插在壁炉台上了。吊桥一直伸进雾里，尽头就是鸦塔。')
              : '门闩断成了两截，大门虚掩着。门外，吊桥已经放下，一直伸进雾里。湖心的鸦塔上，红光一闪一闪。',
         svg:`<defs><linearGradient id="zmdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3440"/><stop offset="1" stop-color="#9aa4a6"/></linearGradient></defs>
           <rect width="600" height="400" fill="#3b382f"/>
@@ -2426,15 +2622,39 @@ const FLAVOR = {
 
 function on(id, fn){ const el = zsvg.querySelector('#'+id); if(el) el.addEventListener('click', e=>{ e.stopPropagation(); fn(); }); }
 function setCap(t){ zcap.textContent = t; }
+// 沉浸式特写的底图：同一张特写画面放大、模糊、压暗铺满场景区（id 加前缀，避免和正片里的渐变 / 滤镜重名）
+const zbg = document.getElementById('zbg');
+function zbgCopy(svg){
+  const ids = new Set([...svg.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]));
+  return svg.replace(/\sid="([^"]+)"/g, ' id="zb-$1"')
+    .replace(/url\(#([^)]+)\)/g, (m,i)=> ids.has(i) ? `url(#zb-${i})` : m)
+    .replace(/href="#([^"]+)"/g, (m,i)=> ids.has(i) ? `href="#zb-${i}"` : m);
+}
+let zLast = null;
 function render(){
   if(!cur) return;
   const v = VIEWS[cur]();
   ztitle.textContent = v.title; zsvg.innerHTML = v.svg; zcap.textContent = v.cap;
+  zbg.innerHTML = zbgCopy(v.svg);
+  if(zLast && zLast!==cur){ zsvg.classList.remove('zin'); void zsvg.getBoundingClientRect(); zsvg.classList.add('zin'); }   // 特写之间切换：轻微推近淡入
+  zLast = cur;
   v.bind && v.bind();
 }
 function act(msg){ render(); if(msg) (cur ? setCap(msg) : say(msg)); updateAll(); }
-function openZoom(o){ cur=o; zoomEl.classList.remove('hidden'); render(); updateAll(); }
-function closeZoom(){ zoomEl.classList.add('hidden'); cur=null; S.noteView=false; gateAsk=false; rackSel=null; updateAll(); }
+let zOutT = 0;
+function openZoom(o){
+  clearTimeout(zOutT); const fresh = !cur || zoomEl.classList.contains('hidden') || zoomEl.classList.contains('out');
+  cur=o; zoomEl.classList.remove('hidden','out');
+  if(fresh){ zLast = o; zsvg.classList.remove('zin'); zoomEl.classList.remove('zopen'); void zoomEl.offsetWidth; zoomEl.classList.add('zopen'); }
+  render(); updateAll();
+}
+function closeZoom(){
+  const was = !!cur; cur=null; zLast=null; S.noteView=false; gateAsk=false; rackSel=null;
+  if(was && !zoomEl.classList.contains('hidden')){ zoomEl.classList.add('out'); clearTimeout(zOutT);
+    zOutT = setTimeout(()=>{ if(!cur){ zoomEl.classList.add('hidden'); zoomEl.classList.remove('out','zopen'); } }, 320); }
+  else zoomEl.classList.add('hidden');
+  updateAll();
+}
 let gateAsk = false, rackSel = null;
 // 第 8 关尚未完成时，走上吊桥 → 章节结束卡，然后回到大厅（仍可补拿鸦羽）
 function toBeContinued(){
@@ -2446,7 +2666,7 @@ function toBeContinued(){
 }
 function shake(){ zcard.classList.remove('shake'); void zcard.offsetWidth; zcard.classList.add('shake'); }
 document.getElementById('zclose').addEventListener('click', ()=>{ sfx.tap(); closeZoom(); });
-zoomEl.addEventListener('click', e=>{ if(e.target===zoomEl){ sfx.tap(); closeZoom(); } });
+zoomEl.addEventListener('click', e=>{ if(e.target===zoomEl || e.target===zcard || e.target===zbg){ sfx.tap(); closeZoom(); } });
 addEventListener('keydown', e=>{ if(e.key==='Escape' && cur) closeZoom(); });
 
 /* 场景点击 */
@@ -2462,6 +2682,10 @@ document.getElementById('objLayer').addEventListener('click', e=>{
   if(FLAVOR[o]) return say(FLAVOR[o]);
   if(o==='feather1') return pickFeather('L1');
   if(o==='chalice' && S.chalice!=='table') return;
+  if(o==='chalice'){   // 桌上的圣杯：直接拿起，不必先打开特写
+    S.chalice='hand'; give('chalice'); sfx.pick(); updateAll();
+    return say('你拿起了圣杯——一只锡圣杯，杯身镶着三颗石子。它已放进右侧的物品栏。', 4500);
+  }
   openZoom(o);
 });
 document.getElementById('hallObj').addEventListener('click', e=>{
@@ -2497,20 +2721,57 @@ const TH = {
 };
 const BADGES = { chalice:()=> S.filled ? '盛着雨水' : '' };
 const grid = document.getElementById('grid');
+// 物品栏滚动：重绘时保留滚动位置；新得物品自动平滑滚到可见；上下渐隐 + 「还有 n 件」提示
+const invMore = document.getElementById('invMore');
+let gridTarget = null, gridScrollT = 0;
+function gridEdges(){
+  const max = grid.scrollHeight - grid.clientHeight, top = gridTarget ?? grid.scrollTop;
+  grid.classList.toggle('can-up', top > 2);
+  grid.classList.toggle('can-down', top < max - 2);
+  // 视野下方还没露出来的物品数
+  const bottom = top + grid.clientHeight;
+  const below = [...grid.querySelectorAll('.cell[data-k]')].filter(c=> c.offsetTop + c.offsetHeight*.5 > bottom).length;
+  invMore.querySelector('span').textContent = below;
+  invMore.classList.toggle('show', below > 0);
+}
+grid.addEventListener('scroll', ()=>{
+  grid.classList.add('scrolling'); clearTimeout(gridScrollT);
+  gridScrollT = setTimeout(()=>{ grid.classList.remove('scrolling'); gridTarget = null; gridEdges(); }, 260);
+  if(gridTarget!==null && Math.abs(grid.scrollTop - gridTarget) < 1) gridTarget = null;
+  gridEdges();
+}, {passive:true});
+function revealCell(k){
+  const c = grid.querySelector(`.cell[data-k="${k}"]`); if(!c) return;
+  const top = c.offsetTop - 4, bot = c.offsetTop + c.offsetHeight + 10, st = grid.scrollTop;
+  let to = null;
+  if(top < st) to = top; else if(bot > st + grid.clientHeight) to = bot - grid.clientHeight;
+  if(to===null) return;
+  gridTarget = Math.max(0, Math.min(to, grid.scrollHeight - grid.clientHeight));
+  grid.scrollTo({top:gridTarget, behavior:'smooth'});
+}
+// 动画用：某格在滚动停稳后的屏幕位置（物品飞入时格子可能正在滚动）
+function cellRestRect(box){
+  const r = box.getBoundingClientRect(), dy = gridTarget===null ? 0 : grid.scrollTop - gridTarget;
+  return {left:r.left, top:r.top + dy, width:r.width, height:r.height};
+}
 function updatePanel(){
-  const n = G.inv.length;
-  grid.classList.toggle('compact', n > 8);
-  // 不足 8 格时用空格位补齐（至少两行），超过时补成偶数
+  const n = G.inv.length, keep = grid.scrollTop, fresh = newItem;
+  // 格子尺寸固定；不足 8 格时用空格位补齐（四行两列），超过时补成偶数
   const slots = Math.max(n <= 8 ? 8 : n + n%2, 2) - n;
+  grid.style.scrollBehavior = 'auto';
   grid.innerHTML = G.inv.map(k=>{
     const badge = BADGES[k] ? BADGES[k]() : '', isNew = k===newItem;
-    return `<div class="cell${isNew?' new':''}" data-k="${k}">
+    return `<div class="cell${isNew?' new':''}${flying.has(k)?' flying':''}" data-k="${k}">
       <div class="box"><svg viewBox="0 0 98 112">${(TH[k]||TH._generic)()}</svg>
         ${badge?`<span class="badge">${badge}</span>`:''}${isNew?'<i class="shine"></i>':''}
         ${VIEWS[k]?`<i class="peek" title="查看详情"><svg viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.4,12.4 L17,17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></i>`:''}</div>
       <div class="lbl">${ITEMS[k].name}</div></div>`;
   }).join('') + '<div class="cell slot"><div class="box"></div><div class="lbl"></div></div>'.repeat(slots);
+  grid.scrollTop = keep;               // 重绘不跳回顶部
+  grid.style.scrollBehavior = '';
   newItem = null;
+  if(fresh && has(fresh)) revealCell(fresh);
+  gridEdges();
 }
 grid.addEventListener('click', e=>{
   const c = e.target.closest('.cell[data-k]'); if(!c || G.busy) return;
@@ -2729,12 +2990,13 @@ function applyLevel(){
 }
 const ON_ENTER = {};   // 关卡模块注册：进入该关时的回调
 function goLevel(id, text, onEnter){
+  if(window.cineTo && cineTo(id, onEnter)) return;   // 首次进入第 4 / 8 关：电影式过场接管切关
   G.busy = true;
   fadeEl.querySelector('p').textContent = text || '';
   fadeEl.classList.add('show');
   setTimeout(()=>{
     G.level = id; pruneInv(); applyLevel(); updateAll();
-    setTimeout(()=>{ fadeEl.classList.remove('show'); G.busy=false; (onEnter || ON_ENTER[id] || (()=>{}))(); }, text ? 2200 : 600);
+    setTimeout(()=>{ fadeEl.classList.remove('show'); G.busy=false; if(window.saveGame) saveGame(); (onEnter || ON_ENTER[id] || (()=>{}))(); }, text ? 2200 : 600);
   }, 1000);
 }
 function enterLevel(id){
@@ -2790,23 +3052,37 @@ function startAt(id){
   return sp;
 }
 // 从头再来：带上随机参数整页重载，所有关卡状态都回到初始值，再按起点重建
-const restartAt = id => location.replace(`${location.pathname}?start=${id}&t=${Date.now()}`);
+// 目标同时写进 sessionStorage：某些预览环境（file:// / 内置浏览器）重载时会丢掉 ?start 参数，导致又回到第一关
+const restartAt = id => {
+  try{ sessionStorage.setItem('ravenhold-jump', id); }catch(e){}
+  location.replace(`${location.pathname}?start=${id}&t=${Date.now()}`);
+};
 function buildDebugMenu(){
   const m = document.getElementById('dbgMenu');
   const draw = ()=>{ const cur = currentStartId();
     m.innerHTML = `<a class="dbg-re" data-sp="L1">✦ 新游戏（清除存档，从石屋开始）</a><a class="dbg-re" data-sp="${cur}">↻ 从头再来当前这一关</a><div class="dbg-h">游戏会自动存档，刷新页面即可续玩。<br>点击某一关：从头开始，物品按进度配齐</div>` + START_POINTS.map(p=>{
       const ready = p.level==='hall' || p.level==='L1' || (LEVELS[p.level] && LEVELS[p.level].ready);
       const items = p.inv.length ? p.inv.map(i=>ITEMS[i] ? ITEMS[i].name : i).join(' · ') : '（空手）';
-      return `<a class="${p.id===cur?'on':''}${ready?'':' off'}" ${ready?`data-sp="${p.id}"`:''}>${p.label}${ready?'':'（未完成）'}<small>${items}</small></a>`;
+      return `<a class="${p.id===cur?'on':''}${ready?'':' off'}" ${ready?`data-sp="${p.id}"`:''} title="${items}">${p.label}${ready?'':'（未完成）'}</a>`;
     }).join(''); };
-  m.onclick = e=>{ const a = e.target.closest('[data-sp]'); if(a){ e.stopPropagation(); restartAt(a.dataset.sp); } };
-  document.getElementById('dbgBtn').onclick = e=>{ e.stopPropagation(); draw(); m.classList.toggle('show'); };
-  addEventListener('click', e=>{ if(!m.contains(e.target)) m.classList.remove('show'); });
+  // 用 pointerdown 选关：菜单滚动后 click 偶尔落空（被外层“点空白关闭”吃掉），pointerdown 更可靠
+  m.onpointerdown = e=>{ const a = e.target.closest('[data-sp]'); if(a){ e.preventDefault(); e.stopPropagation(); a.classList.add('on'); restartAt(a.dataset.sp); } };
+  m.onclick = e=> e.stopPropagation();
+  m.onwheel = e=> e.stopPropagation();
+  const btn = document.getElementById('dbgBtn');
+  btn.onclick = e=>{ e.stopPropagation(); draw(); m.classList.toggle('show');
+    if(m.classList.contains('show')){ const on = m.querySelector('a.on:not(.dbg-re)'); if(on) m.scrollTop = Math.max(0, on.offsetTop - m.clientHeight/2); } };
+  addEventListener('click', e=>{ if(!m.contains(e.target) && e.target!==btn) m.classList.remove('show'); });
 }
-function boot(){
-  const q = new URLSearchParams(location.search).get('start');
-  // 没有指定起点 → 读自动存档续玩；指定了起点（调试 / 新游戏）→ 从该起点开始并覆盖存档
-  if(q || !(window.loadGame && loadGame())){
+// mode：开始菜单传入 'new'（清档，从石屋开始）/ 'continue'（读档续玩）；不传 = 旧逻辑（?start 调试 / 无菜单）
+function boot(mode){
+  let jump = null; try{ jump = sessionStorage.getItem('ravenhold-jump'); sessionStorage.removeItem('ravenhold-jump'); }catch(e){}
+  const q = new URLSearchParams(location.search).get('start') || jump;
+  if(mode==='new'){
+    if(window.clearSave) clearSave();
+    startAt('L1');
+  } else if(q || !(window.loadGame && loadGame())){
+    // 没有指定起点 → 读自动存档续玩；指定了起点（调试 / 新游戏）→ 从该起点开始并覆盖存档
     let st = q || 'L1';
     if(st==='hall') st = 'hall1';
     startAt(st);
@@ -2814,12 +3090,12 @@ function boot(){
   if(q) history.replaceState(null, '', location.pathname);   // 去掉参数：之后刷新页面会续玩，而不是又回到起点
   buildDebugMenu();
 }
-// 有入场 Loading 时，等玩家点击进入再开局（开场字幕不会被遮住）
+// 有入场 Loading / 开始菜单时，等玩家在菜单里选择后再开局（开场字幕不会被遮住）
 addEventListener('DOMContentLoaded', ()=> window.LOADER ? LOADER.ready(boot) : boot());
 </script>
 <script>
 // 关卡模块：按顺序同步加载；带时间戳避免浏览器缓存旧版本
-['chars','chars-body','L2-scene','L2','L3-scene','L3','L3-views','L4-scene','L4','L4-views','L5-scene','L5','L5-views','L6-scene','L6','L6-views','L7-scene','L7-bg','L7','L7-views','L7-tower','core-save','items-art','L8-scene','L8','L8-end']
+['chars','chars-body','L2-scene','L2','L3-scene','L3','L3-views','L4-scene','L4','L4-views','L5-scene','L5','L5-views','L6-scene','L6','L6-views','L7-scene','L7-bg','L7','L7-views','L7-tower','core-save','items-art','L8-scene','L8','L8-end','cutscene']
   .forEach(f=>document.write(`<script src="levels/${f}.js?v=${Date.now()}"><\/script>`));
 </script>
 </body>

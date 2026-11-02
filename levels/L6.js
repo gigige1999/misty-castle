@@ -149,6 +149,10 @@ const B6_FLAVOR = {
 document.getElementById('l6Obj').addEventListener('click', e=>{
   const g = e.target.closest('[data-obj]'); if(!g || G.busy || G.level!=='L6') return;
   const o = g.dataset.obj; sfx.tap();
+  // 抽屉弹开后，手镜就在场景里：直接拿起
+  if(S6.embDone && !S6.hmTaken && nearPt(svgPt(document.getElementById('l6Obj'), e), 240, 459, 22)){
+    S6.hmTaken=true; give('hmirror'); sfx.pick(); updateAll();
+    return say('一面小手镜，镜背镶着一圈珍珠。……和长廊画像里那个叫休的男孩手里举着的，一模一样。', 6000); }
   if(B6_FLAVOR[o]) return say(B6_FLAVOR[o]());
   if(o==='door') return goLevel('L5', '你沿着窄楼梯走下去，回到了长廊。');
   openZoom('l6_'+o);

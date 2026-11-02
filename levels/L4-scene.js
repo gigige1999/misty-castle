@@ -357,7 +357,7 @@ function m4OutBackground(){
 const MI4 = {
   drive:{x:610, y:200}, crown:{x:400, y:200},
   stone:{x:400, y:404},
-  door:()=>`${rw(818,286)} ${rw(770,286)} ${rw(770,520)} ${rw(818,520)}`
+  door:()=>`${rw(822,372)} ${rw(780,372)} ${rw(780,628)} ${rw(822,628)}`
 };
 function m4BigWheel(r){
   // 立式大齿轮（木齿嵌在轮辋上）：双圈轮辋 + 8 根辐条 + 铁箍轮毂
@@ -391,9 +391,20 @@ function m4InBackground(){
   let dais=''; for(let i=0;i<9;i++){ const a0=Math.PI*(i/9), a1=Math.PI*((i+1)/9), x0=sx-158*Math.cos(a0), x1=sx-158*Math.cos(a1);
     dais+=`<path d="M${x0.toFixed(1)},${(sy+66+32*Math.sin(a0)).toFixed(1)} L${x1.toFixed(1)},${(sy+66+32*Math.sin(a1)).toFixed(1)} L${x1.toFixed(1)},${(sy+110+32*Math.sin(a1)).toFixed(1)} L${x0.toFixed(1)},${(sy+110+32*Math.sin(a0)).toFixed(1)} Z" fill="${['#6e6a5e','#7e7a6c','#8a8576','#928d7e','#8e897a','#86817a','#7a766a','#6e6a5e','#625e54'][i]}"/>
       <path d="M${n4((x0+x1)/2-4)},${n4(sy+84+32*Math.sin((a0+a1)/2))} l6,2" stroke="#4e4a40" stroke-width=".8"/>`; }
-  // 楼梯：踏板有厚度
-  let steps=''; for(let i=0;i<10;i++){ const y=508-i*28, x0=704+i*7, x1=748+i*6;
-    steps+=`<path d="M${x0-2},${y-3} L${x1+4},${y-3} L${x1+4},${y+3} L${x0-2},${y+3} Z" fill="url(#m4WdV)" stroke-width="1.1"/><path d="M${x0},${y-2} H${x1+2}" stroke="#9a7c54" stroke-width=".6"/>`; }
+  // 靠右墙的木梯：两根梯帮贴着右墙的透视（底部略向屋内外撇），横档按透视逐级缩短；中间断了两级
+  const LAD = {a:720, b:756, hy0:628, hy1:40, dx:-12, dy:8};
+  const ladPt = (x, t)=>{ const [px,py] = rw(x, LAD.hy0+(LAD.hy1-LAD.hy0)*t).split(',').map(Number);
+    return [+n4(px+LAD.dx*(1-t)), +n4(py+LAD.dy*(1-t))]; };
+  let steps=''; for(let i=1;i<=15;i++){ const t=i/16; const [x0,y0]=ladPt(LAD.a,t), [x1,y1]=ladPt(LAD.b,t);
+    if(i===9 || i===10){ steps+= i===9 ? `<path d="M${x0},${y0} l7,3" stroke="#1a1511" stroke-width="5"/><path d="M${x0},${y0} l7,3" stroke="url(#m4Wd)" stroke-width="3"/>` : `<path d="M${x1},${y1} l-6,5" stroke="#1a1511" stroke-width="5"/><path d="M${x1},${y1} l-6,5" stroke="url(#m4Wd)" stroke-width="3"/>`; continue; }
+    steps+=`<path d="M${x0},${y0} L${x1},${y1}" stroke="#1a1511" stroke-width="6.4"/><path d="M${x0},${y0} L${x1},${y1}" stroke="url(#m4Wd)" stroke-width="4"/><path d="M${x0},${y0-1.4} L${x1},${y1-1.4}" stroke="#9a7c54" stroke-width=".6"/>`; }
+  const [la0x,la0y]=ladPt(LAD.a,0), [la1x,la1y]=ladPt(LAD.a,1), [lb0x,lb0y]=ladPt(LAD.b,0), [lb1x,lb1y]=ladPt(LAD.b,1);
+  MI4.ladder = `${la0x-4},${la0y+4} ${lb0x+6},${lb0y+4} ${lb1x+6},${lb1y-6} ${la1x-6},${la1y-6}`;
+  const ladRails = `<path d="M${la0x},${la0y} L${la1x},${la1y}" stroke="#1a1511" stroke-width="10"/><path d="M${la0x},${la0y} L${la1x},${la1y}" stroke="url(#m4Wd)" stroke-width="7"/>
+    <path d="M${lb0x},${lb0y} L${lb1x},${lb1y}" stroke="#1a1511" stroke-width="10"/><path d="M${lb0x},${lb0y} L${lb1x},${lb1y}" stroke="url(#m4Wd)" stroke-width="7"/>
+    <path d="M${la0x+2},${la0y} L${la1x+2},${la1y}" stroke="#a4885a" stroke-width=".8" opacity=".6"/>
+    <ellipse cx="${(la0x+lb0x)/2}" cy="${(la0y+lb0y)/2+3}" rx="30" ry="5" fill="#000" opacity=".22" stroke="none"/>`;
+  const loft = `${rw(710,-38)} ${rw(766,-38)} ${rw(766,76)} ${rw(710,76)}`;
   return `
   <defs>
     <filter id="mi4-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
@@ -515,16 +526,20 @@ function m4InBackground(){
     <path d="M${sx-54},${sy+116} L${sx-46},${sy+152} M${sx+54},${sy+116} L${sx+46},${sy+152}" stroke="#3a2e22" stroke-width="4"/>
     <ellipse cx="${sx}" cy="${sy+118}" rx="48" ry="6" fill="#e6dfcc"/>
     <path d="M${sx-30},${sy+117} q10,-3 20,0 q12,-4 24,0" stroke="#fff8ea" stroke-width="1.2" fill="none"/>
-    <!-- 右侧：楼梯 + 拱门 -->
-    <path d="M700,520 L780,236" stroke="#1a1511" stroke-width="12"/><path d="M700,520 L780,236" stroke="url(#m4Wd)" stroke-width="9"/>
-    <path d="M744,520 L812,268" stroke="#1a1511" stroke-width="12"/><path d="M744,520 L812,268" stroke="url(#m4Wd)" stroke-width="9"/>
+    <!-- 右墙：通往阁楼的洞口 + 断了两级的木梯；靠前是落地的木门（全部贴合右墙透视，门脚落在地板上） -->
+    <polygon points="${loft}" fill="#120e0a"/>
+    <path d="M${rw(710,76)} L${rw(766,76)}" stroke="#1a1511" stroke-width="7"/><path d="M${rw(710,76)} L${rw(766,76)}" stroke="url(#m4Wd)" stroke-width="4.6"/>
+    <path d="M${rw(712,-30)} L${rw(712,74)} M${rw(764,-30)} L${rw(764,74)}" stroke="#2e2216" stroke-width="3"/>
+    ${ladRails}
     ${steps}
-    <polygon points="${rw(824,276)} ${rw(764,276)} ${rw(764,520)} ${rw(824,520)}" fill="#6a6555"/>
+    <polygon points="${rw(828,360)} ${rw(774,360)} ${rw(774,628)} ${rw(828,628)}" fill="#6a6555"/>
+    <path d="M${rw(774,628)} L${rw(774,360)} L${rw(828,360)}" stroke="#4e4a42" stroke-width="1.2" fill="none"/>
     <polygon points="${MI4.door()}" fill="url(#m4WdV)"/>
-    <path d="M${rw(782,290)} L${rw(782,518)} M${rw(806,290)} L${rw(806,518)}" stroke="#2e2216" stroke-width=".9"/>
-    <path d="M${rw(794,290)} L${rw(794,518)}" stroke="#2e2216" stroke-width="1.4"/>
-    <path d="M${rw(770,380)} L${rw(818,380)} M${rw(770,470)} L${rw(818,470)}" stroke="#1a1511" stroke-width="4"/>
-    <path d="M${rw(770,380)} L${rw(818,380)} M${rw(770,470)} L${rw(818,470)}" stroke="#4e4a42" stroke-width="2.4"/>
+    <path d="M${rw(794,380)} L${rw(794,626)} M${rw(808,380)} L${rw(808,626)}" stroke="#2e2216" stroke-width=".9"/>
+    <path d="M${rw(780,452)} L${rw(822,452)} M${rw(780,560)} L${rw(822,560)}" stroke="#1a1511" stroke-width="4"/>
+    <path d="M${rw(780,452)} L${rw(822,452)} M${rw(780,560)} L${rw(822,560)}" stroke="#4e4a42" stroke-width="2.4"/>
+    <circle cx="${rw(786,505).split(',')[0]}" cy="${rw(786,505).split(',')[1]}" r="2.6" fill="url(#m4IrV)" stroke-width=".8"/>
+    <path d="M${rw(774,628)} L${rw(828,628)}" stroke="#1a1511" stroke-width="2.2"/>
     <!-- 壁灯（右立柱）：铁托 + 蜡烛 + 蜡泪 -->
     <path d="M682,318 h12 q4,0 4,4 v4" stroke="#1a1511" stroke-width="3.6" fill="none"/>
     <path d="M682,318 h12 q4,0 4,4 v4" stroke="#4a4640" stroke-width="2" fill="none"/>
@@ -566,11 +581,12 @@ document.getElementById('l3').insertAdjacentHTML('afterend', `
       <rect class="hs" data-obj="i_gears" x="${MI4.crown.x-50}" y="96" width="${MI4.drive.x-MI4.crown.x+150}" height="166"/>
       <ellipse class="hs" data-obj="i_stone" cx="${MI4.stone.x}" cy="${MI4.stone.y+40}" rx="150" ry="60"/>
       <rect class="hs" data-obj="i_chute" x="${MI4.stone.x-56}" y="${MI4.stone.y+104}" width="112" height="52"/>
+      <ellipse class="hs" data-obj="i_chute" id="m4PickHot" cx="${MI4.stone.x}" cy="${MI4.stone.y+96}" rx="46" ry="24"/>
       <rect class="hs" data-obj="i_sacks" x="20" y="460" width="230" height="170"/>
       <rect class="hs" data-obj="i_tally" x="246" y="160" width="100" height="100"/>
       <rect class="hs" data-obj="i_candle" x="682" y="270" width="30" height="60"/>
       <polygon class="hs" data-obj="i_door" points="${MI4.door()}"/>
-      <rect class="hs" data-obj="i_stairs" x="700" y="236" width="62" height="284"/>
+      <polygon class="hs" data-obj="i_stairs" points="${MI4.ladder}"/>
       <rect class="hs" data-obj="i_window" x="180" y="146" width="60" height="160"/>
       <g class="hs-arrow" data-obj="go_out"><rect x="8" y="640" width="48" height="48" rx="6" fill="#2b251e" opacity=".55"/><path d="M40,652 L22,664 L40,676" stroke="#e6dfcc" stroke-width="3" fill="none"/></g>
     </g>

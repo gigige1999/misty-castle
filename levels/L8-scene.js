@@ -337,6 +337,7 @@ document.getElementById('l7').insertAdjacentHTML('afterend', `
       <rect class="hs" data-obj="bwin" x="620" y="210" width="34" height="130"/>
       <rect class="hs" data-obj="beye" x="240" y="600" width="350" height="50"/>
       ${arrow8('upstairs', 772, 1, 'b8Up')}
+      ${arrow8('leave8', 8, -1, 'b8Leave')}
     </g>
     <g id="t8Hot" style="display:none">
       <path class="hs" data-obj="twin" d="${T8.win}"/>

@@ -6,13 +6,23 @@ const m4Fog = `<rect width="600" height="400" fill="#a7aca9"/><rect y="250" widt
 const m4Wall = `<rect width="600" height="400" fill="#a39b87"/><path d="M0,80H600M0,160H600M0,240H600M0,320H600M90,0V80M350,0V80M200,80V160M470,80V160M60,160V240M320,160V240M140,240V320M430,240V320M260,320V400M520,320V400" stroke="#8c8471" stroke-width="1.6"/>`;
 const crankArt = `<g ${ink}><rect x="-6" y="-6" width="12" height="12" fill="#3a3530"/><path d="M0,0 L0,-60 L46,-74" stroke="#3a2e22" stroke-width="9" fill="none" stroke-linecap="round"/>
   <path d="M0,0 L0,-60 L46,-74" stroke="#6a5440" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="40" y="-96" width="14" height="30" rx="5" fill="#8a6a44"/></g>`;
-const deerToyArt = `<g ${ink}><rect x="-40" y="-4" width="74" height="26" rx="10" fill="#9a7a4e"/>
-  <path d="M28,-2 L44,-36 L58,-30 L44,4 Z" fill="#9a7a4e"/><ellipse cx="54" cy="-36" rx="14" ry="9" fill="#9a7a4e"/>
-  <path d="M50,-44 L44,-66 M44,-58 L34,-62 M58,-44 L66,-66 M64,-58 L74,-62" stroke="#5a4630" stroke-width="3"/>
-  <circle cx="58" cy="-38" r="2" fill="#1a1511"/>
-  <path d="M-30,22 V44 M-12,22 V44 M10,22 V44 M26,22 V44" stroke="#7a5e3a" stroke-width="7"/>
-  <rect x="-48" y="44" width="92" height="8" fill="#6a5034"/><circle cx="-38" cy="56" r="6" fill="#4a3a2a"/><circle cx="34" cy="56" r="6" fill="#4a3a2a"/>
-  <path d="M-40,2 q-10,-6 -12,4" stroke="#5a4630" stroke-width="3" fill="none"/></g>`;
+// 木鹿玩具：雕出来的小雄鹿（昂首、短尾、分叉角）站在带四个轮子的木板上，前面系着拉绳
+const deerToyArt = `<g ${ink}>
+  <circle cx="-30" cy="55" r="5.6" fill="#3a2c20"/><circle cx="40" cy="55" r="5.6" fill="#3a2c20"/>
+  <path d="M-29,10 L-30,44 M-17,12 L-16,44 M20,12 L19,44 M30,8 L31,44" stroke="#5a4630" stroke-width="7.4" stroke-linecap="round"/>
+  <path d="M-29,10 L-30,44 M-17,12 L-16,44 M20,12 L19,44 M30,8 L31,44" stroke="#8a6a44" stroke-width="5" stroke-linecap="round"/>
+  <path d="M-36,-2 C-38,-13 -26,-17 -10,-16 C6,-15 18,-17 28,-15 C38,-13 41,-3 37,6 C31,17 -26,17 -34,8 Z" fill="#9a7a4e"/>
+  <path d="M-35,-7 C-42,-11 -44,-18 -40,-22 C-37,-17 -34,-13 -32,-11 Z" fill="#9a7a4e"/>
+  <path d="M22,-13 C26,-25 31,-34 37,-41 L49,-37 C45,-29 40,-17 36,-4 Z" fill="#9a7a4e"/>
+  <path d="M37,-42 C41,-49 49,-51 56,-47 L68,-39 C71,-37 70,-32 66,-32 L54,-32 C47,-32 41,-34 37,-38 Z" fill="#9a7a4e"/>
+  <path d="M42,-45 L32,-53 L45,-49 Z" fill="#8a6a44"/>
+  <path d="M46,-49 C43,-58 42,-64 45,-73 M44,-60 L35,-64 M44.6,-67 L39,-72 M52,-49 C56,-58 60,-64 67,-70 M57,-58 L65,-58 M61,-64 L63,-73" stroke="#5a4630" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  <circle cx="55" cy="-41" r="2.2" fill="#1a1511" stroke="none"/><circle cx="67.4" cy="-35.6" r="1.6" fill="#1a1511" stroke="none"/>
+  <path d="M-26,-9 C-6,-11 14,-11 28,-9 M-22,2 C-4,4 14,4 26,1 M30,-24 C33,-30 37,-35 41,-38" stroke="#c4a172" stroke-width="1.2" fill="none" opacity=".8"/>
+  <rect x="-48" y="44" width="96" height="8" rx="1.5" fill="#6a5034"/>
+  <circle cx="-36" cy="57" r="6.4" fill="#4a3a2a"/><circle cx="34" cy="57" r="6.4" fill="#4a3a2a"/>
+  <circle cx="-36" cy="57" r="1.8" fill="#b8a07a" stroke="none"/><circle cx="34" cy="57" r="1.8" fill="#b8a07a" stroke="none"/>
+  <path d="M48,48 q12,2 18,-8" stroke="#8a2a20" stroke-width="2" fill="none"/></g>`;
 const wheatArt = `<g ${ink}><path d="M0,60 Q2,0 0,-60" stroke="#b8902e" stroke-width="3" fill="none"/>
   ${[-50,-36,-22,-8,6].map((y,i)=>`<ellipse cx="-8" cy="${y}" rx="5" ry="10" transform="rotate(-28 -8 ${y})" fill="#e0b84a"/><ellipse cx="8" cy="${y+6}" rx="5" ry="10" transform="rotate(28 8 ${y+6})" fill="#e0b84a"/>`).join('')}
   <ellipse cx="0" cy="-64" rx="5" ry="10" fill="#e0b84a"/>

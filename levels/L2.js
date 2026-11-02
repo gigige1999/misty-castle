@@ -99,6 +99,11 @@ const C2_FLAVOR = {
 document.getElementById('l2Obj').addEventListener('click', e=>{
   const g = e.target.closest('[data-obj]'); if(!g || G.busy || G.level!=='L2') return;
   const o = g.dataset.obj; sfx.tap();
+  // 场景里直接拾取：圣器柜里的圣铃 / 灭烛钩，洗礼池边的铅牌
+  const p = svgPt(document.getElementById('l2Obj'), e);
+  if(S2.cabOpen && !S2.took.bell && nearPt(p, 226, 470, 18)){ S2.took.bell=true; give('bell'); handBell(); updateAll(); return say('你拿起了圣铃。铃舌一碰，清脆的声音在礼拜堂里荡开。', 4500); }
+  if(S2.cabOpen && !S2.took.snuffer && nearPt(p, 269, 482, 22)){ S2.took.snuffer=true; give('snuffer'); sfx.pick(); updateAll(); return say('你取下了灭烛钩：一头是熄烛的铜罩，另一头弯成一个细钩。', 4500); }
+  if(S2.plugOut && !S2.tagTaken && nearPt(p, 256, 529, 16)){ S2.tagTaken=true; give('tag'); sfx.pick(); updateAll(); return say('你收起了铅牌：「为她出生之年，酒窖里留着一桶。」', 4500); }
   if(C2_FLAVOR[o]) return say(C2_FLAVOR[o]);
   if(o==='c_feather') return pickFeather('L2');
   if(o==='c_rope') return pullRope();
