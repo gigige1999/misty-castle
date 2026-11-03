@@ -2,8 +2,8 @@
    第 7 关 · 书房与钟楼 —— 几何 / 共享道具美术
    两个子场景：书房（下）/ 钟楼机芯室（上），书房右侧楼梯 ↔ 钟楼左前方螺旋梯
    ===================================================================== */
-const s7k = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
-const s7s = 'stroke="#1a1511" stroke-width="1.3" stroke-linejoin="round"';
+const s7k = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
+const s7s = 'stroke="#1a1511" stroke-width="1.6" stroke-linejoin="round"';
 
 const ST7 = {
   cage:{x:585, top:170, bot:262},
@@ -102,7 +102,7 @@ function room7(o){
 function defs7(id, bw0, bw1, seed){
   return `<filter id="${id}-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="${seed}" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/></filter>
     <filter id="${id}-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="4" seed="${seed+7}"/>
       <feColorMatrix type="matrix" values="0 0 0 0 0.18  0 0 0 0 0.16  0 0 0 0 0.13  1.9 0 0 0 -0.8"/></filter>

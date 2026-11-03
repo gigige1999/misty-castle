@@ -3,8 +3,8 @@
    参考图：一点透视长廊 / 左墙挂满家族画像 / 右墙盔甲持矛 + 拱门 / 红色长地毯 / 尽头月光
    本作调整：尽头墙挂母亲画像，圆窗里嵌着收获月；左墙画像下方有一条可滑动的烛台轨道（侧光光源）
    ===================================================================== */
-const g5k = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
-const g5s = 'stroke="#1a1511" stroke-width="1.3" stroke-linejoin="round"';
+const g5k = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
+const g5s = 'stroke="#1a1511" stroke-width="1.6" stroke-linejoin="round"';
 const g5l = 'stroke="#1d1914" stroke-width=".7" stroke-linejoin="round"';
 
 /* ---------------- 透视：世界坐标 (X 左右, Y 上下, z 纵深) → 屏幕 ---------------- */
@@ -288,7 +288,7 @@ function g5Background(){
   <defs>
     <filter id="g5-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="71" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="g5-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="4" seed="17"/>

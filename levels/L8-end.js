@@ -5,8 +5,8 @@
    结局三「她的名字」真结局：鸦羽 7/7 → 羽毛笔 · 受洗册写回名字 · 四个孩子 · 大厅 · 晴天 · 空着的石屋
    画面为 800×520 的插画，逐页点击推进；最后是结局卡（重试 / 回到吊桥前 / 新游戏）
    ===================================================================== */
-const e8k = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
-const e8s = 'stroke="#1a1511" stroke-width="1.3" stroke-linejoin="round"';
+const e8k = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
+const e8s = 'stroke="#1a1511" stroke-width="1.6" stroke-linejoin="round"';
 const ROMAN8 = n => ['','I','II','III','IV','V','VI','VII','VIII','IX','X'][n] || String(n);
 const SCRIPT8 = `font-family="'Apple Chancery','Snell Roundhand','URW Chancery L','Zapfino',Georgia,serif" font-style="italic"`;
 const FEATHER_CN8 = {L1:'石屋', L2:'礼拜堂', L3:'厨房与酒窖', L4:'磨坊', L5:'肖像长廊', L6:'夫人寝室', L7:'书房与钟楼'};

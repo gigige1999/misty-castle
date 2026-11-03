@@ -13,7 +13,7 @@ const VPX=414, VPY=330;
 const wy = (x,hy)=> +(VPY+(hy-VPY)*(VPX-x)/VPX).toFixed(1);   // 左墙：x 处、后墙高度 hy 对应的 y
 const lw = (x,hy)=>`${x},${wy(x,hy)}`;
 const rw = (x,hy)=>`${x},${wy(828-x,hy)}`;
-const ck = 'stroke="#15110d" stroke-width="2" stroke-linejoin="round"';
+const ck = 'stroke="#15110d" stroke-width="2.4" stroke-linejoin="round"';
 const cInk = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
 const winOuter = cx=>`M${cx-30},344 L${cx-30},190 Q${cx-28},150 ${cx},134 Q${cx+28},150 ${cx+30},190 L${cx+30},344 Z`;
 const winGlass = cx=>`M${cx-21},334 L${cx-21},194 Q${cx-19},162 ${cx},148 Q${cx+19},162 ${cx+21},194 L${cx+21},334 Z`;
@@ -78,7 +78,7 @@ function c2Background(){
   <defs>
     <filter id="c2-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="11" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="c2-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.022" numOctaves="4" seed="21"/>

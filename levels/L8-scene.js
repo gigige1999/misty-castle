@@ -2,8 +2,8 @@
    第 8 关 · 雾湖鸦塔 —— 几何 / 共享美术 / 背景 / 场景 DOM
    两个子场景：塔底（四童雕像厅）↔ 塔顶（鸦巢 · 祭坛 · 铁笼）
    ===================================================================== */
-const b8k = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
-const b8s = 'stroke="#1a1511" stroke-width="1.3" stroke-linejoin="round"';
+const b8k = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
+const b8s = 'stroke="#1a1511" stroke-width="1.6" stroke-linejoin="round"';
 const n8 = v=>(+v).toFixed(1);
 
 /* ---------------- 塔底：四尊石像（按场景从左到右）；era = 年代（0 最早 … 3 最晚） ---------------- */

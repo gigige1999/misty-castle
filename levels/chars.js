@@ -4,12 +4,17 @@
    调用方用 translate + scale 摆放。规范见策划案 10.3：墨线 #2b251e · 灰白偏绿肤色 · 小黑点眼 + 深眼窝 · 不笑
    ===================================================================== */
 const CH = {};
-const CHC = {ink:'#2b251e', skin:'#cfc8b4', shade:'#a89f8a', sock:'#8b8270', lip:'#8e776a'};
-const chL = (w=.7)=>`stroke="${CHC.ink}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
+// 锈湖式：平涂色块 + 粗墨线（chL 统一 ×1.45）+ 整体外轮廓加粗 & 手抖（filter chInk）
+const CHC = {ink:'#1a1511', skin:'#d3cdbb', shade:'#b3aa95', sock:'#6f6858', lip:'#8a7266'};
+const chL = (w=.7)=>`stroke="${CHC.ink}" stroke-width="${(w*1.45).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"`;
 document.body.insertAdjacentHTML('afterbegin', `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <linearGradient id="chSkin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d8d2bf"/><stop offset=".55" stop-color="#cbc4af"/><stop offset="1" stop-color="#a9a08b"/></linearGradient>
-  <linearGradient id="chCloth" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient>
   <linearGradient id="chDown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+  <filter id="chInk" x="-8%" y="-5%" width="116%" height="110%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency=".08" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feMorphology in="d" operator="dilate" radius=".95" result="m"/>
+    <feFlood flood-color="#1a1511"/><feComposite in2="m" operator="in" result="o"/>
+    <feMerge><feMergeNode in="o"/><feMergeNode in="d"/></feMerge></filter>
   <filter id="chSil" x="-10%" y="-10%" width="120%" height="120%"><feFlood flood-color="#2b251e"/><feComposite in2="SourceAlpha" operator="in"/></filter>
   <filter id="chGhost" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
     <feColorMatrix type="matrix" values=".25 .3 .25 0 .5  .25 .3 .25 0 .5  .25 .3 .25 0 .48  0 0 0 .62 0"/><feGaussianBlur stdDeviation=".35"/></filter>
@@ -41,24 +46,30 @@ CH._face = (o={})=>{
     if(o.eyes==='closed') return sock + `<path d="M${x-srx+.6},${ey-.2} Q${x},${ey+1.5} ${x+srx-.6},${ey-.2}" fill="none" ${chL(.65)}/>
       <path d="M${x-1.2},${ey+.9} l-.4,.9 M${x},${ey+1.1} v1 M${x+1.2},${ey+.9} l.4,.9" ${chL(.35)}/>`;
     const dy = o.eyes==='down' ? .7 : gy;
-    return sock + `<ellipse cx="${x}" cy="${ey+.15}" rx="${srx-1.3}" ry="${sry-1.05}" fill="#d6cfbd"/>
+    // 成人默认半垂眼皮（锈湖式倦怠眼神）；孩子保持圆睁
+    const lid = o.eyes==='down' ? -.5 : c ? null : -.15;
+    return sock + `<ellipse cx="${x}" cy="${ey+.15}" rx="${srx-1.3}" ry="${sry-1.05}" fill="#dcd6c4"/>
       <circle cx="${(x+gx).toFixed(2)}" cy="${(ey+.2+dy).toFixed(2)}" r="${er}" fill="${o.iris||'#15110d'}"/>
       ${o.iris ? `<circle cx="${(x+gx).toFixed(2)}" cy="${(ey+.2+dy).toFixed(2)}" r="${er*.45}" fill="#15110d"/>` : ''}
       ${c ? `<circle cx="${(x+gx-er*.35).toFixed(2)}" cy="${(ey-.15+dy).toFixed(2)}" r="${er*.24}" fill="#e8e2d2" opacity=".7"/>` : ''}
-      ${o.eyes==='down' ? `<path d="M${x-srx+.6},${ey-.5} Q${x},${ey-.1} ${x+srx-.6},${ey-.5} L${x+srx-.6},${ey-1.8} Q${x},${ey-2.4} ${x-srx+.6},${ey-1.8} Z" fill="${CHC.skin}"/>` : ''}
-      <path d="M${x-srx+.7},${ey-(o.eyes==='down'?.5:sry*.42)} Q${x},${ey-(o.eyes==='down'?0:sry*.92)} ${x+srx-.7},${ey-(o.eyes==='down'?.5:sry*.42)}" fill="none" ${chL(.65)}/>`; };
+      ${lid!==null ? `<path d="M${x-srx+.5},${ey+lid} Q${x},${ey+lid+.4} ${x+srx-.5},${ey+lid} L${x+srx-.5},${ey-2} Q${x},${ey-2.6} ${x-srx+.5},${ey-2} Z" fill="${CHC.shade}"/>
+        <path d="M${x-srx+.5},${ey+lid} Q${x},${ey+lid+.4} ${x+srx-.5},${ey+lid}" fill="none" ${chL(.7)}/>
+        <path d="M${x-srx+.9},${ey+lid-1.1} Q${x},${ey+lid-1.6} ${x+srx-.7},${ey+lid-1}" fill="none" stroke="${CHC.sock}" stroke-width=".4"/>`
+        : `<path d="M${x-srx+.7},${ey-sry*.42} Q${x},${ey-sry*.92} ${x+srx-.7},${ey-sry*.42}" fill="none" ${chL(.65)}/>`}`; };
   const mouth = o.mouth==='sing' ? `<ellipse cx="0" cy="${c?6.8:7.6}" rx="1.4" ry="1.1" fill="#4a3a32"/>`
     : o.mouth==='open' ? `<path d="M-2.2,${c?6.8:7.4} Q0,${c?6.2:6.8} 2.2,${c?6.8:7.4} Q0,${c?8.8:9.6} -2.2,${c?6.8:7.4} Z" fill="#3a2c26"/>`
-    : `<path d="M${c?-2:-2.6},${c?6.9:7.8} Q0,${c?6.3:7.1} ${c?2:2.6},${c?6.9:7.8}" fill="none" stroke="#5e4c42" stroke-width=".6"/>
+    : `<path d="M${c?-2:-2.6},${c?6.9:7.8} Q0,${c?6.3:7.1} ${c?2:2.6},${c?6.9:7.8}" fill="none" stroke="#3a2e26" stroke-width=".75" stroke-linecap="round"/>
        <path d="M-1.4,${c?7.8:8.8} Q0,${c?8.4:9.5} 1.4,${c?7.8:8.8}" fill="none" stroke="${CHC.lip}" stroke-width=".45" opacity=".7"/>`;
-  return `<path d="${out}" fill="url(#chSkin)"/>
-    <path d="${shade}" fill="${CHC.shade}" opacity=".5"/>
-    ${o.hollow || old ? `<path d="M-7.6,1.6 Q-6.4,5.6 -4.6,8 M7.6,1.6 Q6.4,5.6 4.6,8" fill="none" stroke="${CHC.shade}" stroke-width=".9" opacity=".9"/>` : ''}
-    ${old ? `<path d="M-4.6,-8.2 Q0,-9 4.6,-8.2 M-3.6,-9.8 Q0,-10.4 3.6,-9.8 M-3.4,3.6 Q-4.6,6.4 -3.2,8.8 M3.4,3.6 Q4.6,6.4 3.2,8.8" fill="none" stroke="#8f8672" stroke-width=".4"/>` : ''}
-    ${o.stubble ? `<path d="M-7.6,4 Q-6.4,10 -2.6,12.4 Q0,13 2.6,12.4 Q6.4,10 7.6,4 Q4,9 0,9.6 Q-4,9 -7.6,4 Z" fill="#6a5e4e" opacity=".35"/>` : ''}
+  const stub = o.stubble ? [...Array(13)].map((_,i)=>{ const t=(i-6)/6, x=t*6.8, y=4+ (1-t*t)*7.4 + 1; return `M${x.toFixed(2)},${(y-1.6).toFixed(2)} l${(-t*.3).toFixed(2)},1.4`; }).join(' ') : '';
+  return `<path d="${out}" fill="${CHC.skin}"/>
+    <path d="${shade}" fill="${CHC.shade}" opacity=".45"/>
+    ${o.hollow || old ? `<path d="M-7.6,1.6 Q-6.4,5.6 -4.6,8 M7.6,1.6 Q6.4,5.6 4.6,8" fill="none" stroke="${CHC.sock}" stroke-width=".55" stroke-linecap="round"/>` : ''}
+    ${old ? `<path d="M-4.6,-8.2 Q0,-9 4.6,-8.2 M-3.6,-9.8 Q0,-10.4 3.6,-9.8 M-3.4,3.6 Q-4.6,6.4 -3.2,8.8 M3.4,3.6 Q4.6,6.4 3.2,8.8" fill="none" stroke="#7a705e" stroke-width=".45"/>` : ''}
+    ${o.stubble ? `<path d="M-7.6,4 Q-6.4,10 -2.6,12.4 Q0,13 2.6,12.4 Q6.4,10 7.6,4 Q4,9 0,9.6 Q-4,9 -7.6,4 Z" fill="#8a7e6a" opacity=".3"/>
+      <path d="${stub}" fill="none" stroke="#4a3e32" stroke-width=".35" stroke-linecap="round" opacity=".8"/>` : ''}
     ${eye(-1)}${eye(1)}
-    <path d="${brow(-1)} ${brow(1)}" fill="none" stroke-linecap="round" stroke-width="${c?.55:.7}" stroke="${m||old?'#3e3226':'#5a4838'}" opacity=".9"/>
-    <path d="M.4,${c?-.6:-2.2} C.9,${c?2:1.2} ${c?1.4:1.9},${c?3.2:3.4} ${c?.7:.9},${c?4:4.4} C.1,${c?4.5:5} -.8,${c?4.4:4.9} -1.4,${c?4:4.4}" fill="none" stroke="#6e6252" stroke-width=".55"/>
+    <path d="${brow(-1)} ${brow(1)}" fill="none" stroke-linecap="round" stroke-width="${c?.75:1}" stroke="${m||old?'#2a2018':'#3e3024'}"/>
+    <path d="M.4,${c?-.6:-2.2} C.9,${c?2:1.2} ${c?1.4:1.9},${c?3.2:3.4} ${c?.7:.9},${c?4:4.4} C.1,${c?4.5:5} -.8,${c?4.4:4.9} -1.4,${c?4:4.4}" fill="none" stroke="#4e4436" stroke-width=".7" stroke-linecap="round"/>
     <ellipse cx="-.5" cy="${c?4.2:4.7}" rx=".9" ry=".45" fill="${CHC.shade}"/>
     ${mouth}
     <path d="${out}" fill="none" ${chL(.75)}/>`;
@@ -69,12 +80,16 @@ CH.ears = ()=>`<path d="M-9.4,-3 Q-12,-3.4 -11.8,.6 Q-11.6,4 -9,4.2 Z M9.4,-3 Q1
   <path d="M-10.4,-.6 q-.6,1.6 .4,2.6 M10.4,-.6 q.6,1.6 -.4,2.6" fill="none" stroke="${CHC.shade}" stroke-width=".5"/>`;
 
 /* ---------------- 发型 / 头饰：返回 {back, front} ---------------- */
-const strands = (d, col, n=4)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width=".45" opacity=".8"/>`;
+const strands = (d, col, n=4)=>`<path d="${d}" fill="none" stroke="${col}" stroke-width=".5" stroke-linecap="round"/>`;
+// 锈湖式发丝/胡须：在两条二次曲线 a、b 之间插值出 n 条平行细线
+const comb = (a, b, n, col, w=.38)=>{ let d=''; for(let i=0;i<n;i++){ const t=n>1?i/(n-1):.5, p=a.map((v,k)=>(v+(b[k]-v)*t).toFixed(2));
+    d+=`M${p[0]},${p[1]} Q${p[2]},${p[3]} ${p[4]},${p[5]} `; }
+  return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`; };
 CH.hair = {
   // 伊莎贝拉：中分深棕发，从头饰下露出，垂到肩后
   isabel:()=>({ back:`<path d="M-11,-4 C-12.4,10 -12.6,24 -10,34 L10,34 C12.6,24 12.4,10 11,-4 Z" fill="#4a3524"/>`,
     front:`<path d="M0,-12.6 C-5.6,-12.8 -9.8,-9.4 -10,-2 C-10.2,4 -9.6,9 -10.6,14 L-8.2,14 C-8.6,8 -8.6,1 -7.4,-4.4 C-6,-9 -3.2,-10.8 0,-11.2 C3.2,-10.8 6,-9 7.4,-4.4 C8.6,1 8.6,8 8.2,14 L10.6,14 C9.6,9 10.2,4 10,-2 C9.8,-9.4 5.6,-12.8 0,-12.6 Z" fill="#5a4230" ${chL(.55)}/>
-      ${strands('M-2,-11 C-5,-9.6 -7.4,-6 -8.2,0 M2,-11 C5,-9.6 7.4,-6 8.2,0 M0,-12.4 V-11', '#3a2a1c')}` }),
+      ${comb([-.6,-12.2,-9,-10.4,-9.6,13],[-1,-11.2,-7.2,-8,-8.6,13],3,'#2e2016',.4)}${comb([.6,-12.2,9,-10.4,9.6,13],[1,-11.2,7.2,-8,8.6,13],3,'#2e2016',.4)}` }),
   // 英式山墙头巾（伊莎贝拉）：暗红罩布 + 金边珍珠 + 两侧垂片；身后白纱
   gable:(o={})=>({ back:`<path d="M-13.6,-9 C-16,6 -19,26 -20,48 Q0,54 20,48 C19,26 16,6 13.6,-9 Z" fill="#ddd6c4" ${chL(.5)}/>
       <path d="M-10,0 C-12,18 -13,32 -13.6,48 M10,0 C12,18 13,32 13.6,48 M-4,4 V50 M4,4 V50" fill="none" stroke="#b9b09a" stroke-width=".5"/>`,
@@ -99,27 +114,29 @@ CH.hair = {
   // 中年埃德蒙：微卷深棕发，盖过耳朵到下颌
   edmund:()=>({ back:`<path d="M-11.4,-4 C-12.6,4 -12.4,10 -10.6,13 L10.6,13 C12.4,10 12.6,4 11.4,-4 Z" fill="#3e2c1e"/>`,
     front:`<path d="M-10.6,6 C-11.8,-4 -10.6,-13 -2,-15 C4,-16.4 10.6,-13 11,-5 C11.4,0 11,4 10.6,8 C9.6,5 9.4,1 8.6,-3 C7.4,-7 5,-8.8 2,-9.4 C0,-7.4 -3,-6.4 -5.6,-6.8 C-7.4,-5 -8.4,-2 -8.6,1.4 C-9,4 -9.6,6 -10.6,6 Z" fill="#4a3524" ${chL(.55)}/>
-      ${strands('M-6,-12 C-8,-8 -9,-3 -9.4,3 M3,-13.4 C6,-11 8,-7 9,-2 M-1,-14 C-3,-10 -4.6,-8 -5.6,-6.8', '#2e2016')}` }),
+      ${comb([-2,-14.4,-9.6,-11,-10.2,4],[-4.6,-8,-7.6,-5.6,-8.8,2],4,'#241810',.4)}${comb([2,-15,9.6,-12,10.4,6],[2.4,-10,7.6,-7.6,9,2],4,'#241810',.4)}` }),
   // 少年埃德蒙：短碗型棕发
   boy:()=>({ back:'', front:`<path d="M-10,-1 C-10.6,-10 -6,-14 0,-14 C6,-14 10.6,-10 10,-1 C9,-4 8.2,-6 7,-7 Q3,-5.6 0,-7.2 Q-3.4,-5.4 -7,-7 C-8.2,-6 -9,-4 -10,-1 Z" fill="#5a4030" ${chL(.55)}/>
       ${strands('M-5,-12.6 Q-6,-9.6 -7,-7 M0,-13.6 V-7.2 M5,-12.6 Q6,-9.6 7,-7', '#3a2a1c')}` }),
   // 白发老领主（奥斯瓦尔德 / 阿尔德里克）：o.crown 金冠；o.beard 'short'|'long'
-  old:(o={})=>{ const w = o.col || '#d2cdc2', dk = '#9a958a';
+  old:(o={})=>{ const w = o.col || '#d2cdc2', dk = '#8a8478';
     const beard = o.beard==='long'
       ? `<path d="M-8.8,2 C-9.6,10 -7,20 0,30 C7,20 9.6,10 8.8,2 C7,7 5,9.6 2.4,10.6 Q0,9.6 -2.4,10.6 C-5,9.6 -7,7 -8.8,2 Z" fill="${w}" ${chL(.55)}/>
-         ${strands('M-5,8 Q-4,18 -1,26 M5,8 Q4,18 1,26 M0,11 V28', dk)}`
-      : o.beard==='short' ? `<path d="M-9,1 C-9.4,8 -6,13.6 0,15 C6,13.6 9.4,8 9,1 C7,6 4.6,8.6 2.4,9.4 Q0,8.6 -2.4,9.4 C-4.6,8.6 -7,6 -9,1 Z" fill="${w}" ${chL(.5)}/>` : '';
+         ${comb([-6.6,7.4,-6,18,-1.4,27.4],[6.6,7.4,6,18,1.4,27.4],9,dk)}`
+      : o.beard==='short' ? `<path d="M-9,1 C-9.4,8 -6,13.6 0,15 C6,13.6 9.4,8 9,1 C7,6 4.6,8.6 2.4,9.4 Q0,8.6 -2.4,9.4 C-4.6,8.6 -7,6 -9,1 Z" fill="${w}" ${chL(.5)}/>
+         ${comb([-7.6,4.6,-6.6,10.6,-2.6,13.4],[7.6,4.6,6.6,10.6,2.6,13.4],7,dk)}` : '';
     const mous = o.beard ? `<path d="M-.2,6 Q-2.6,5.4 -4.4,7 Q-5.6,8.6 -5.8,11 Q-4.6,9.6 -3.4,9.2 Q-1.6,8.6 0,8.6 Q1.6,8.6 3.4,9.2 Q4.6,9.6 5.8,11 Q5.6,8.6 4.4,7 Q2.6,5.4 .2,6 Z" fill="${w}" ${chL(.45)}/>
-      <path d="M-1,6.6 Q-3,7.4 -4.6,9.6 M1,6.6 Q3,7.4 4.6,9.6" fill="none" stroke="${dk}" stroke-width=".4"/>` : '';
+      ${comb([-.6,6.4,-2.6,6.8,-4.2,8.4],[-.6,8,-3,8.2,-5,10],3,dk,.34)}${comb([.6,6.4,2.6,6.8,4.2,8.4],[.6,8,3,8.2,5,10],3,dk,.34)}` : '';
     const crown = o.crown ? `<path d="M-10.6,-9.6 L-10.6,-15.6 L-7.4,-12.6 L-3.6,-17.4 L0,-13.2 L3.6,-17.4 L7.4,-12.6 L10.6,-15.6 L10.6,-9.6 Q0,-11.6 -10.6,-9.6 Z" fill="#b8902e" ${chL(.55)}/>
       <circle cx="-3.6" cy="-17.4" r=".9" fill="#e0c060"/><circle cx="3.6" cy="-17.4" r=".9" fill="#e0c060"/><circle cx="0" cy="-11.4" r=".9" fill="#9a2e26"/>` : '';
-    return { back:`<path d="M-11,-4 C-12.4,4 -12.2,10 -10,14 L10,14 C12.2,10 12.4,4 11,-4 Z" fill="${w}"/>`,
+    return { back:`<path d="M-11,-4 C-12.4,4 -12.2,10 -10,14 L10,14 C12.2,10 12.4,4 11,-4 Z" fill="${w}" ${chL(.5)}/>`,
       front:`<path d="M-10.4,6 C-11.4,-5 -9.6,-13.6 0,-14.4 C9.6,-13.6 11.4,-5 10.4,6 C9.6,2 9.2,-2 8.4,-5 C6.4,-9.4 3,-10.8 0,-10.8 C-3,-10.8 -6.4,-9.4 -8.4,-5 C-9.2,-2 -9.6,2 -10.4,6 Z" fill="${w}" ${chL(.55)}/>
-        ${strands('M-6,-12.4 C-8.6,-8 -9.6,-3 -9.8,3 M6,-12.4 C8.6,-8 9.6,-3 9.8,3 M-2,-14 C-5,-12 -7,-9 -8,-6 M2,-14 C5,-12 7,-9 8,-6', dk)}
+        ${comb([-.6,-13.8,-8.4,-12.4,-10.4,1],[-1,-11.4,-7.6,-9.8,-9,1.6],5,dk)}${comb([.6,-13.8,8.4,-12.4,10.4,1],[1,-11.4,7.6,-9.8,9,1.6],5,dk)}
         ${beard}${mous}${crown}` }; },
   // 普通男子短发（1316 / 1349 / 1382 的父亲们）
   man:(o={})=>({ back:'', front:`<path d="M-10,0 C-10.8,-10 -6,-14.2 0,-14.2 C6,-14.2 10.8,-10 10,0 C9.4,-3.4 8.6,-6 7.4,-8 Q0,-9.6 -7.4,-8 C-8.6,-6 -9.4,-3.4 -10,0 Z" fill="${o.col||'#2e2620'}" ${chL(.55)}/>
-      ${o.beard ? `<path d="M-8.8,3 C-9,9 -5.6,13.4 0,14.4 C5.6,13.4 9,9 8.8,3 C6.6,7.4 4.4,9.4 2,10 Q0,9 -2,10 C-4.4,9.4 -6.6,7.4 -8.8,3 Z" fill="${o.col||'#2e2620'}" opacity=".92" ${chL(.45)}/>` : ''}
+      ${o.beard ? `<path d="M-8.8,3 C-9,9 -5.6,13.4 0,14.4 C5.6,13.4 9,9 8.8,3 C6.6,7.4 4.4,9.4 2,10 Q0,9 -2,10 C-4.4,9.4 -6.6,7.4 -8.8,3 Z" fill="${o.col||'#2e2620'}" ${chL(.45)}/>
+        ${comb([-7.2,5.6,-6,11,-2,13.4],[7.2,5.6,6,11,2,13.4],7,'#6a5e4e',.32)}` : ''}
       ${o.hat ? `<path d="M-12.6,-8.4 Q0,-12 12.6,-8.4 L10.4,-11.4 Q8,-19.6 0,-20 Q-8,-19.6 -10.4,-11.4 Z" fill="${o.hat}" ${chL(.55)}/>` : ''}` }),
   // 普通女子头巾：'wimple' 下颌带（1316）· 'veil' 白头巾（1349）· 'roll' 发髻卷（1382）
   woman:(o={})=>{ const t=o.type||'veil';

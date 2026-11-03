@@ -2,8 +2,8 @@
    第 4 关 · 磨坊（The Watermill）—— 场景美术
    两个场景：磨坊外（雾中麦田、水车、稻草人、马车）/ 磨坊内（齿轮、磨盘、面粉袋、木签）
    ===================================================================== */
-const m4k = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
-const m4s = 'stroke="#1a1511" stroke-width="1.4" stroke-linejoin="round"';
+const m4k = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
+const m4s = 'stroke="#1a1511" stroke-width="1.6" stroke-linejoin="round"';
 const n4 = v => (+v).toFixed(1);
 
 /* ---------------- 共享材质：木 / 铁 / 黄铜 / 石 / 粗麻 —— 保持墨线风格，只加一层体积感 ---------------- */
@@ -404,7 +404,7 @@ function m4InBackground(){
   <defs>
     <filter id="mi4-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="61" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="mi4-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="4" seed="33"/>

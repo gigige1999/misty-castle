@@ -4,8 +4,8 @@
    本作调整：绷架放在左前景，一根金线牵进梳妆台抽屉；右墙是回长廊的小门，门边木钉上挂着那条湿裙子
    镜中世界：梳妆镜里映出的是 1415 年亮着烛光的房间（母亲的剪影伏案写字）
    ===================================================================== */
-const b6k = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
-const b6s = 'stroke="#1a1511" stroke-width="1.3" stroke-linejoin="round"';
+const b6k = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
+const b6s = 'stroke="#1a1511" stroke-width="1.6" stroke-linejoin="round"';
 const RW6 = (x,hy)=>[x, 330+(hy-330)*(x-414)/284];      // 右墙：屏幕 x、后墙高度 hy → 点
 const LW6 = (x,hy)=>[x, 330+(hy-330)*(414-x)/284];      // 左墙
 const q6  = a => a.map(p=>p.map(v=>(+v).toFixed(1)).join(',')).join(' ');
@@ -139,7 +139,7 @@ function b6Background(){
   <defs>
     <filter id="b6-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="83" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="b6-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="4" seed="29"/>

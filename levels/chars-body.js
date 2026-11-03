@@ -10,7 +10,8 @@
    ===================================================================== */
 const chHand = (x,y,s=1)=>`<ellipse cx="${x}" cy="${y}" rx="${3.2*s}" ry="${2.6*s}" fill="${CHC.skin}" ${chL(.55)}/>
   <path d="M${x-1.6*s},${y+.4*s} v${1.8*s} M${x},${y+.8*s} v${1.8*s} M${x+1.6*s},${y+.4*s} v${1.6*s}" stroke="${CHC.shade}" stroke-width=".4"/>`;
-const chFold = (pts, col='#000', op=.22, w=.7)=>`<path d="${pts}" fill="none" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}"/>`;
+// 衣褶：锈湖式只用墨线表示接缝与褶皱（不再用半透明黑影）
+const chFold = (pts, col=CHC.ink, op=.7, w=.75)=>`<path d="${pts}" fill="none" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}" stroke-linecap="round"/>`;
 // 交握的双手（一只手覆在另一只上，露出四根手指）
 const chClasp = (x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})">
   <path d="M-5.6,-1.4 Q-6.4,2.4 -3.4,4.2 Q0,5.4 3.4,4.2 Q6.4,2.4 5.6,-1.4 Q3.6,-3.4 0,-2.2 Q-3.6,-3.4 -5.6,-1.4 Z" fill="${CHC.skin}" ${chL(.55)}/>
@@ -35,11 +36,9 @@ CH.body = {
   // 贵妇长裙：方领 + 金镶边、腰链、垂地长裙、橄榄绿喇叭袖（伊莎贝拉）
   gown:(o)=>{ const L=o.len||172, c=o.cloth||'#6b3a30', tr=o.trim||'#b8963e', sl=o.sleeve||'#47503c';
     return { under:`<path d="M-20,46 Q-26,74 -32,${L-24} Q-36,${L-6} -40,${L} L40,${L} Q36,${L-6} 32,${L-24} Q26,74 20,46 Z" fill="${c}" ${chL(.7)}/>
-        <path d="M-20,46 Q-26,74 -32,${L-24} Q-36,${L-6} -40,${L} L40,${L} Q36,${L-6} 32,${L-24} Q26,74 20,46 Z" fill="url(#chCloth)"/>
         ${chFold(`M-10,58 Q-16,${L*.6} -20,${L-2} M0,60 V${L-1} M10,58 Q16,${L*.6} 22,${L-2} M-22,90 Q-28,${L*.75} -30,${L-2}`)}
         <path d="M-40,${L} Q0,${L+4} 40,${L} L38,${L-6} Q0,${L-2} -38,${L-6} Z" fill="${tr}" opacity=".85"/>`,
       torso:`<path d="M-12.6,19 Q-18,22 -19,30 L-20,48 Q0,52 20,48 L19,30 Q18,22 12.6,19 Z" fill="${c}" ${chL(.7)}/>
-        <path d="M-12.6,19 Q-18,22 -19,30 L-20,48 Q0,52 20,48 L19,30 Q18,22 12.6,19 Z" fill="url(#chCloth)"/>
         <path d="M-8.6,19.4 L-9.4,29 L9.4,29 L8.6,19.4" fill="${CHC.skin}" ${chL(.55)}/>
         <path d="M-9.4,29 L9.4,29" stroke="${tr}" stroke-width="1.8"/><path d="M-8.6,19.4 L-9.4,29 M8.6,19.4 L9.4,29" stroke="${tr}" stroke-width="1.4"/>
         <path d="M-6,20.6 Q0,27 6,20.6" fill="none" stroke="#c9a24a" stroke-width=".55"/><circle cx="0" cy="26.2" r="1.3" fill="#9a2e26" ${chL(.35)}/>
@@ -61,7 +60,6 @@ CH.body = {
   // 女童礼服：方领珍珠边、高腰、前片纹样（玛格丽暗红 · 艾格尼丝灰蓝 + 蕾丝领）
   girl:(o)=>{ const L=o.len||96, c=o.cloth||'#6e3430', tr=o.trim||'#b8963e', lace=o.lace;
     return { under:`<path d="M-13,32 Q-17,52 -21,${L} L21,${L} Q17,52 13,32 Z" fill="${c}" ${chL(.65)}/>
-        <path d="M-13,32 Q-17,52 -21,${L} L21,${L} Q17,52 13,32 Z" fill="url(#chCloth)"/>
         <path d="M-5,33 L-7,${L} L7,${L} L5,33 Z" fill="${o.panel||'#000'}" opacity="${o.panel?.9:.14}"/>
         ${o.fleur ? [0,1,2].map(i=>`<path d="M0,${44+i*16} l-1.6,-2.6 l1.6,-2.4 l1.6,2.4 Z M-2.6,${45.4+i*16} q2.6,1.4 5.2,0" fill="${tr}" stroke="${tr}" stroke-width=".35"/>`).join('') : ''}
         ${chFold(`M-9,40 Q-12,60 -15,${L-1} M9,40 Q12,60 15,${L-1}`)}
@@ -83,12 +81,11 @@ CH.body = {
     return { under:`<path d="M-15,52 L-16,${L} L16,${L} L15,52 Z" fill="${o.hose||'#2e2a24'}" ${chL(.65)}/>
         <path d="M0,60 V${L}" stroke="#1a1612" stroke-width=".8"/>`,
       torso:`<path d="M-11,19 Q-19,21 -20,30 L-20,60 Q0,64 20,60 L20,30 Q19,21 11,19 Z" fill="${c}" ${chL(.7)}/>
-        <path d="M-11,19 Q-19,21 -20,30 L-20,60 Q0,64 20,60 L20,30 Q19,21 11,19 Z" fill="url(#chCloth)"/>
         <path d="M-4.6,19 L0,25 L4.6,19" fill="#ddd6c4" ${chL(.5)}/><path d="M0,25 V60" stroke="${tr}" stroke-width="1"/>
         ${[30,37,44,51].map(y=>`<circle cx="0" cy="${y}" r=".8" fill="${tr}"/>`).join('')}
         <path d="M-20,52 Q0,56 20,52" stroke="#1e1a16" stroke-width="2.4" fill="none"/><rect x="-2.4" y="51.4" width="4.8" height="3.6" fill="#a88a4e" ${chL(.4)}/>`,
       arms:`<path d="M-19,24 Q-23,40 -22,56 L-15,57 Q-13,44 -11,34 Z M19,24 Q23,40 22,56 L15,57 Q13,44 11,34 Z" fill="${c}" ${chL(.65)}/>
-        <path d="M-19,24 Q-23,40 -22,56 L-15,57 Q-13,44 -11,34 Z M19,24 Q23,40 22,56 L15,57 Q13,44 11,34 Z" fill="url(#chDown)"/>`,
+        ${chFold('M-18,32 Q-19,44 -18,54 M18,32 Q19,44 18,54')}`,
       hands: o.hold==='clasp' ? [[-3,58],[3,59]] : [[-18.6,59],[18.6,59]] }; },
   // 领主斗篷：黑色毛领长斗篷 + 内衬暗红长袍 + 金链（中年埃德蒙 / 奥斯瓦尔德 / 阿尔德里克）
   cloak:(o)=>{ const L=o.len||172, c=o.cloth||'#5a2622', cl=o.cape||'#26221e', fur=o.fur||'#1e1a17';
@@ -98,7 +95,6 @@ CH.body = {
     return { under:`<path d="M-11,40 L-13,${L} L13,${L} L11,40 Z" fill="${c}" ${chL(.6)}/>
         <path d="M-6,46 V${L} M6,46 V${L}" stroke="#b8963e" stroke-width=".7" opacity=".7"/>
         <path d="M-28,24 Q-34,70 -38,${L} L-12,${L} Q-14,80 -12,34 Z M28,24 Q34,70 38,${L} L12,${L} Q14,80 12,34 Z" fill="${cl}" ${chL(.7)}/>
-        <path d="M-28,24 Q-34,70 -38,${L} L-12,${L} Q-14,80 -12,34 Z M28,24 Q34,70 38,${L} L12,${L} Q14,80 12,34 Z" fill="url(#chCloth)"/>
         ${chFold(`M-22,40 Q-26,100 -28,${L-2} M22,40 Q26,100 28,${L-2} M-16,60 Q-18,120 -18,${L-2}`, '#fff', .07, .9)}
         <path d="M-38,${L} H-12 M12,${L} H38" stroke="#8a6a34" stroke-width="1.2"/>`,
       torso:`<path d="M-10,19 Q-14,24 -12,40 L12,40 Q14,24 10,19 Z" fill="${c}" ${chL(.6)}/>
@@ -118,7 +114,6 @@ CH.body = {
       torso:`<path d="M-9,19 Q-14,22 -14,30 L-13,54 Q0,57 13,54 L14,30 Q14,22 9,19 Z" fill="${c}" ${chL(.65)}/>
         <path d="M-3.6,19 L0,23 L3.6,19" fill="#ddd6c4" ${chL(.45)}/>
         <path d="M-17,22 Q-12,18 0,19.4 Q12,18 17,22 L19,36 Q10,40 0,38 Q-10,40 -19,36 Z" fill="${o.cape||'#5a4430'}" ${chL(.6)}/>
-        <path d="M-17,22 Q-12,18 0,19.4 Q12,18 17,22 L19,36 Q10,40 0,38 Q-10,40 -19,36 Z" fill="url(#chCloth)"/>
         <path d="M-13,50 Q0,53 13,50" stroke="#2a221c" stroke-width="1.8" fill="none"/>`,
       arms:`<path d="M-15,34 Q-16,44 -15,52 L-10,52 Q-10,44 -10,37 Z M15,34 Q16,44 15,52 L10,52 Q10,44 10,37 Z" fill="${c}" ${chL(.6)}/>`,
       hands: o.hold==='lamp' ? [[-12.6,54,.85],[12.6,46,.85]] : [[-12.6,54,.85],[12.6,54,.85]] }; },
@@ -144,7 +139,7 @@ CH.person = (o={})=>{
   const child = o.body==='girl' || o.body==='boy';
   const heldAt = { deer:[0,40], wheat:[2,40], bell:[0,42], mirror:[3,38], lamp:[15,50] };
   const H = o.hold && CH.held[o.hold] ? CH.held[o.hold](...(o.heldPos || heldAt[o.hold] || [0,40])) : '';
-  return `<g class="ch" stroke="none">
+  return `<g class="ch" stroke="none" filter="url(#chInk)">
     ${hd.back}${hr.back}
     ${b.under}
     ${CH.neck(child?3:3.6, child)}

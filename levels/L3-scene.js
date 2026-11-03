@@ -2,7 +2,7 @@
    第 3 关 · 厨房与酒窖（The Kitchen & Cellar）—— 场景美术
    复用 L2-scene.js 的透视工具：VPX / VPY / wy / lw / rw / ck / cInk
    ===================================================================== */
-const hb = 'stroke="#1a1511" stroke-width="1.2" stroke-linejoin="round"';
+const hb = 'stroke="#1a1511" stroke-width="1.5" stroke-linejoin="round"';
 
 /* ---------------- 共享美术：四种草药（倒挂成束）、玛莎、提灯 ---------------- */
 // 罂粟 poppy / 缬草 valerian / 毛地黄 foxglove / 颠茄 belladonna —— 叶形与图谱一一对应
@@ -113,7 +113,7 @@ function k3Background(){
   <defs>
     <filter id="k3-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="31" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="k3-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="4" seed="17"/>
@@ -265,7 +265,7 @@ function w3Background(){
   <defs>
     <filter id="w3-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="41" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="w3-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
       <feTurbulence type="fractalNoise" baseFrequency="0.014 0.024" numOctaves="4" seed="27"/>

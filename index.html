@@ -450,7 +450,7 @@
       <defs>
         <filter id="rough" x="0" y="0" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/>
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
         <filter id="stain" x="0" y="0" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.011 0.02" numOctaves="4" seed="9"/>
@@ -698,7 +698,7 @@
       <defs>
         <filter id="hb-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
           <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="4" result="n"/>
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="nb"/><feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="7" result="nc"/><feDisplacementMap in="nb" in2="nc" scale="1" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
         <filter id="hb-stain" filterUnits="userSpaceOnUse" x="0" y="0" width="828" height="709">
           <feTurbulence type="fractalNoise" baseFrequency="0.011 0.02" numOctaves="4" seed="9"/>
@@ -2528,7 +2528,7 @@ const VIEWS = {
 };
 
 /* ---------- 大厅数据（随进度派生；依赖后续关卡的条目先留字段） ---------- */
-const hk = 'stroke="#1a1511" stroke-width="2" stroke-linejoin="round"';
+const hk = 'stroke="#1a1511" stroke-width="2.4" stroke-linejoin="round"';
 
 /* ---------- 解谜特写通用 UI（让玩家一眼看懂：要做什么 / 现在怎样 / 能按什么） ---------- */
 const UI_FONT = `font-family="Georgia,'Songti SC',serif"`;
