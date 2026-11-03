@@ -211,12 +211,54 @@ function m4Wheel(){
   <path d="M${-r+6},18 q-4,10 -2,22 M${-r+12},34 q-3,8 -1,16 M${r-6},26 q3,10 0,20" stroke="#4e6a50" stroke-width="2.2" fill="none" opacity=".75" stroke-linecap="round"/>`;
 }
 function m4OutBackground(){
-  let wheat=''; for(let i=0;i<120;i++){ const x=470+(i*61)%360, y=450+(i*37)%250, h=14+(i%5)*4;
-    wheat+=`<path d="M${x},${y} q${(i%3)-1},${-h*.6} ${(i%5)-2},${-h}"/>`; }
-  let wheatHeads='', wheatAwns=''; for(let i=0;i<70;i++){ const x=476+(i*47)%350, y=444+(i*53)%240, a=(i%7)*6-18;
-    wheatHeads+=`<ellipse cx="${x}" cy="${y}" rx="2.4" ry="5" transform="rotate(${a} ${x} ${y})"/>`;
-    const r=a*Math.PI/180, tx=x+5*Math.sin(r), ty=y-5*Math.cos(r);
-    wheatAwns+=`<path d="M${n4(tx)},${n4(ty)} l${n4(-2+8*Math.sin(r))},${n4(-8)} M${n4(tx)},${n4(ty)} l${n4(2+8*Math.sin(r))},${n4(-7)}"/>`; }
+  let sd = 29; const rr = (a,b)=>{ sd = (sd*16807) % 2147483647; return a + (b-a)*(sd/2147483647); };
+  /* ---- 远景：雾里的渡鸦堡（剪影）---- */
+  const twr = (x,w,top,rh,base=302)=>`<path d="M${x},${base} V${top} H${x-2} L${n4(x+w/2)},${top-rh} L${x+w+2},${top} H${x+w} V${base} Z"/>`;
+  let crenel = 'M104,302 V268'; for(let x=104; x<334; x+=8) crenel += ` V263 H${x+4} V268 H${x+8}`; crenel += ' V302 Z';
+  const castle = `<path d="${crenel}"/>` + [[110,14,232,20],[136,18,212,30],[166,12,238,16],[186,26,178,66],[220,16,206,34],[248,12,228,18],[270,20,214,30],[300,14,236,22],[322,12,250,14]].map(t=>twr(...t)).join('');
+  /* ---- 柏树：火焰形剪影 ---- */
+  const cyp = (x,b,h,w)=>`<path d="M${x},${b-h} C${n4(x+w*.55)},${n4(b-h*.72)} ${n4(x+w*.62)},${n4(b-h*.28)} ${n4(x+w*.36)},${b} L${n4(x-w*.36)},${b} C${n4(x-w*.62)},${n4(b-h*.28)} ${n4(x-w*.55)},${n4(b-h*.72)} ${x},${b-h} Z"/>`;
+  /* ---- 枯树：递归分枝 ---- */
+  const tw = ['', '', '', '', '', ''];
+  const branch = (x,y,ang,len,d)=>{ const x2=x+len*Math.cos(ang), y2=y+len*Math.sin(ang);
+    const mx=(x+x2)/2+rr(-1,1)*len*.14, my=(y+y2)/2+rr(-1,1)*len*.14;
+    tw[d] += `M${n4(x)},${n4(y)} Q${n4(mx)},${n4(my)} ${n4(x2)},${n4(y2)} `;
+    if(d<5){ const n = d<2 ? 2 : (rr(0,1)<.5 ? 2 : 3);
+      for(let i=0;i<n;i++) branch(x2, y2, ang + rr(-.45,.45) + (i-(n-1)/2)*.42, len*rr(.6,.76), d+1); } };
+  branch(30,300,-.72,88,1); branch(28,252,-1.08,78,1); branch(26,226,-1.62,64,1); branch(34,362,-.42,54,1);
+  const treeW = [0,7,4.4,2.8,1.7,1.05];
+  /* ---- 草丛（左侧草地）---- */
+  const pathL = y=> 368 - (y-446)*.32, pathR = y=> 422 + (y-446)*.32, wL = y=> 466 + (y-452)*.195;
+  let grassD='', grassL='';
+  for(let i=0;i<300;i++){ const x=rr(0,480), y=rr(418,709);
+    if(y>440 && x>pathL(y)-6 && x<pathR(y)+6) continue; if(y>446 && x>wL(y)-4) continue;
+    const h=4+(y-418)*.05, s=`M${n4(x)},${n4(y)} q-1,${n4(-h*.6)} -3,${n4(-h)} M${n4(x+1)},${n4(y)} q0,${n4(-h*.7)} .4,${n4(-h*1.25)} M${n4(x+2)},${n4(y)} q1,${n4(-h*.6)} 3.4,${n4(-h*.9)} `;
+    if(rr(0,1)<.55) grassD+=s; else grassL+=s; }
+  /* ---- 麦田：按深度分四层，近大远小 ---- */
+  const stem=['','','',''], headA=['','','',''], headB=['','','',''];
+  for(let y=446; y<716; ){ const k=(y-446)/263, h=7+k*46, sp=3.8+k*9, b=Math.min(3, Math.floor(k*4));
+    for(let x=wL(y)+rr(2,sp); x<836; x+=sp*rr(.7,1.3)){
+      const yy=y+rr(-1.5,1.5)*(1+k*3), lean=(rr(-1,1)*.16+.12)*h, tx=x+lean, ty=yy-h, hx=x+lean*.6, hy=yy-h*.62;
+      stem[b] += `M${n4(x)},${n4(yy)} Q${n4(x+lean*.2)},${n4(yy-h*.4)} ${n4(hx)},${n4(hy)}`;
+      (rr(0,1)<.55 ? headA : headB)[b] += `M${n4(hx)},${n4(hy)} L${n4(tx)},${n4(ty)}`; }
+    y += 4 + k*11; }
+  const field = [0,1,2,3].map(b=>`<path d="${stem[b]}" stroke="#5a4826" stroke-width="${[.55,.8,1.1,1.4][b]}" fill="none"/>
+    <path d="${headB[b]}" stroke="#6e5a30" stroke-width="${[1.8,2.6,3.4,4.4][b]}" stroke-linecap="round" fill="none"/>
+    <path d="${headA[b]}" stroke="#a48a4c" stroke-width="${[1.8,2.6,3.4,4.4][b]}" stroke-linecap="round" fill="none"/>`).join('');
+  /* ---- 屋顶瓦行 ---- */
+  const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t];
+  let tiles=''; for(let i=1;i<9;i++){ const t=i/9, p=lerp([393,208],[452,278],t), q=lerp([506,224],[568,294],t);
+    tiles += `M${n4(p[0])},${n4(p[1])} L${n4(q[0])},${n4(q[1])} `; }
+  let tileSeam=''; for(let i=0;i<9;i++){ const t0=i/9, t1=(i+1)/9; for(let j=1;j<12;j++){ const u=j/12+(i%2?.04:0); if(u>=1) continue;
+    const a=lerp(lerp([393,208],[506,224],u), lerp([452,278],[568,294],u), t0), c=lerp(lerp([393,208],[506,224],u), lerp([452,278],[568,294],u), t1);
+    tileSeam += `M${n4(a[0])},${n4(a[1])} L${n4(c[0])},${n4(c[1])} `; } }
+  /* ---- 地道口：拱券石 ---- */
+  let vous=''; for(let i=0;i<11;i++){ const a0=Math.PI*(1+i/11), a1=Math.PI*(1+(i+1)/11), cx=102, cy=612, ri=[58,56], ro=[78,74];
+    const P=(r,a)=>`${n4(cx+r[0]*Math.cos(a))},${n4(cy+r[1]*Math.sin(a))}`;
+    vous += `<path d="M${P(ri,a0)} L${P(ro,a0)} L${P(ro,a1)} L${P(ri,a1)} Z" fill="${i===5?'#9a9584':i%2?'#7e7a6a':'#8a8676'}"/>`; }
+  let jamb=''; [[24,44],[160,180]].forEach(([x0,x1],s)=>{ for(let y=612,i=0; y<709; y+=22,i++){ const o=(i+s)%2?4:0;
+    jamb += `<rect x="${x0-o}" y="${y}" width="${x1-x0+o}" height="22" fill="${i%2?'#7a7666':'#858170'}"/>`; } });
+
   return `
   <defs>
     <filter id="m4-rough" filterUnits="userSpaceOnUse" x="-10" y="-10" width="848" height="729">
@@ -224,60 +266,113 @@ function m4OutBackground(){
       <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <filter id="m4-blur"><feGaussianBlur stdDeviation="3"/></filter>
-    <linearGradient id="m4-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a8385"/><stop offset=".6" stop-color="#9ea4a3"/><stop offset="1" stop-color="#b3b6b1"/></linearGradient>
-    <linearGradient id="m4-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e6b58"/><stop offset="1" stop-color="#4e4a3c"/></linearGradient>
-    <linearGradient id="m4-wheat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8935a"/><stop offset="1" stop-color="#7e6a3c"/></linearGradient>
-    <linearGradient id="m4-fogband" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9ccc7" stop-opacity="0"/><stop offset=".5" stop-color="#c9ccc7" stop-opacity=".55"/><stop offset="1" stop-color="#c9ccc7" stop-opacity="0"/></linearGradient>
+    <filter id="m4-cloud" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="m4-mist" x="-30%" y="-150%" width="160%" height="400%"><feGaussianBlur stdDeviation="9"/></filter>
+    <linearGradient id="m4-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#555853"/><stop offset=".42" stop-color="#7a7d76"/><stop offset=".78" stop-color="#9c9c90"/><stop offset="1" stop-color="#a9a796"/></linearGradient>
+    <linearGradient id="m4-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#666450"/><stop offset=".5" stop-color="#504d3a"/><stop offset="1" stop-color="#36332a"/></linearGradient>
+    <linearGradient id="m4-wheat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#76683e"/><stop offset=".5" stop-color="#5e4e2a"/><stop offset="1" stop-color="#3a3020"/></linearGradient>
+    <linearGradient id="m4-path" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a7258"/><stop offset="1" stop-color="#5e5642"/></linearGradient>
+    <linearGradient id="m4-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4644"/><stop offset=".5" stop-color="#55666a"/><stop offset="1" stop-color="#2e3836"/></linearGradient>
+    <linearGradient id="m4-fogband" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3c5bd" stop-opacity="0"/><stop offset=".5" stop-color="#c3c5bd" stop-opacity=".6"/><stop offset="1" stop-color="#c3c5bd" stop-opacity="0"/></linearGradient>
+    <linearGradient id="m4-wallF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e8977"/><stop offset=".7" stop-color="#7e7968"/><stop offset="1" stop-color="#5e5a4c"/></linearGradient>
+    <linearGradient id="m4-wallS" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#625e52"/><stop offset="1" stop-color="#55524a"/></linearGradient>
+    <radialGradient id="m4-hole" cx=".5" cy=".7" r=".7"><stop offset="0" stop-color="#020101"/><stop offset=".7" stop-color="#0c0a08"/><stop offset="1" stop-color="#1e1a14"/></radialGradient>
     <clipPath id="m4-clipTunnel"><path d="${M4.tunnel}"/></clipPath>
   </defs>
+  <!-- 天空 + 低云 -->
   <rect width="828" height="709" fill="url(#m4-sky)"/>
-  <!-- 远景：雾里的城堡与树 -->
-  <g fill="#8e9595" opacity=".9">
-    <path d="M110,330 L110,250 L124,250 L124,232 L132,232 L132,250 L150,250 L150,214 L158,196 L166,214 L166,250 L184,250 L184,170 L190,150 L196,170 L196,250 L214,250 L214,206 L222,192 L230,206 L230,250 L250,250 L250,228 L262,228 L262,250 L290,250 L290,330 Z"/>
+  <g filter="url(#m4-cloud)">
+    <ellipse cx="140" cy="56" rx="260" ry="34" fill="#45483f" opacity=".45"/><ellipse cx="560" cy="34" rx="330" ry="40" fill="#45483f" opacity=".5"/>
+    <ellipse cx="780" cy="120" rx="200" ry="26" fill="#4e5149" opacity=".35"/><ellipse cx="330" cy="150" rx="280" ry="20" fill="#bdbcae" opacity=".35"/>
+    <ellipse cx="660" cy="196" rx="240" ry="18" fill="#bdbcae" opacity=".3"/>
   </g>
-  <g fill="#838b8c">
-    <path d="M250,360 L262,300 L274,360 Z M268,360 L282,286 L296,360 Z M640,330 L652,270 L664,330 Z M660,330 L676,250 L692,330 Z M760,340 L772,290 L784,340 Z"/>
-  </g>
-  <rect x="0" y="300" width="828" height="90" fill="url(#m4-fogband)"/>
+  <path d="M352,118 q4,-3 8,0 q4,-3 8,0 M380,104 q3,-2.4 6,0 q3,-2.4 6,0 M404,124 q2.4,-2 5,0 q2.4,-2 5,0" stroke="#3a3a34" stroke-width="1.3" fill="none" opacity=".7"/>
+  <!-- 远山与城堡 -->
+  <path d="M0,320 Q70,294 140,298 Q220,292 300,298 Q380,306 440,330 Q480,344 520,352 L520,420 L0,420 Z" fill="#878a84"/>
+  <path d="M480,352 Q600,322 700,332 Q780,338 828,328 V420 H480 Z" fill="#8d9089"/>
+  <g fill="#6c706c">${castle}</g>
+  <g fill="#c9b07a" opacity=".55"><rect x="196" y="214" width="3" height="5"/><rect x="141" y="236" width="2.4" height="4"/><rect x="276" y="240" width="2.4" height="4"/></g>
+  <g fill="#82867f">${cyp(258,382,110,24)}${cyp(284,386,140,30)}${cyp(312,390,92,22)}${cyp(612,374,96,22)}${cyp(640,378,128,28)}</g>
+  <rect x="0" y="226" width="828" height="130" fill="url(#m4-fogband)"/>
+  <g fill="#6a6f6a">${cyp(702,388,172,32)}${cyp(738,392,122,24)}${cyp(796,394,152,30)}${cyp(232,396,78,18)}</g>
+  <g stroke="#5a5f5a" stroke-width="1" fill="none" opacity=".7"><path d="M700,240 q4,30 -2,60 q-4,30 2,70 M796,268 q4,30 -2,60 q-2,30 2,50 M738,300 q3,30 -2,70"/></g>
+  <rect x="0" y="326" width="828" height="104" fill="url(#m4-fogband)"/>
   <!-- 地面 -->
-  <path d="M0,412 Q200,400 420,410 Q640,420 828,404 V709 H0 Z" fill="url(#m4-ground)"/>
+  <path d="M0,404 Q180,394 400,402 Q620,410 828,398 V709 H0 Z" fill="url(#m4-ground)"/>
   <g filter="url(#m4-rough)" ${m4k}>
     <!-- 枯树 -->
-    <path d="M24,709 L30,420 Q34,300 22,200 M30,330 Q70,280 120,250 M28,260 Q60,210 112,170 M26,200 Q30,140 8,90 M94,262 Q120,236 148,236 M80,196 Q110,170 150,170 M60,226 Q50,190 70,150" stroke="#3a342c" stroke-width="7" fill="none" stroke-linecap="round"/>
-    <path d="M30,330 Q70,280 120,250 M28,260 Q60,210 112,170" stroke="#3a342c" stroke-width="3" fill="none"/>
-    <!-- 磨坊：石砌墙面 + 瓦顶 + 侧披屋 -->
-    <path d="M286,412 L286,330 L350,302 L350,412 Z" fill="#7c776a"/>
-    <path d="M286,412 L286,330 L350,302 L350,412 Z" fill="url(#m4Ashlar)" stroke="none" opacity=".8"/>
-    <path d="M280,334 L352,298 L356,306 L284,342 Z" fill="#4a4038"/>
-    <path d="M288,331 L350,300 M294,335 L352,304" stroke="#33291f" stroke-width=".8" fill="none"/>
-    <rect x="340" y="256" width="182" height="156" fill="#857f70"/>
-    <rect x="340" y="256" width="182" height="156" fill="url(#m4Ashlar)" stroke="none"/>
-    <rect x="340" y="256" width="182" height="10" fill="#000" opacity=".16" stroke="none"/>
-    <path d="M326,264 L430,196 L536,264 Z" fill="#4a4038"/>
-    <g stroke="#33291f" stroke-width=".9" fill="none">${[0,1,2,3,4,5].map(i=>{ const t=(i+1)/7, y=196+68*t; return `<path d="M${n4(430-104*t)},${n4(y)} L${n4(430+106*t)},${n4(y)}"/>`; }).join('')}</g>
-    <path d="M336,262 L430,202 L526,262" fill="none" stroke="#6a5e50" stroke-width="1.2"/>
-    <rect x="470" y="168" width="54" height="244" fill="#8a8474"/>
-    <rect x="470" y="168" width="54" height="244" fill="url(#m4Ashlar)" stroke="none"/>
-    <rect x="512" y="168" width="12" height="244" fill="#000" opacity=".14" stroke="none"/>
-    <path d="M462,178 L497,138 L532,178 Z" fill="#4a4038"/>
-    <path d="M474,166 L497,140 M520,166 L497,140 M468,172 H526" stroke="#33291f" stroke-width=".8" fill="none"/>
-    <path d="M497,138 V128 M493,132 H501" stroke="#2a2420" stroke-width="1.6"/>
+    <path d="M6,709 C14,620 18,520 22,430 C24,360 20,300 24,232 L34,230 C38,300 40,360 42,430 C44,520 48,620 56,709 Z" fill="#2c2822"/>
+    <path d="M28,250 C30,320 34,420 36,520 M22,330 C24,380 26,440 28,500" stroke="#4a443a" stroke-width="1.2" fill="none"/>
+    ${[1,2,3,4,5].map(d=>`<path d="${tw[d]}" stroke="#2c2822" stroke-width="${treeW[d]}" fill="none" stroke-linecap="round"/>`).join('')}
+    <path d="${tw[1]}" stroke="#4e463a" stroke-width="1.6" fill="none" opacity=".6" transform="translate(-1.6,-1.6)"/>
+    <!-- 磨坊 · 侧披屋 -->
+    <path d="M288,414 V346 L344,320 V414 Z" fill="#767264"/>
+    <path d="M288,414 V346 L344,320 V414 Z" fill="url(#m4Ashlar)" stroke="none" opacity=".8"/>
+    <path d="M304,394 V372 H320 V394 Z" fill="#161411"/><path d="M312,372 V394 M304,383 H320" stroke="#4a463c" stroke-width="1.2"/>
+    <path d="M280,350 L348,310 L352,319 L284,359 Z" fill="#3c3530"/>
+    <path d="M286,352 L348,316 M290,356 L350,320" stroke="#5a5046" stroke-width=".9" fill="none"/>
+    <!-- 磨坊 · 正面山墙 -->
+    <path d="M340,414 V272 L393,214 L446,272 V414 Z" fill="url(#m4-wallF)"/>
+    <path d="M340,414 V272 L393,214 L446,272 V414 Z" fill="url(#m4Ashlar)" stroke="none"/>
+    <!-- 磨坊 · 侧墙（背光） -->
+    <path d="M446,414 V272 L562,288 V410 Z" fill="url(#m4-wallS)"/>
+    <path d="M446,414 V272 L562,288 V410 Z" fill="url(#m4Ashlar)" stroke="none" opacity=".6"/>
+    <path d="M446,414 V272 L562,288 V410 Z" fill="#14100c" opacity=".18" stroke="none"/>
+    ${[0,1,2,3,4,5,6,7].map(i=>{ const y=280+i*16.5, w=i%2?10:16; return `<path d="M${446-w},${y} H446 V${y+16} H${446-w} Z" fill="#9a9584" stroke-width="1"/>`; }).join('')}
+    <path d="M336,404 H446 L562,400 V412 L446,416 H336 Z" fill="#55513f"/>
+    <path d="M342,412 q8,-10 18,-4 q10,-7 18,-1 M418,412 q8,-8 16,-3 q6,-5 12,0 M452,412 q10,-9 22,-3 q8,-6 18,0 q10,-7 20,-1" stroke="#3e4630" stroke-width="2.2" fill="none"/>
+    <path d="M352,330 q2,30 -2,74 M434,300 q-2,40 2,104 M476,340 q2,30 -1,62" stroke="#4a463a" stroke-width="1.6" fill="none" opacity=".45"/>
+    <!-- 塔楼（在屋脊后） -->
+    <path d="M470,236 V166 H504 V236 Z" fill="#8a8574"/><path d="M470,236 V166 H504 V236 Z" fill="url(#m4Ashlar)" stroke="none"/>
+    <path d="M504,236 V166 L520,170 V236 Z" fill="#5c584e"/>
+    <path d="M481,204 V186 Q487,176 493,186 V204 Z" fill="#121010"/><path d="M480,206 H494" stroke-width="2.4"/>
+    <path d="M464,168 H510 V174 H464 Z M510,168 L524,172 V178 L510,174 Z" fill="#6a6658"/>
+    <path d="M466,168 L489,126 L510,168 Z" fill="#3c3530"/><path d="M489,126 L510,168 L524,172 Z" fill="#2a241f"/>
+    <path d="M475,160 L489,134 M500,160 L489,134" stroke="#56493e" stroke-width=".9" fill="none"/>
+    <path d="M489,126 V104" stroke="#1a1511" stroke-width="1.6"/><path d="M480,110 L498,110 M480,110 l4,-3 M480,110 l4,3 M498,110 l-5,-4 l0,8 Z" stroke="#1a1511" stroke-width="1.2" fill="#1a1511"/><circle cx="489" cy="104" r="1.6" fill="#1a1511" stroke="none"/>
+    <!-- 屋顶（侧坡，瓦行 + 苔斑） -->
+    <path d="M393,208 L506,224 L568,294 L452,278 Z" fill="#463d36"/>
+    <path d="${tileSeam}" stroke="#2e2822" stroke-width=".7" fill="none" opacity=".75"/>
+    <path d="${tiles}" stroke="#2a241f" stroke-width="1.3" fill="none"/>
+    <path d="M430,236 l14,2 l4,8 l-14,-2 Z M500,262 l16,2 l5,9 l-16,-2 Z" fill="#2a241f" stroke="none"/>
+    <path d="M462,256 q10,-4 18,2 q-6,6 -18,-2 Z M528,276 q8,-3 14,2 q-6,5 -14,-2 Z M420,226 q6,-3 12,1 q-4,4 -12,-1 Z" fill="#5a6240" stroke="none" opacity=".85"/>
+    <path d="M393,208 L506,224" stroke="#2a241e" stroke-width="5" stroke-linecap="round"/>
+    <path d="M452,278 L568,294" stroke="#2a241e" stroke-width="2.6"/>
+    <!-- 山墙封檐板 + 吊货门 -->
+    <path d="M330,278 L393,206 L456,278" stroke="#1a1511" stroke-width="9" fill="none" stroke-linejoin="miter"/>
+    <path d="M330,278 L393,206 L456,278" stroke="#4e4032" stroke-width="5.6" fill="none" stroke-linejoin="miter"/>
+    <path d="M382,264 V238 H404 V264 Z" fill="url(#m4WdV)"/><path d="M389,238 V264 M397,238 V264" stroke="#2a1e12" stroke-width=".8"/>
+    <path d="M380,264 H406" stroke-width="2.4"/>
+    <rect x="388" y="221" width="10" height="10" fill="url(#m4Wd)"/>
+    <path d="M393,231 V276" stroke="#3a3024" stroke-width="1.4"/><path d="M393,276 q-4,0 -4,4 q0,4 4,3" stroke="#1a1511" stroke-width="1.6" fill="none"/>
+    <!-- 窗 -->
+    <path d="M414,328 V304 Q422,292 430,304 V328 Z" fill="#141210"/><path d="M422,298 V328 M414,314 H430" stroke="#5a564a" stroke-width="1.2"/>
+    <path d="M410,330 H434" stroke="#6a6458" stroke-width="3"/>
+    <path d="M466,342 V322 L482,324 V344 Z" fill="#121010"/><path d="M474,323 V343" stroke="#4a463c" stroke-width="1.1"/>
+    <path d="M464,346 L484,347" stroke="#5a564a" stroke-width="2.6"/>
+    <path d="M418,332 q2,16 -1,30 M472,348 q2,14 0,26" stroke="#3a362e" stroke-width="1.4" fill="none" opacity=".5"/>
+    <!-- 门 -->
+    <path d="M370,414 L370,358 Q372,330 394,326 Q416,330 418,358 L418,414" fill="#7a7666"/>
+    ${[...Array(7)].map((_,i)=>{ const a=Math.PI*(1+i/6); return `<path d="M${n4(394+20*Math.cos(a))},${n4(360+30*Math.sin(a))} L${n4(394+25*Math.cos(a))},${n4(360+35*Math.sin(a))}" stroke="#4e4a3e" stroke-width="1.2"/>`; }).join('')}
     <path d="${M4.door}" fill="url(#m4WdV)"/>
     <path d="M386,343 V412 M394,340 V412 M402,343 V412" stroke="#2a1e12" stroke-width=".8"/>
     <path d="M378,366 H410 M378,396 H410" stroke="#1a1511" stroke-width="2.6"/>
     <circle cx="404" cy="384" r="2" fill="#1a1511" stroke="none"/>
-    <path d="M374,412 L374,358 Q376,334 394,330 Q412,334 414,358 L414,412" fill="none" stroke="#6a6458" stroke-width="3"/>
-    <path d="M436,328 L436,302 Q442,292 448,302 L448,328 Z M490,236 L490,214 Q496,206 502,214 L502,236 Z" fill="#2a2a28"/>
-    <path d="M442,296 V328 M436,312 H448 M496,210 V236 M490,224 H502" stroke="#5a564a" stroke-width="1"/>
-    <path d="M434,330 H450 M488,238 H504" stroke="#6a6458" stroke-width="2.4"/>
-    <!-- 水槽与水闸 -->
-    <path d="M700,282 V412 M760,282 V412" stroke="#1a1511" stroke-width="8"/>
-    <path d="M700,282 V412 M760,282 V412" stroke="#5a4636" stroke-width="5.6"/>
-    <path d="M700,330 L760,300 M700,300 L760,330" stroke="#4a3a2a" stroke-width="3"/>
+    <!-- 水车坑石墙 -->
+    <path d="M556,392 L712,388 L712,416 L556,418 Z" fill="#6e6a5c"/>
+    <path d="M556,392 L712,388 L712,416 L556,418 Z" fill="url(#m4Ashlar)" stroke="none" opacity=".8"/>
+    <path d="M556,392 L712,388" stroke="#9a9584" stroke-width="1.4"/>
+    <!-- 水槽支架 -->
+    ${[700,760].map(x=>`<path d="M${x-4},${408} V${284-(x-598)*.035}" stroke="#1a1511" stroke-width="9"/><path d="M${x-4},${408} V${284-(x-598)*.035}" stroke="#5a4636" stroke-width="5.6"/>
+      <path d="M${x-12},410 h16 v-10 h-16 Z" fill="#7a7666"/>`).join('')}
+    <path d="M696,330 L756,302 M696,302 L756,330 M756,330 L828,298 M756,302 L828,330" stroke="#1a1511" stroke-width="5" fill="none"/>
+    <path d="M696,330 L756,302 M696,302 L756,330 M756,330 L828,298 M756,302 L828,330" stroke="#4a3a2a" stroke-width="2.6" fill="none"/>
     <path d="M598,280 L828,272 L828,288 L600,296 Z" fill="url(#m4WdV)"/>
     <path d="M600,288 L828,280" stroke="#2a1e12" stroke-width=".8"/>
     ${[640,700,760,810].map(x=>`<path d="M${x},${280-(x-598)*.035} v16" stroke="#2a1e12" stroke-width="1.2"/>`).join('')}
     <path d="M600,296 L828,288" stroke-width="1.2"/>
+    <path d="M606,296 q2,8 -1,14 M664,294 q2,6 0,10" stroke="#4e6a50" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>
+    <!-- 水闸 -->
     <rect x="636" y="252" width="34" height="46" fill="url(#m4Wd)"/>
     <rect x="642" y="256" width="22" height="38" fill="#6a5440"/>
     <path d="M642,268 H664 M642,280 H664" stroke="#3a2e22" stroke-width="1.4"/>
@@ -289,33 +384,48 @@ function m4OutBackground(){
     <g transform="translate(${M4.wheel.x},${M4.wheel.y})"><g id="m4Wheel">${m4Wheel()}</g></g>
     <path d="M520,356 H576" stroke="#1a1511" stroke-width="9"/><path d="M520,356 H576" stroke="url(#m4IrV)" stroke-width="6"/>
     <rect x="512" y="346" width="12" height="20" rx="2" fill="url(#m4Wd)"/>
-    <!-- 水渠 -->
-    <path d="M270,412 L680,412 L690,440 L262,440 Z" fill="#6a6658"/>
-    <path d="M270,412 L680,412 L684,420 L268,420 Z" fill="#857f70" stroke="none"/>
-    <path d="M300,420 Q420,416 560,424 Q620,428 676,424 L684,434 L268,434 Z" fill="#5f7680"/>
-    <path d="M330,426 q20,-3 40,0 M450,424 q24,-3 48,0 M580,428 q20,-3 40,0" stroke="#a9bec2" stroke-width="1.4" fill="none"/>
-    ${[300,350,410,470,530,590,650].map((x,i)=>`<path d="M${x},440 v-6 M${x+26},440 v-6" stroke="#4e4a40" stroke-width=".8"/>`).join('')}
-    <!-- 小路 -->
-    <path d="M378,412 L410,412 L470,709 L300,709 Z" fill="#7a7258" stroke="none"/>
-    <path d="M378,412 L300,709 M410,412 L470,709" stroke="#5a5440" stroke-width="1.4" fill="none"/>
-    <g fill="#5e5844" stroke="none">${[[392,460,4,1.6],[404,520,5,2],[372,580,6,2.4],[420,620,5,2],[350,670,7,2.6],[448,690,6,2.2],[388,640,3,1.4]].map(([x,y,rx,ry])=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`).join('')}</g>
-    <path d="M384,440 L370,709 M402,440 L420,709" stroke="#6a6248" stroke-width="2.4" fill="none" opacity=".45"/>
-    <!-- 麦田 -->
-    <path d="M462,452 Q600,430 828,440 V709 H520 Q500,580 462,452 Z" fill="url(#m4-wheat)"/>
-    <g stroke="#6a5830" stroke-width="1.4" fill="none">${wheat}</g>
-    <g fill="#c4ac68" stroke="#6a5830" stroke-width=".8">${wheatHeads}</g>
-    <g stroke="#d8c486" stroke-width=".6" fill="none" opacity=".8">${wheatAwns}</g>
-    <!-- 马车：车厢板、铁箍、车辕、轮 -->
+    <!-- 水渠：后岸 / 水面 / 前岸石 -->
+    <path d="M232,412 L712,410 L712,418 L232,420 Z" fill="#8a8676"/>
+    <path d="M232,418 L712,416 L720,446 L226,448 Z" fill="url(#m4-water)"/>
+    <path d="M260,426 q22,-3 44,0 M330,432 q30,-3 60,0 M452,428 q26,-3 52,0 M540,436 q30,-3 60,0 M620,426 q22,-3 44,0 M300,440 q20,-2 40,0" stroke="#9fb2b0" stroke-width="1.3" fill="none" opacity=".75"/>
+    <path d="M240,422 L700,420" stroke="#1a1612" stroke-width="2" opacity=".5"/>
+    ${[...Array(17)].map((_,i)=>{ const x=228+i*29; return `<path d="M${x},448 q1,-5 6,-6 h16 q6,1 6,6 v6 h-28 Z" fill="${i%2?'#6e6a5a':'#7a7666'}" stroke-width="1.2"/>`; }).join('')}
+    <!-- 木桥 -->
+    <path d="M362,410 H426 L430,452 H358 Z" fill="url(#m4WdV)"/>
+    <path d="M361,420 H427 M360,430 H428 M359,441 H429" stroke="#2a1e12" stroke-width="1"/>
+    <path d="M362,410 L358,452 M426,410 L430,452" stroke="#1a1511" stroke-width="3.6"/>
+    <!-- 小路：车辙 + 积水 + 碎石 -->
+    <path d="M366,450 C350,520 352,580 318,640 Q300,676 276,709 L500,709 Q474,668 470,630 C462,560 428,520 424,450 Z" fill="url(#m4-path)" stroke="none"/>
+    <path d="M366,450 C350,520 352,580 318,640 Q300,676 276,709 M424,450 C428,520 462,560 470,630 Q474,668 500,709" stroke="#3e3a2c" stroke-width="1.6" fill="none"/>
+    <path d="M384,456 C376,540 372,600 352,650 Q342,680 334,709 M406,456 C412,540 420,600 424,650 Q430,684 440,709" stroke="#4e4836" stroke-width="3.4" fill="none" opacity=".55"/>
+    <ellipse cx="404" cy="604" rx="30" ry="6.4" fill="#8a918c" stroke="#4e4836" stroke-width="1.2"/>
+    <path d="M388,602 q10,-2 22,0" stroke="#c4cac2" stroke-width="1" fill="none" opacity=".8"/>
+    <g fill="#4e4a3a" stroke="none">${[[392,470,3,1.4],[410,512,4,1.8],[370,560,5,2.2],[430,560,4,1.8],[350,650,6,2.6],[460,676,6,2.4],[400,676,4,1.8],[372,520,3,1.2]].map(([x,y,rx,ry])=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`).join('')}</g>
+  </g>
+  <!-- 草丛 -->
+  <path d="${grassD}" stroke="#34321f" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="${grassL}" stroke="#7a7656" stroke-width="1" fill="none" stroke-linecap="round" opacity=".85"/>
+  <!-- 麦田 -->
+  <path d="M466,452 Q600,432 828,440 V709 H516 Q504,580 466,452 Z" fill="url(#m4-wheat)"/>
+  <path d="M466,452 Q600,432 828,440" stroke="#5a4826" stroke-width="2" fill="none"/>
+  ${field}
+  <g filter="url(#m4-rough)" ${m4k}>
+    <!-- 提灯柱（钩子上只剩半截链子） -->
     <path d="M246,560 L246,312 M252,316 L176,316 M246,346 L218,316" stroke="#1a1511" stroke-width="9" fill="none"/>
     <path d="M246,560 L246,312 M252,316 L176,316 M246,346 L218,316" stroke="#4a3826" stroke-width="6" fill="none"/>
     <path d="M243.6,318 V556" stroke="#8a6c48" stroke-width="1" opacity=".6"/>
     <path d="M186,316 v12 q0,6 -5,8" stroke="#1a1511" stroke-width="2.4" fill="none"/>
+    <path d="M181,336 v5 M181,343 v5 M180,350 l-2,4" stroke="#2a2622" stroke-width="2" stroke-linecap="round"/>
+    <path d="M238,560 h16 l2,6 h-20 Z" fill="#6e6a5a"/>
+    <!-- 马车 -->
+    <ellipse cx="146" cy="512" rx="104" ry="9" fill="#1e1a12" opacity=".4" stroke="none"/>
     <path d="M62,382 L232,374 L236,440 L58,448 Z" fill="url(#m4WdV)"/>
     <path d="M62,404 L234,396 M60,426 L235,418" stroke="#2a1e12" stroke-width="1.6"/>
     <path d="M62,390 Q120,386 232,382 M61,412 Q140,408 234,404 M60,434 Q130,430 235,426" stroke="#8a6c48" stroke-width=".7" fill="none" opacity=".55"/>
     <path d="M100,380 V446 M150,378 V444 M200,376 V442" stroke="#1a1511" stroke-width="3.6"/>
     <path d="M100,380 V446 M150,378 V444 M200,376 V442" stroke="url(#m4IrV)" stroke-width="2.2"/>
     ${[[100,386],[100,440],[150,384],[150,438],[200,382],[200,436]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.2" fill="#c8bca0" stroke="none"/>`).join('')}
+    <path d="M120,440 q4,10 0,20 M180,436 q-3,8 1,14" stroke="#3e4630" stroke-width="2" fill="none"/>
     <path d="M58,448 L46,382 M236,440 L246,374" stroke="#1a1511" stroke-width="7"/>
     <path d="M58,448 L46,382 M236,440 L246,374" stroke="#5a4430" stroke-width="4.4"/>
     <path d="M232,430 L320,466 M232,416 L322,452" stroke="#1a1511" stroke-width="7"/>
@@ -330,27 +440,35 @@ function m4OutBackground(){
       ${[...Array(12)].map((_,i)=>`<circle cx="${n4(44*Math.cos(i*Math.PI/6+.26))}" cy="${n4(44*Math.sin(i*Math.PI/6+.26))}" r="1" fill="#1a1511" stroke="none"/>`).join('')}
       <path d="M-36,-26 A44,44 0 0 1 -14,-42" stroke="#a88c62" stroke-width="1.4" fill="none" opacity=".6"/>
     </g>
-    <!-- 地道口：石拱券 + 拱心石 -->
-    <path d="M14,709 Q20,600 102,540 Q186,600 196,709 Z" fill="#5a5644"/>
-    <path d="M34,684 L34,606 Q38,556 102,544 Q166,556 170,606 L170,684 Z" fill="#7a7666"/>
-    ${[...Array(9)].map((_,i)=>{ const a=Math.PI*(1+i/8), x0=102+60*Math.cos(a), y0=606+58*Math.sin(a), x1=102+70*Math.cos(a), y1=606+68*Math.sin(a);
-      return `<path d="M${n4(x0)},${n4(y0)} L${n4(x1)},${n4(y1)}" stroke="#4e4a3e" stroke-width="1.2"/>`; }).join('')}
-    <path d="M94,536 L110,536 L108,552 L96,552 Z" fill="#8a8676"/>
-    <path d="${M4.tunnel}" fill="#0c0a08"/>
-    <path d="M44,620 h116 M44,646 h116" stroke="#5a5648" stroke-width="1.2"/>
-    <path d="M70,620 v26 M128,620 v26 M100,646 v30 M56,646 v30 M150,646 v30" stroke="#5a5648" stroke-width="1"/>
-    <path d="M30,690 q8,-12 4,-24 M176,690 q-6,-14 -2,-26" stroke="#4e6a3e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-    <!-- 篱笆：削尖的木桩 + 两道横杆 + 绳结 -->
-    ${[[200,560,640],[260,548,626],[320,540,618]].map(([x,t,b])=>`<path d="M${x-4},${b} V${t+6} L${x},${t-4} L${x+4},${t+6} V${b} Z" fill="url(#m4Wd)"/>`).join('')}
-    <path d="M196,580 L330,556 M196,610 L330,586" stroke="#1a1511" stroke-width="6"/>
-    <path d="M196,580 L330,556 M196,610 L330,586" stroke="#5a4430" stroke-width="3.6"/>
-    ${[[520,640],[600,628],[680,616],[760,606]].map(([x,t])=>`<path d="M${x-5},709 V${t+7} L${x},${t-5} L${x+5},${t+7} V709 Z" fill="url(#m4Wd)"/>`).join('')}
-    <path d="M520,664 L790,626 M520,690 L790,654" stroke="#1a1511" stroke-width="7"/>
-    <path d="M520,664 L790,626 M520,690 L790,654" stroke="#5a4430" stroke-width="4.4"/>
-    ${[[600,653],[680,642],[600,679],[680,668]].map(([x,y])=>`<path d="M${x-6},${y-3} l12,6 M${x-6},${y+3} l12,-6" stroke="#8a7a52" stroke-width="1.2"/>`).join('')}
+    <!-- 地道口：土坡 + 拱券 + 侧墙石 -->
+    <path d="M0,709 Q6,606 102,522 Q204,600 216,709 Z" fill="#48452f"/>
+    <path d="M10,640 q8,-14 6,-26 M40,560 q6,-10 4,-20 M190,630 q-6,-12 -3,-24 M170,566 q-4,-8 -2,-16" stroke="#3a4228" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    ${jamb}${vous}
+    <path d="${M4.tunnel}" fill="url(#m4-hole)"/>
+    <g clip-path="url(#m4-clipTunnel)" stroke="#2a2620" stroke-width="1" opacity=".7"><path d="M44,620 h116 M44,646 h116"/><path d="M70,620 v26 M128,620 v26 M100,646 v30 M56,646 v30 M150,646 v30"/></g>
+    <path d="M38,676 H166 L172,690 H32 Z" fill="#6e6a5a"/>
+    <path d="M58,560 q-2,14 2,26 M66,556 q0,10 3,18 M140,558 q2,12 -1,22 M150,566 q1,8 -2,14" stroke="#4e6236" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- 篱笆：左 -->
+    ${[[200,560,640],[260,548,626],[320,540,618]].map(([x,t,b])=>`<path d="M${x-5},${b} L${x-4},${t+4} L${x-1},${t-3} L${x+3},${t+1} L${x+5},${t+5} L${x+5},${b} Z" fill="url(#m4Wd)"/>`).join('')}
+    <path d="M196,580 Q262,574 330,556 M196,610 Q262,604 330,586" stroke="#1a1511" stroke-width="6" fill="none"/>
+    <path d="M196,580 Q262,574 330,556 M196,610 Q262,604 330,586" stroke="#5a4430" stroke-width="3.6" fill="none"/>
+    <path d="M198,578 Q262,572 328,554" stroke="#8a6c48" stroke-width=".8" fill="none" opacity=".6"/>
+    <!-- 篱笆：右（下横杆断了一截） -->
+    ${[[520,640],[600,628],[680,616],[760,606]].map(([x,t])=>`<path d="M${x-5},709 L${x-5},${t+6} L${x-1},${t-5} L${x+3},${t} L${x+5},${t+6} V709 Z" fill="url(#m4Wd)"/>`).join('')}
+    <path d="M520,664 Q656,650 790,626 M520,690 Q600,682 690,668" stroke="#1a1511" stroke-width="7" fill="none"/>
+    <path d="M520,664 Q656,650 790,626 M520,690 Q600,682 690,668" stroke="#5a4430" stroke-width="4.4" fill="none"/>
+    <path d="M522,662 Q656,648 788,624" stroke="#8a6c48" stroke-width=".9" fill="none" opacity=".6"/>
+    <path d="M690,668 l6,-2 l-3,5 Z" fill="#5a4430"/>
+    <path d="M764,656 L800,690" stroke="#1a1511" stroke-width="7"/><path d="M764,656 L800,690" stroke="#5a4430" stroke-width="4.4"/>
+    ${[[600,651],[680,640],[600,679],[680,668],[760,630]].map(([x,y])=>`<path d="M${x-6},${y-3} l12,6 M${x-6},${y+3} l12,-6" stroke="#8a7a52" stroke-width="1.2"/>`).join('')}
+    <path d="M196,640 q4,-12 2,-22 M204,642 q-2,-10 2,-18 M316,620 q4,-10 2,-18 M514,709 q2,-14 -2,-26 M528,709 q-2,-12 2,-22 M596,709 q2,-10 0,-20" stroke="#34321f" stroke-width="2" fill="none" stroke-linecap="round"/>
   </g>
-  <rect x="0" y="380" width="828" height="80" fill="url(#m4-fogband)"/>
-  <ellipse cx="420" cy="440" rx="380" ry="20" fill="#d0d3cd" opacity=".25" filter="url(#m4-blur)"/>`;
+  <!-- 贴地雾 -->
+  <g filter="url(#m4-mist)" fill="#c6c8c0">
+    <ellipse cx="180" cy="424" rx="220" ry="13" opacity=".35"/><ellipse cx="560" cy="430" rx="260" ry="11" opacity=".3"/>
+    <ellipse cx="800" cy="420" rx="120" ry="10" opacity=".3"/><ellipse cx="660" cy="470" rx="200" ry="8" opacity=".18"/>
+  </g>
+  <rect width="828" height="709" fill="#5a4a30" opacity=".08" style="mix-blend-mode:multiply"/>`;
 }
 
 /* ---------------- 磨坊内（参考图：粗木框架 / 右上大齿轮 / 料斗 / 圆形石台上的磨盘 / 右侧楼梯与拱门） ---------------- */
@@ -566,7 +684,7 @@ document.getElementById('l3').insertAdjacentHTML('afterend', `
     </defs>
     <g id="l4Dyn" pointer-events="none"></g>
     <g id="m4OutHot">
-      <polygon class="hs" data-obj="o_mill" points="278,414 278,342 326,302 326,266 416,196 468,238 468,150 497,128 528,150 528,300 516,300 516,414"/>
+      <polygon class="hs" data-obj="o_mill" points="280,412 280,350 340,314 340,276 393,204 466,216 466,166 489,124 524,172 524,240 568,294 562,410"/>
       <rect class="hs" data-obj="o_scarecrow" x="650" y="296" width="146" height="316"/>
       <rect class="hs" data-obj="o_sluice" x="628" y="236" width="52" height="66"/>
       <circle class="hs" data-obj="o_wheel" cx="${M4.wheel.x}" cy="${M4.wheel.y}" r="74"/>
