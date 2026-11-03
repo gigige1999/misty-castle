@@ -92,9 +92,9 @@ SCENES.L4 = function(){
     // 水闸
     if(S4.crank==='set') s+=`<g ${m4s}><path d="M653,250 L653,232 L676,226" stroke="#15110d" stroke-width="6.4" fill="none" stroke-linecap="round"/>
         <path d="M653,250 L653,232 L676,226" stroke="#6a645a" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M652,248 L652,234" stroke="#a8a090" stroke-width="1" opacity=".7"/>
-        <circle cx="653" cy="250" r="4.4" fill="url(#m4IrV)"/><circle cx="653" cy="250" r="1.4" fill="#15110d" stroke="none"/>
-        <rect x="671" y="218" width="10" height="14" rx="3.6" fill="url(#m4WdV)" transform="rotate(-14 676 225)"/></g>`;
-    if(S4.sluiceOpen) s+=`<g ${m4s}><rect x="642" y="236" width="22" height="20" fill="url(#m4WdV)"/><path d="M642,243 h22 M642,249.5 h22" stroke="#2a1e12" stroke-width=".8"/>
+        <circle cx="653" cy="250" r="4.4" fill="#3a3632"/><circle cx="653" cy="250" r="1.4" fill="#15110d" stroke="none"/>
+        <rect x="671" y="218" width="10" height="14" rx="3.6" fill="#5e4a32" transform="rotate(-14 676 225)"/></g>`;
+    if(S4.sluiceOpen) s+=`<g ${m4s}><rect x="642" y="236" width="22" height="20" fill="#5e4a32"/><path d="M642,243 h22 M642,249.5 h22" stroke="#2a1e12" stroke-width=".8"/>
         <path d="M642,238.6 h22 M642,253.6 h22" stroke="#2a2622" stroke-width="2.2"/><circle cx="645" cy="238.6" r=".9" fill="#a8a090" stroke="none"/><circle cx="661" cy="238.6" r=".9" fill="#a8a090" stroke="none"/></g>
         <path d="M604,296 Q594,316 572,${M4.wheel.y-M4.wheel.r+4}" stroke="#9fb6bc" stroke-width="10" fill="none" opacity=".8"/>
         <path d="M604,296 Q594,316 572,${M4.wheel.y-M4.wheel.r+4}" stroke="#e2ecec" stroke-width="2.4" fill="none" stroke-dasharray="6 6" class="m4water"/>
@@ -131,7 +131,7 @@ SCENES.L4 = function(){
         <circle cx="${X}" cy="${Y+100}" r="36" fill="none" stroke="#efe6c8" stroke-width="1.4" class="pulse"/></g>`;
     if(has('elamp') && S4.lampLit) s+=`<circle cx="696" cy="300" r="40" fill="url(#l4-lamp)"/>`;
   }
-  s+=`<rect width="828" height="709" fill="url(#l4-vig)"/>`;
+  if(!out) s+=`<rect width="828" height="709" fill="url(#l4-vig)"/>`;
   document.getElementById('l4Dyn').innerHTML = s;
   document.getElementById('m4FeatherHot').style.display = (!S4.crows && !G.feathers.L4 && out) ? '' : 'none';
   { const c=S4.chute; document.getElementById('m4PickHot').style.display = (S4.ground && !(c.deer&&c.cgear&&c.wheat)) ? '' : 'none'; }
