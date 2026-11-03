@@ -2,6 +2,7 @@
    过场动画（电影式）：参考图做底图，叠加镜头推移 / 雾 / 水流 / 麦浪 / 飞鸦 / 灯火，
    上下黑边 + 字幕 + 章节标题卡；可点「跳过」或按 Esc / 空格 / 回车跳过
    ·  L4 磨坊：第一次从地道进入磨坊时播放（参考图：磨坊外）
+   ·  L5 长廊：第一次从大厅主楼梯走上二楼时播放（参考图：肖像长廊；黑暗中淡入，不开门）
    ·  L8 鸦塔：第一次走出城堡大门、踏上吊桥时播放（参考图：雾湖外观）
    ·  接入点：goLevel(id) 开头调用 cineTo(id)；返回 true 表示过场接管了切关
    ===================================================================== */
@@ -35,6 +36,10 @@ document.head.insertAdjacentHTML('beforeend', `<style>
   .cn-door.l{left:0;transform-origin:0 50%} .cn-door.r{right:0;transform-origin:100% 50%}
   #cine.open .cn-door.l{transform:perspective(900px) rotateY(78deg) translateX(-30%)}
   #cine.open .cn-door.r{transform:perspective(900px) rotateY(-78deg) translateX(30%)}
+  .cn-cover{position:absolute;inset:0;z-index:2;background:#000;transition:opacity 3.2s ease}
+  #cine.open .cn-cover{opacity:0}
+  #cine .cn-candle{animation:cnCandle 2.6s ease-in-out infinite}
+  @keyframes cnCandle{0%,100%{opacity:.85}18%{opacity:1}32%{opacity:.7}47%{opacity:.95}63%{opacity:.78}80%{opacity:1}}
   .cn-door::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 40%,rgba(0,0,0,.35));pointer-events:none}
   .cn-door.r::after{transform:scaleX(-1)}
   .cn-sub{position:absolute;left:0;right:0;bottom:0;height:58px;z-index:4;display:flex;align-items:center;justify-content:center;
@@ -175,9 +180,40 @@ function lakeSpec(){
   };
 }
 
-const SPECS = { L4:{ when:()=>!S4.entered, make:millSpec }, L8:{ when:()=>!S8.entered, make:lakeSpec } };
+/* ---------------- 肖像长廊 ---------------- */
+function gallerySpec(){
+  seed = 47;
+  const fogA = fogTexture(150, 34, .13, '170,176,186');
+  // 月光里浮动的灰尘
+  let motes=''; for(let i=0;i<26;i++){ const t=rnd(0,1), y=rnd(250,560), x=520+(y-250)*.62+rnd(-30,70)*(.4+t);
+    motes += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(rnd(.8,2))}" fill="#dfe4ea"><animate attributeName="cy" values="${f1(y)};${f1(y-rnd(14,40))};${f1(y)}" dur="${f1(rnd(6,11))}s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;${f1(rnd(.35,.8))};0" dur="${f1(rnd(3,6))}s" begin="${f1(-rnd(0,5))}s" repeatCount="indefinite"/></circle>`; }
+  return {
+    img:'art/cutscenes/gallery.jpg', dur:16800, door:false, doorAt:2400,
+    defs:`${glow('cnMoon','#dfe6ee')}${glow('cnLamp','#ffcf7a')}
+      <linearGradient id="cnBeam" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfd8e2" stop-opacity=".34"/><stop offset=".6" stop-color="#b8c4d0" stop-opacity=".12"/><stop offset="1" stop-color="#b8c4d0" stop-opacity="0"/></linearGradient>
+      <filter id="cnSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>`,
+    over:()=>`
+      <polygon points="506,262 582,236 790,560 610,606" fill="url(#cnBeam)" filter="url(#cnSoft)" class="cn-pulse" style="mix-blend-mode:screen;animation-duration:5s"/>
+      ${motes}
+      <circle cx="541" cy="281" r="64" fill="url(#cnMoon)" opacity=".55" class="cn-pulse"/>
+      <g class="cn-candle"><circle cx="17" cy="290" r="150" fill="url(#cnLamp)" opacity=".22"/><circle cx="17" cy="284" r="34" fill="url(#cnLamp)"/></g>
+      <circle cx="757" cy="232" r="10" fill="url(#cnMoon)" class="cn-spark" style="animation-duration:3.4s;animation-delay:-1s"/>
+      ${fogLayer(fogA, 520, 150, 'cn-fogA', .7)}`,
+    cam:[[0,541,300,1.75],[.14,541,310,1.62],[.34,190,250,1.5],[.5,330,300,1.4],[.66,790,390,1.62],[.78,860,300,1.55],[1,540,358,1.02]],
+    lines:[[.3,'你踩着吱呀作响的主楼梯，走上了二楼——',true],[3.3,'长廊没有点灯。只有尽头那扇窗里，透进一点月光。'],
+      [6.4,'左墙上挂满了家族画像。画里的人，都望着长廊的尽头。'],[10,'盔甲立在拱门边，握着长矛。旁边那面暗红的旗上，是一头雄鹿。']],
+    title:[13.2,'CHAPTER  V','The Gallery','二楼 · 肖像长廊'],
+    sound(t){ const s=[ambLoop(260,.5,'lowpass',.05), drone(49,.025), ambLoop(900,6,'bandpass',.01,5)];
+      [200,780,1360,1940].forEach((ms,i)=>t(()=>{ tone(80-i*3,.22,'sine',.12,55); noise(.12,600,.05,2); if(i%2) tone(210,.5,'sawtooth',.012,150); }, ms));
+      t(()=>{ tone(110,1.4,'sawtooth',.012,80); }, 11200);
+      return ()=>s.forEach(f=>f()); }
+  };
+}
+
+const SPECS = { L4:{ when:()=>!S4.entered, make:millSpec }, L5:{ when:()=>!S5.entered, make:gallerySpec }, L8:{ when:()=>!S8.entered, make:lakeSpec } };
 // 预加载底图
-Object.values({a:'art/cutscenes/mill-outside.jpg', b:'art/cutscenes/lake-outside.jpg'}).forEach(src=>{ const i = new Image(); i.src = src; });
+['art/cutscenes/mill-outside.jpg','art/cutscenes/lake-outside.jpg','art/cutscenes/gallery.jpg'].forEach(src=>{ const i = new Image(); i.src = src; });
 
 /* ---------------- 播放 ---------------- */
 function play(spec, onBlack, onEnd){
@@ -193,7 +229,7 @@ function play(spec, onBlack, onEnd){
       <g class="cn-cam" style="transform:${camT(spec.cam[0][1],spec.cam[0][2],spec.cam[0][3])}">
         <image href="${spec.img}" width="${W}" height="${H}" preserveAspectRatio="none"/>${spec.over(spec.img)}</g></svg>
     <div class="cn-shade"></div>
-    <div class="cn-door l" style="${doorBg(spec.doorColor)}"></div><div class="cn-door r" style="${doorBg(spec.doorColor)}"></div>
+    ${spec.door===false ? `<div class="cn-cover"></div>` : `<div class="cn-door l" style="${doorBg(spec.doorColor)}"></div><div class="cn-door r" style="${doorBg(spec.doorColor)}"></div>`}
     <div class="cn-bar t"></div><div class="cn-bar b"></div>
     <div class="cn-sub"></div>
     <div class="cn-title"><small>${spec.title[1]}</small><h2>${spec.title[2]}</h2><i></i><p>${spec.title[3]}</p></div>
@@ -206,7 +242,7 @@ function play(spec, onBlack, onEnd){
   const camAnim = cam.animate(spec.cam.map(([o,x,y,s])=>({offset:o, transform:camT(x,y,s), easing:'cubic-bezier(.45,.05,.4,1)'})),
     {duration: spec.dur - spec.doorAt, delay: spec.doorAt, fill:'both'});
   // 开门
-  t(()=>{ el.classList.add('open'); doorSfx(spec.wood); }, spec.doorAt - 400);
+  t(()=>{ el.classList.add('open'); if(spec.door!==false) doorSfx(spec.wood); }, spec.doorAt - 400);
   t(()=>el.classList.add('bars'), spec.doorAt + 600);
   // 字幕
   spec.lines.forEach(([s, text, dark], i)=>{
